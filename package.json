@@ -1,0 +1,30 @@
+{
+  "name": "somtoday-mod-ce",
+  "version": "5.5.0",
+  "description": "Somtoday Mod (Community Edition) - Customise Somtoday with themes, grades overview, and extra features.",
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bjarnos/Somtoday-Mod-CE.git"
+  },
+  "keywords": [
+    "somtoday",
+    "extension",
+    "userscript",
+    "theme",
+    "community-edition"
+  ],
+  "author": "Bjarnos, Jona Zwetsloot & Community",
+  "license": "CC-BY-NC-SA-4.0",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Bjarnos/Somtoday-Mod-CE/issues"
+  },
+  "homepage": "https://github.com/Bjarnos/Somtoday-Mod-CE#readme",
+  "devDependencies": {
+    "archiver": "^8.0.0",
+    "esbuild": "^0.28.2"
+  }
+}
