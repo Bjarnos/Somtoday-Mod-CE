@@ -1,4 +1,4 @@
-name: Build Packages
+name: Build & Release
 
 on:
   push:
@@ -6,7 +6,18 @@ on:
     tags: [ "v*" ]
   pull_request:
     branches: [ "main" ]
+  release:
+    types: [ published ]
   workflow_dispatch:
+    inputs:
+      create_release:
+        description: "Maak direct een GitHub Release aan"
+        type: boolean
+        default: false
+      release_tag:
+        description: "Release tag (bijv. v5.5.0) - alleen nodig als je handmatig een release triggert"
+        type: string
+        default: ""
 
 jobs:
   build:
@@ -32,22 +43,38 @@ jobs:
       - name: Run build script
         run: npm run build
 
-      - name: Upload build artifacts
+      - name: Upload Chromium Extension
         uses: actions/upload-artifact@v4
         with:
-          name: Somtoday-Mod-CE-Build
-          path: |
-            dist/chromium.zip
-            dist/firefox.zip
-            dist/SomtodayMod.user.js
-            dist/SomtodayMod.min.user.js
-          if-no-files-found: error
-          retention-days: 30
+          name: SomtodayMod-Chromium
+          path: dist/chromium.zip
 
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Upload Firefox Extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: SomtodayMod-Firefox
+          path: dist/firefox.zip
+
+      - name: Upload Userscript
+        uses: actions/upload-artifact@v4
+        with:
+          name: SomtodayMod-Userscript
+          path: dist/SomtodayMod.user.js
+
+      - name: Upload Minified Userscript
+        uses: actions/upload-artifact@v4
+        with:
+          name: SomtodayMod-Userscript-Minified
+          path: dist/SomtodayMod.min.user.js
+
+      - name: Publish to GitHub Release
+        if: |
+          startsWith(github.ref, 'refs/tags/') ||
+          github.event_name == 'release' ||
+          (github.event_name == 'workflow_dispatch' && inputs.create_release == true)
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.release.tag_name || inputs.release_tag || github.ref_name }}
           generate_release_notes: true
           files: |
             dist/chromium.zip
