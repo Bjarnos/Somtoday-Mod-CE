@@ -1,13 +1,17 @@
 # Contributing
+Thank you for considering contributing to this project! Only pull requests with fully completed features will be merged. I might request you to modify parts of the code in your pull request.
 
-As of September 2026, Somtoday Mod does not accept new Pull Requests. The reason being that I, as the maintainer, do not have access to Somtoday anymore, and do not wish the Somtoday Mod codebase upon anyone else. I started this in 2021 as just a small personal userscript. As it was one of my first projects for learning how to code, it's an absolute mess. I'm sorry.
+<br>
 
-
-**For those who wish to fork Somtoday Mod:**
-- ***You'll probably want to install the browser extension locally**. Either the Chromium or Firefox version.*
+**Before you start, here's a few tips:**
+- *If you want to contribute to Somtoday Mod, **you'll need to install the browser extension locally**. Either the Chromium or Firefox version.*
   - To do this, follow the steps described in README.md
-- ***There's multiple versions of the same code in this repo**. Each version has it's own folder.*
-  - I'd recommend to only update/change the version you're using yourself, no need to do the extra work of copying everything
-  - However, if you have a PHP server with Composer, you can run `generate.php` to update the contents in the other folders 
+- *Only modify one version of the code*
+  - So if you're using Firefox, do not modify the Chromium version, and vice-versa
+  - The other versions are automatically generated when I run the generation process
 - *Do not touch the `// [GENERATION]` comments*
-  - These are used by `generate.php` to generate the Android and userscript versions
+  - These are needed for the automatic code generation for the Android and userscript versions
+- *Try to keep the file structure roughly the same*
+  - It's not bad if you add files, but reorganizing the whole project is just a pain, since the generation process depends on the current structure
+- *Always review AI content*
+  - Yes, AI is very good at writing code. However, do not just create a pull request with fully AI generated content. Always review what the AI did, and if it's logical.

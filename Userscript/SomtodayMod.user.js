@@ -19,7 +19,7 @@
 
 // NOTICE: THIS FILE IS GENERATED. Any changes you make will be overwritten when you update the userscript.
 // If you want to contribute, download the browser extension as .zip from the following Github repository.
-// https://github.com/Jona-Zwetsloot/Somtoday-Mod
+// https://github.com/Bjarnos/Somtoday-Mod-CE
 
 
 
@@ -1579,7 +1579,7 @@ function onload() {
                                         isOnSamePosition = false;
                                     }
                                     else {
-                                        // If there is "fake" Somtoday Mod homework, we also check 
+                                        // If there is "fake" Somtoday Mod homework, we also check
                                         let loopBreak = 0;
                                         while (loopBreak < 100 && !nextElement.classList.contains('mod-add-homework')) {
                                             if (nextElement.classList.contains('mod-huiswerk')) {
@@ -2327,7 +2327,7 @@ function onload() {
             .datum-container {
                 position: inherit !important;
             }
-                
+
             ${(get('layout') == 1 || get('layout') == 4) ? `
 
             /* The main menu visible on big screens */
@@ -2406,7 +2406,7 @@ function onload() {
                 sl-header .title {
                     opacity: 0;
                 }
-                    
+
                 ${(get('layout') == 1 || get('layout') == 5) ? `
                 .headers-container {
                     margin-top: calc(-1 * var(--mod-menu-height)) !important;
@@ -2456,7 +2456,7 @@ function onload() {
                 }
                 ` : ''}
             }
-            
+
             </style>`);
 
             /*if (get('layout') == 1 || get('layout') == 4) {
@@ -3891,7 +3891,7 @@ function onload() {
                             flex-grow: 1;
                             min-width: 0;
                         ">
-                            <h3 style="        
+                            <h3 style="
                                 color: ${subjectColor};
                                 font-size: 42px;
                                 overflow: hidden;
@@ -3930,7 +3930,7 @@ function onload() {
                         gap: 22px;
                         corner-shape: squircle;
                     ">
-                        <h3 style="        
+                        <h3 style="
                             color: ${subjectColor};
                             font-size: 42px;
                             font-family: ${font};
@@ -7683,21 +7683,21 @@ async function startTheDungeon() {
             </div>
         `;
         document.body.appendChild(overlay);
-        
+
         const codeCoins = parseInt(n(get('platformer-code-coins')) ? '0' : get('platformer-code-coins'));
         if (codeCoins > 0) {
             document.getElementById('mod-codes-history').style.display = 'block';
             document.getElementById('mod-codes-history-val').textContent = codeCoins;
         }
-        
+
         const closeOverlay = () => {
             overlay.remove();
             updateMenuCoins();
         };
-        
+
         document.getElementById('mod-codes-close').addEventListener('click', closeOverlay);
         overlay.addEventListener('click', e => { if (e.target === overlay) closeOverlay(); });
-        
+
         document.getElementById('mod-codes-submit').addEventListener('click', async () => {
             const input = document.getElementById('mod-codes-input');
             const status = document.getElementById('mod-codes-status');
@@ -7752,7 +7752,7 @@ async function startTheDungeon() {
                 status.textContent = 'Geen verbinding met server, probeer het later opnieuw';
             }
         });
-        
+
         document.getElementById('mod-codes-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 document.getElementById('mod-codes-submit').click();
@@ -8536,7 +8536,7 @@ async function startTheDungeon() {
         const dy = circleY - closestY;
         return (dx * dx + dy * dy) < (radius * radius);
     }
- 
+
     function circleCircleHit(x1, y1, r1, x2, y2, r2) {
         const dx = x1 - x2;
         const dy = y1 - y2;
@@ -8624,13 +8624,13 @@ async function startTheDungeon() {
         gameAlive = false;
         timing = false;
         stopMusic();
-        
+
         for (const pool of Object.values(sfxPool)) {
             for (const audio of pool) {
                 try { audio.pause(); audio.currentTime = 0; } catch(e) {}
             }
         }
-        
+
         tn('body', 0).classList.remove('mod-game-playing');
 
         document.getElementById('mod-game').style.display = 'none';
@@ -8647,13 +8647,13 @@ async function startTheDungeon() {
         gameAlive = false;
         timing = false;
         stopMusic();
-        
+
         for (const pool of Object.values(sfxPool)) {
             for (const audio of pool) {
                 try { audio.pause(); audio.currentTime = 0; } catch(e) {}
             }
         }
-        
+
         tn('body', 0).classList.remove('mod-game-playing');
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -8669,7 +8669,7 @@ async function startTheDungeon() {
     function updateCam() {
         let tx = px + PW / 2 - canvas.width / 2;
         let ty = lvl.worldHeight - (py + PH / 2) - canvas.height / 2;
- 
+
         for (const cam of lvl.cameras) {
             if (!cam.areaId) continue;
             const area = lvl.areas.find(a => a.areaId === cam.areaId);
@@ -8680,7 +8680,7 @@ async function startTheDungeon() {
             if (cam.lockX && cam.targetCamX !== null) tx = cam.targetCamX - canvas.width / 2;
             if (cam.lockY && cam.targetCamY !== null) ty = lvl.worldHeight - cam.targetCamY - canvas.height / 2;
         }
- 
+
         if (snapCam) {
             camX = tx;
             camY = ty;
@@ -8693,7 +8693,7 @@ async function startTheDungeon() {
         camX = Math.max(0, Math.min(camX, lvl.worldWidth - canvas.width));
         camY = Math.max(0, Math.min(camY, lvl.worldHeight - canvas.height));
     }
- 
+
 
     function wx(x) { return x - camX; }
     function wy(y, h) { return lvl.worldHeight - y - h - camY; }
@@ -9016,16 +9016,16 @@ async function startTheDungeon() {
         const jumpHeld = mJump || KEY['ArrowUp'] || KEY['KeyW'] || KEY['Space'];
         if (!jumpHeld) jumpQ = false;
         const wantJump = jumpQ || (jumpHeld && onGround);
- 
+
         const PLAYER_INNER_SIZE = 12;
         const playerInnerX = px + (PW - PLAYER_INNER_SIZE) / 2;
         const playerInnerY = py + (PH - PLAYER_INNER_SIZE) / 2;
- 
+
         for (const orb of lvl.orbs) {
             if (orb.ghost) continue;
-            
+
             const touchingOrbInner = circleRectHit(orb.x, orb.y, orb.r, playerInnerX, playerInnerY, PLAYER_INNER_SIZE, PLAYER_INNER_SIZE);
-            
+
             if (touchingOrbInner && jumpHeld && orb.actTimer <= 0) {
                 vy = orb.strength * 370;
                 onGround = false;
@@ -9036,14 +9036,14 @@ async function startTheDungeon() {
                 break;
             }
         }
- 
+
         if (wantJump && onGround) {
             vy = JUMP_V;
             onGround = false;
             jumpAnim = 0.3;
             jumpQ = false;
         }
- 
+
         if (!jumpHeld) {
             for (const orb of lvl.orbs) {
                 if (orb.ghost) continue;
@@ -9924,7 +9924,7 @@ async function startTheDungeon() {
         ctx.fill();
         ctx.restore();
     }
-    
+
     function drawText(t) {
         if (!t.segments || t.segments.length === 0) return;
         ctx.save();
@@ -10165,7 +10165,7 @@ async function startTheDungeon() {
 
         ctx.strokeStyle = 'rgba(0,255,0,0.9)';
         ctx.strokeRect(wx(px), wy(py, PH), PW, PH);
- 
+
         const PLAYER_INNER_SIZE = 12;
         const innerX = wx(px) + (PW - PLAYER_INNER_SIZE) / 2;
         const innerY = wy(py, PH) + (PH - PLAYER_INNER_SIZE) / 2;

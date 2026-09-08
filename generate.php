@@ -185,7 +185,7 @@ class Generate
 
 // NOTICE: THIS FILE IS GENERATED. Any changes you make will be overwritten when you update the userscript.
 // If you want to contribute, download the browser extension as .zip from the following Github repository.
-// https://github.com/Jona-Zwetsloot/Somtoday-Mod
+// https://github.com/Bjarnos/Somtoday-Mod-CE
 
 
 
@@ -718,7 +718,7 @@ class MainActivity : ComponentActivity() {
         file_put_contents($target . '/manifest.json', $manifest);
 
 
-        // Add theme communication with Kotlin in order to show the correct skeleton while loading 
+        // Add theme communication with Kotlin in order to show the correct skeleton while loading
         $main_js = file_get_contents($target . '/scripts/main_functions.js');
         $main_js = str_replace("// [GENERATION] GECKOVIEW_SAVE_THEME", "browser.runtime.sendNativeMessage('somtodaymod', { type: 'SAVE_THEME', theme: theme });", $main_js);
         file_put_contents($target . '/scripts/main_functions.js', $main_js);
