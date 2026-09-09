@@ -51,7 +51,7 @@
     --bg-primary-weakest: #1f1f1f !important;
     --fg-on-primary-weakest: #6e6e6e;
     --fg-on-positive-weakest: #4bf196;
-    
+
     --bg-alternative-weakest: #45277c;
 
     --bg-primary-normal: #575757;
@@ -151,7 +151,6 @@
     background-color: #666666;
 }
 
-
 :root.night .afgevinkt {
     background-color: transparent !important;
 }
@@ -179,7 +178,7 @@
     border: 1px solid;
 }
 
-[color=negative] {
+[color="negative"] {
     --text-color: var(--fg-on-negative-weakest) !important;
     --background-color: var(--bg-negative-weakest) !important;
     --text-color-darker: var(--fg-on-negative-normal) !important;
@@ -188,7 +187,7 @@
     --border-color: var(--border-negative-strong) !important;
 }
 
-[color=warning] {
+[color="warning"] {
     --text-color: var(--fg-on-warning-weakest) !important;
     --background-color: var(--bg-warning-weakest) !important;
     --text-color-darker: var(--fg-on-warning-normal) !important;

@@ -59,7 +59,7 @@ sl-studiewijzer-items.mod-added {
 .mod-huiswerk.mod-huiswerk-done p {
     text-decoration: line-through;
     color: var(--fg-on-positive-weak);
-    opacity: .6;
+    opacity: 0.6;
 }
 
 .mod-huiswerk div {
@@ -156,7 +156,7 @@ sl-studiewijzer-items.mod-added {
     padding: 2px 3px;
 }
 
-.mod-huiswerk>svg,
+.mod-huiswerk > svg,
 .mod-add-homework svg {
     height: 16px;
     position: absolute;
@@ -183,9 +183,10 @@ sl-studiewijzer-items.mod-added {
     border-radius: 50%;
     overflow: visible;
     cursor: pointer;
-    transition: background .3s ease;
+    transition: background 0.3s ease;
 }
 
-.mod-homework-icon.mod-active, .mod-homework-icon:hover {
+.mod-homework-icon.mod-active,
+.mod-homework-icon:hover {
     background: var(--bg-elevated-strong);
 }

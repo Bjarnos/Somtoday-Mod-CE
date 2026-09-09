@@ -32,21 +32,12 @@
                 "css\/legacy-platformer.css",
                 "css\/easter-eggs.css"
             ],
-            "matches": [
-                "*:\/\/*.somtoday.nl\/*",
-                "*:\/\/som.today\/*"
-            ],
+            "matches": ["*:\/\/*.somtoday.nl\/*", "*:\/\/som.today\/*"],
             "run_at": "document_end"
         }
     ],
-    "permissions": [
-        "storage",
-        "unlimitedStorage"
-    ],
-    "host_permissions": [
-        "*:\/\/*.somtoday.nl\/*",
-        "*:\/\/som.today\/*"
-    ],
+    "permissions": ["storage", "unlimitedStorage"],
+    "host_permissions": ["*:\/\/*.somtoday.nl\/*", "*:\/\/som.today\/*"],
     "options_ui": {
         "page": "options.html",
         "open_in_tab": false
@@ -64,15 +55,11 @@
                 "fonts\/*",
                 "data\/*"
             ],
-            "matches": [
-                "*:\/\/*.somtoday.nl\/*"
-            ]
+            "matches": ["*:\/\/*.somtoday.nl\/*"]
         }
     ],
     "background": {
-        "scripts": [
-            "sw.js"
-        ],
+        "scripts": ["sw.js"],
         "type": "module"
     },
     "browser_specific_settings": {

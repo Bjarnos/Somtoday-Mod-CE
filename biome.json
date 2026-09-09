@@ -1,0 +1,71 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.5.12/schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    },
+    "files": {
+        "includes": [
+            "**",
+            "!!**/dist",
+            "!!**/node_modules",
+            "!!src/scripts/chart.js",
+            "!!src/images",
+            "!!src/fonts",
+            "!!src/sounds",
+            "!!src/data"
+        ]
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "preset": "recommended",
+            "a11y": {
+                "recommended": false
+            },
+            "complexity": {
+                "noImportantStyles": "off",
+                "noCommaOperator": "off",
+                "useOptionalChain": "off"
+            },
+            "suspicious": {
+                "noDoubleEquals": "off",
+                "noAssignInExpressions": "off",
+                "noGlobalIsNan": "off",
+                "useIterableCallbackReturn": "off",
+                "noRedeclare": "off",
+                "noFallthroughSwitchClause": "off"
+            },
+            "correctness": {
+                "noUnusedVariables": "off",
+                "noUnusedFunctionParameters": "off",
+                "noInnerDeclarations": "off",
+                "noConstantCondition": "off",
+                "noSwitchDeclarations": "off"
+            },
+            "style": {
+                "useTemplate": "off",
+                "noDescendingSpecificity": "off"
+            }
+        }
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "double"
+        }
+    },
+    "assist": {
+        "enabled": true,
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
+    }
+}

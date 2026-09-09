@@ -1,7 +1,11 @@
 #somtoday-recap {
     cursor: pointer;
     overflow: hidden;
-    background: linear-gradient(145deg, var(--blue-40) 0%, var(--blue-100) 100%);
+    background: linear-gradient(
+        145deg,
+        var(--blue-40) 0%,
+        var(--blue-100) 100%
+    );
     color: #fff;
     background-size: 200% 200%;
     padding: 15px 20px;
@@ -82,7 +86,11 @@
     position: fixed;
     top: 0;
     left: 0;
-    background: linear-gradient(145deg, var(--blue-40) 0%, var(--blue-100) 100%);
+    background: linear-gradient(
+        145deg,
+        var(--blue-40) 0%,
+        var(--blue-100) 100%
+    );
     z-index: 1000;
     animation: recapstart 0.5s ease;
     display: flex;
@@ -232,7 +240,7 @@
     }
 
     100% {
-        width: calc(12.5% - 20px)
+        width: calc(12.5% - 20px);
     }
 }
 
@@ -271,7 +279,7 @@
     z-index: 1000;
 }
 
-.mod-item>svg {
+.mod-item > svg {
     float: right;
     cursor: ns-resize;
     margin-top: 3px;
@@ -303,7 +311,7 @@
     max-width: calc(100vw - 100px);
 }
 
-@media (max-width:767px) {
+@media (max-width: 767px) {
     #somtoday-recap-wrapper label p {
         text-align: left;
         margin-left: 20px;

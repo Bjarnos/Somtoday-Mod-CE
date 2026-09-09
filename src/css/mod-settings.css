@@ -30,7 +30,7 @@ a:hover .mod-save-shake {
     }
 
     50% {
-        transform: rotate(0eg);
+        transform: rotate(0deg);
     }
 
     75% {
@@ -49,7 +49,7 @@ a:hover .mod-bug-scale {
 @keyframes bugscale {
     0% {
         opacity: 0;
-        transform: scale(.3);
+        transform: scale(0.3);
     }
 
     50% {
@@ -58,7 +58,7 @@ a:hover .mod-bug-scale {
     }
 
     70% {
-        transform: scale(.9);
+        transform: scale(0.9);
     }
 
     100% {
@@ -71,7 +71,6 @@ a:hover .mod-info-wobble {
 }
 
 @keyframes infowobble {
-
     from,
     to {
         transform: scale(1, 1);
@@ -89,7 +88,6 @@ a:hover .mod-info-wobble {
         transform: scale(0.9, 1.1);
     }
 }
-
 
 a:hover .mod-reset-rotate {
     animation: 0.8s resetrotate 0.2s ease;
@@ -210,7 +208,7 @@ input[type="range"]:focus::-moz-range-thumb {
     position: absolute;
     right: 0;
     top: 1px;
-    transition: background .2s;
+    transition: background 0.2s;
 }
 
 .slider:before {
@@ -220,15 +218,15 @@ input[type="range"]:focus::-moz-range-thumb {
     height: 17px;
     left: 4px;
     position: absolute;
-    transition: .2s;
+    transition: 0.2s;
     width: 17px;
 }
 
-input:checked+.slider {
+input:checked + .slider {
     background-color: var(--bg-primary-strong);
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
     transform: translateX(26px);
 }
 
@@ -313,7 +311,6 @@ textarea.mod-custom-setting {
     width: calc(100% + 2px);
     right: 0;
     z-index: 99;
-    border-radius: 8px;
     overflow: hidden;
     overflow-y: auto;
     border-radius: 6px;
@@ -359,7 +356,9 @@ textarea.mod-custom-setting {
     color: var(--text-inverted);
     outline: none;
     cursor: pointer;
-    transition: background 0.2s ease, border 0.2s ease;
+    transition:
+        background 0.2s ease,
+        border 0.2s ease;
 }
 
 #mod-message .mod-message-button:hover {
@@ -398,12 +397,12 @@ textarea.mod-custom-setting {
     margin-bottom: 20px;
 }
 
-#mod-message>center {
+#mod-message > center {
     position: absolute;
     width: 100%;
 }
 
-#mod-message.mod-animation-playing>center {
+#mod-message.mod-animation-playing > center {
     opacity: 0;
     transform: translateY(-300px);
     animation: 0.4s modmessageslidein ease 0.15s forwards;
@@ -425,7 +424,7 @@ textarea.mod-custom-setting {
     }
 }
 
-#mod-message>center>div {
+#mod-message > center > div {
     background: var(--bg-elevated-none);
     box-shadow: 0 0 50px var(--bg-elevated-weak);
     width: 500px;
@@ -502,7 +501,6 @@ textarea.mod-custom-setting {
 .mod-setting-button {
     padding: 10px 12px;
     background: var(--bg-elevated-weakest);
-    border-radius: 8px;
     display: inline-block;
     transition: background 0.3s ease !important;
     cursor: pointer;
@@ -531,8 +529,8 @@ textarea.mod-custom-setting {
 }
 
 #mod-games button {
-	padding: 8px 13px;
-	font-size: 0.8em;
+    padding: 8px 13px;
+    font-size: 0.8em;
 }
 
 .mod-credits-gh-pills {
@@ -553,7 +551,12 @@ textarea.mod-custom-setting {
     color: var(--text-moderate);
     font-size: 14px;
     font-weight: 600;
-    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s;
+    transition:
+        background 0.15s,
+        border-color 0.15s,
+        color 0.15s,
+        transform 0.1s,
+        box-shadow 0.15s;
 }
 
 .mod-credits-gh-pill:hover,
@@ -589,7 +592,7 @@ textarea.mod-custom-setting {
     height: 100%;
     padding: 58px 15px;
     box-sizing: border-box;
-    transition: padding .3s ease;
+    transition: padding 0.3s ease;
 }
 
 #mod-background-wrapper:not(.loading) label:hover svg {
@@ -605,7 +608,7 @@ textarea.mod-custom-setting {
     border: 1px solid var(--mod-border-neutral-normal);
     border-radius: 8px;
     object-fit: cover;
-    transition: background .3s ease;
+    transition: background 0.3s ease;
 }
 
 #mod-background-wrapper:not(.loading) img:hover {
@@ -713,13 +716,15 @@ textarea.mod-custom-setting {
     margin-left: 10px;
     margin-bottom: 50px !important;
     width: 180px;
-    aspect-ratio: 18/13;
+    aspect-ratio: 18 / 13;
     background: var(--bg-elevated-none);
     outline: 1px solid var(--bg-elevated-strong);
     border-radius: 16px;
     position: relative;
     cursor: pointer;
-    transition: background 0.3s ease, outline-color 0.3s ease !important;
+    transition:
+        background 0.3s ease,
+        outline-color 0.3s ease !important;
 }
 
 .layout-container h3 {
@@ -739,7 +744,7 @@ textarea.mod-custom-setting {
     background: var(--bg-primary-weak);
     border-radius: 10px;
     position: absolute;
-    transition: background .3s ease;
+    transition: background 0.3s ease;
 }
 
 .example-box-wrapper {
@@ -752,7 +757,7 @@ textarea.mod-custom-setting {
     margin-top: 15px;
 }
 
-.example-box-wrapper>div {
+.example-box-wrapper > div {
     transform-origin: top left;
 }
 
@@ -775,7 +780,7 @@ textarea.mod-custom-setting {
     background: var(--bg-elevated-none);
     border: 1px solid var(--mod-border-neutral-normal);
     border-radius: 16px;
-    transition: .2s background ease !important;
+    transition: 0.2s background ease !important;
 }
 
 .theme:hover {
@@ -788,14 +793,14 @@ textarea.mod-custom-setting {
     color: var(--text-inverted);
 }
 
-.theme>img,
-.theme>span {
+.theme > img,
+.theme > span {
     display: block;
     width: 100%;
     height: 175px;
     object-fit: cover;
     background: var(--bg-elevated-none);
-    margin-bottom: -5px
+    margin-bottom: -5px;
 }
 
 .theme h3 {
@@ -857,7 +862,7 @@ textarea.mod-custom-setting {
     margin-top: 11px;
 }
 
-#mod-setting-panel>div>p:first-of-type {
+#mod-setting-panel > div > p:first-of-type {
     margin-right: 15px;
 }
 
@@ -875,7 +880,7 @@ textarea.mod-custom-setting {
     color: var(--fg-on-primary-weak) !important;
     background: var(--bg-elevated-none);
     font-weight: normal;
-    transition: background .2s ease !important;
+    transition: background 0.2s ease !important;
 }
 
 .mod-file-label.mod-drag-and-drop {
@@ -938,29 +943,29 @@ input[type="color"] {
     box-shadow: none !important;
 }
 
-#mod-setting-panel>div>div>p {
+#mod-setting-panel > div > div > p {
     display: inline-block;
     max-width: calc(100% - 70px);
 }
 
-#nickname-wrapper>div,
-#username-wrapper>div {
+#nickname-wrapper > div,
+#username-wrapper > div {
     display: flex;
     margin-bottom: 10px;
     gap: 2px 8px;
 }
 
-#nickname-wrapper>div input,
-#username-wrapper>div input {
+#nickname-wrapper > div input,
+#username-wrapper > div input {
     flex-grow: 1;
 }
 
-#nickname-wrapper>div>input:first-of-type,
-#username-wrapper>div>input:first-of-type {
+#nickname-wrapper > div > input:first-of-type,
+#username-wrapper > div > input:first-of-type {
     width: 42%;
 }
 
-#nickname-wrapper>div>input:nth-child(2) {
+#nickname-wrapper > div > input:nth-child(2) {
     width: 24%;
 }
 
@@ -976,7 +981,7 @@ input[type="color"] {
     z-index: 100;
 }
 
-@media (max-width:550px) {
+@media (max-width: 550px) {
     .mod-slider {
         width: 100%;
     }
@@ -1029,13 +1034,13 @@ input[type="color"] {
     margin-bottom: 20px;
 }
 
-@media (max-width:1300px) {
+@media (max-width: 1300px) {
     .theme {
         flex-basis: 130px;
     }
 }
 
-@media (max-width:1000px) {
+@media (max-width: 1000px) {
     .theme {
         width: 80px;
     }
@@ -1045,8 +1050,7 @@ input[type="color"] {
     }
 }
 
-@media (max-width:475px) {
-
+@media (max-width: 475px) {
     #mod-background-wrapper label,
     #mod-background-wrapper img {
         flex-grow: 1;

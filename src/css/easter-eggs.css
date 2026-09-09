@@ -23,7 +23,9 @@
     width: 50px;
     right: 5px;
     top: 65px;
-    transition: transform 0.3s, opacity 0.3s;
+    transition:
+        transform 0.3s,
+        opacity 0.3s;
 }
 
 #mod-logo-decoration.mod-logo-decoration-clicked {
@@ -42,7 +44,10 @@
     left: -6px;
     top: -9px;
     transform: rotate(-20deg);
-    transition: transform 0.3s, left 0.3s, opacity 0.3s;
+    transition:
+        transform 0.3s,
+        left 0.3s,
+        opacity 0.3s;
 }
 
 #mod-logo-hat:hover {
@@ -78,7 +83,7 @@ body.easter-egg-shaking .background.ng-trigger {
     pointer-events: none !important;
 }
 
-@media(max-width:1279px) {
+@media (max-width: 1279px) {
     #mod-logo-hat {
         left: -15px;
     }
@@ -90,7 +95,7 @@ body.easter-egg-shaking .background.ng-trigger {
 
 #somtoday-mod-version-easter-egg:active {
     border: 2px solid var(--bg-primary-normal);
-    border-radius: 6px
+    border-radius: 6px;
 }
 
 .mod-easter-egg-logo {
@@ -149,7 +154,6 @@ body.rainbow #mod-background-live {
 }
 
 @keyframes rainbow {
-
     100%,
     0% {
         background-color: rgb(255, 0, 0);

@@ -1,13 +1,10 @@
-name: Build & Release
+name: Release
 
 on:
-  push:
-    branches: [ "main" ]
-    tags: [ "v*" ]
-  pull_request:
-    branches: [ "main" ]
   release:
     types: [ published ]
+  push:
+    tags: [ "v*" ]
   workflow_dispatch:
     inputs:
       create_release:
@@ -15,7 +12,7 @@ on:
         type: boolean
         default: false
       release_tag:
-        description: "Release tag (e.g.. v5.5.0) - only needed if you trigger a release manually"
+        description: "Release tag (e.g. v5.5.0) - only needed if you trigger a release manually"
         type: string
         default: ""
 

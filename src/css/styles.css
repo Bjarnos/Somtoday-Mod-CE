@@ -32,7 +32,7 @@ sl-scrollable-title {
 
 hmy-switch-group:has(hmy-switch),
 sl-bericht-detail .header,
-sl-bericht-nieuw>.titel {
+sl-bericht-nieuw > .titel {
     position: relative;
 }
 
@@ -42,7 +42,7 @@ sl-bericht-nieuw .nieuw-bericht-form sl-bericht-ontvanger-selectie {
     background: none;
 }
 
-sl-rooster-tijden>div:first-of-type span {
+sl-rooster-tijden > div:first-of-type span {
     padding-top: 10px;
 }
 
@@ -50,7 +50,7 @@ sl-rooster-tijden>div:first-of-type span {
     text-wrap: nowrap;
 }
 
-sl-modal>div:has(sl-account-modal) {
+sl-modal > div:has(sl-account-modal) {
     max-width: 2048px !important;
     height: 92% !important;
     max-height: 92% !important;
@@ -60,7 +60,7 @@ sl-modal>div:has(sl-account-modal) {
     max-height: 368px !important;
 }
 
-@media (min-width:1280px) {
+@media (min-width: 1280px) {
     sl-tab-bar {
         background: none !important;
     }
@@ -113,7 +113,7 @@ sl-account-modal .content,
     display: inline-block;
     cursor: pointer;
     user-select: none;
-    transition: background .2s ease;
+    transition: background 0.2s ease;
 }
 
 .mod-multi-choice span:hover {
@@ -124,8 +124,7 @@ sl-account-modal .content,
     background: var(--bg-elevated-weak);
 }
 
-@media (max-width:48em) {
-
+@media (max-width: 48em) {
     #mod-grade-calculate,
     #mod-grades-graphs {
         padding: 0 20px;
@@ -142,19 +141,19 @@ sl-studiewijzer-filter-button:not(:hover) {
     background: var(--bg-neutral-none) !important;
 }
 
-#mod-grades-graphs>div {
+#mod-grades-graphs > div {
     margin-bottom: 50px;
     width: 100%;
     position: relative;
 }
 
-#mod-grades-graphs>div>canvas {
+#mod-grades-graphs > div > canvas {
     position: relative;
     width: 100%;
     height: 100%;
 }
 
-#mod-grades-graphs>h3 {
+#mod-grades-graphs > h3 {
     margin-top: 40px;
     margin-bottom: 10px;
     color: var(--text-strong);
@@ -173,7 +172,7 @@ sl-studiewijzer-filter-button:not(:hover) {
     background: #06f2;
 }
 
-.mod-info-notice>svg {
+.mod-info-notice > svg {
     height: 20px;
     position: absolute;
     top: 50%;
@@ -202,14 +201,14 @@ sl-studiewijzer-filter-button:not(:hover) {
     width: 115px;
 }
 
-#mod-grade-calculate input[type=submit] {
+#mod-grade-calculate input[type="submit"] {
     background: var(--action-primary-normal);
     color: var(--text-inverted);
     transition: background 0.3s ease !important;
     cursor: pointer;
 }
 
-#mod-grade-calculate input[type=submit]:hover {
+#mod-grade-calculate input[type="submit"]:hover {
     background: var(--action-primary-strong);
 }
 
@@ -245,8 +244,7 @@ sl-rooster-week-header .mod-add-homework {
     display: none !important;
 }
 
-@media (max-width:767px) {
-
+@media (max-width: 767px) {
     .mod-huiswerk strong,
     .mod-huiswerk p {
         width: calc(100% - 65px) !important;
@@ -275,7 +273,7 @@ sl-rooster-week-header .mod-add-homework {
         background: transparent !important;
     }
 
-    #mod-message>center>div {
+    #mod-message > center > div {
         padding: 20px !important;
     }
 
@@ -305,7 +303,7 @@ sl-rooster-week-header .mod-add-homework {
         margin-bottom: 0 !important;
     }
 
-    sl-cijfers>.container {
+    sl-cijfers > .container {
         padding-bottom: 0 !important;
     }
 
@@ -314,22 +312,21 @@ sl-rooster-week-header .mod-add-homework {
     }
 }
 
-@media (min-width:1120px) and (min-height:550px) {
+@media (min-width: 1120px) and (min-height: 550px) {
     #mod-actions {
         position: sticky;
     }
 }
 
-@media (max-width:1279px) {
-    sl-modal>div:has(sl-account-modal) {
+@media (max-width: 1279px) {
+    sl-modal > div:has(sl-account-modal) {
         max-width: 2048px !important;
         height: 95% !important;
         max-height: 95% !important;
     }
 }
 
-@media (min-width:767px) {
-
+@media (min-width: 767px) {
     .mod-add-homework {
         opacity: 0;
         transition: 0.2s opacity ease;
@@ -351,7 +348,9 @@ sl-rooster-week-header .mod-add-homework {
     background: linear-gradient(to bottom, #39497b, #182859);
     color: #fff;
     position: relative;
-    transition: height .3s ease, padding .3s ease;
+    transition:
+        height 0.3s ease,
+        padding 0.3s ease;
     height: 142px;
     box-sizing: border-box;
 }
@@ -367,7 +366,7 @@ sl-rooster-week-header .mod-add-homework {
     height: 40px;
     width: 40px;
     border-radius: 50%;
-    transition: background .2s ease;
+    transition: background 0.2s ease;
 }
 
 #mod-new-year button:hover {
@@ -379,14 +378,14 @@ sl-rooster-week-header .mod-add-homework {
     display: block;
 }
 
-#mod-new-year>div:last-of-type {
+#mod-new-year > div:last-of-type {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-top: 15px;
 }
 
-#mod-new-year>div:last-of-type>div {
+#mod-new-year > div:last-of-type > div {
     background: #fff2;
     display: block;
     width: 80px;
@@ -402,7 +401,7 @@ sl-rooster-week-header .mod-add-homework {
 }
 
 .mod-letter-slide {
-    animation: mod-letter-slide .4s;
+    animation: mod-letter-slide 0.4s;
 }
 
 @keyframes mod-letter-slide {
@@ -414,7 +413,6 @@ sl-rooster-week-header .mod-add-homework {
         transform: translateY(0px);
     }
 }
-
 
 #mod-new-year div span {
     display: block;
@@ -441,7 +439,7 @@ sl-rooster-week-header .mod-add-homework {
     pointer-events: none;
 }
 
-.blok>.container>svg {
+.blok > .container > svg {
     width: 100%;
     height: 100%;
 }
