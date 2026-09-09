@@ -119,9 +119,10 @@ async function build() {
     console.log('1. Building Chromium extension...');
     const chromiumDir = path.join(DIST_DIR, 'chromium');
     copyDirRecursive(SRC_DIR, chromiumDir, ignoredInCopy);
+    chromiumManifest.version = version;
     fs.writeFileSync(path.join(chromiumDir, 'manifest.json'), JSON.stringify(chromiumManifest, null, 4));
 
-    const chromiumVersionInfo = { ...versionInfo, platform: 'Chromium' };
+    const chromiumVersionInfo = { ...versionInfo, platform: 'Chromium', minified: false };
     fs.writeFileSync(path.join(chromiumDir, 'version_info.json'), JSON.stringify(chromiumVersionInfo, null, 4));
 
     for (const lang of ['nl', 'en']) {
@@ -137,9 +138,10 @@ async function build() {
     console.log('2. Building Firefox extension...');
     const firefoxDir = path.join(DIST_DIR, 'firefox');
     copyDirRecursive(SRC_DIR, firefoxDir, ignoredInCopy);
+    firefoxManifest.version = version;
     fs.writeFileSync(path.join(firefoxDir, 'manifest.json'), JSON.stringify(firefoxManifest, null, 4));
 
-    const firefoxVersionInfo = { ...versionInfo, platform: 'Firefox' };
+    const firefoxVersionInfo = { ...versionInfo, platform: 'Firefox', minified: false };
     fs.writeFileSync(path.join(firefoxDir, 'version_info.json'), JSON.stringify(firefoxVersionInfo, null, 4));
 
     for (const lang of ['nl', 'en']) {
@@ -223,7 +225,10 @@ async function build() {
     const matches = chromiumManifest.host_permissions.map(h => `// @match        ${h}`).join('\n');
     const currentYear = new Date().getFullYear();
 
-    const getHeader = (isMinified) => `// ==UserScript==
+    const getHeader = (isMinified) => {
+        const scriptFileName = isMinified ? 'SomtodayMod.min.user.js' : 'SomtodayMod.user.js';
+        const downloadUrl = `https://github.com/Bjarnos/Somtoday-Mod-CE/releases/latest/download/${scriptFileName}`;
+        return `// ==UserScript==
 // @name         Somtoday Mod (Community Edition)${isMinified ? ' (Minified)' : ''}
 // @namespace    https://github.com/Bjarnos/Somtoday-Mod-CE
 // @version      ${version}
@@ -231,6 +236,8 @@ async function build() {
 // @author       Jona Zwetsloot, Bjarnos & Community
 ${matches}
 // @icon         https://raw.githubusercontent.com/Bjarnos/Somtoday-Mod-CE/main/src/icon128.png
+// @updateURL    ${downloadUrl}
+// @downloadURL  ${downloadUrl}
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @run-at       document-start
@@ -245,6 +252,7 @@ ${matches}
 // Repository: https://github.com/Bjarnos/Somtoday-Mod-CE
 
 `;
+    };
 
     const fullUserscript = getHeader(false) + userscriptWithFileMap;
     const userscriptPath = path.join(DIST_DIR, 'SomtodayMod.user.js');

@@ -1,4 +1,4 @@
-body:has(#mod-setting-panel) #legacy-game {
+#legacy-game {
 	z-index: 1000;
 	position: fixed;
 	top: 0;
@@ -15,20 +15,8 @@ body:has(#mod-setting-panel) #legacy-game {
     cursor: pointer;
     user-select: none;
 }
-sl-error-image svg {
-    transition: 1s transform ease, margin-top 0.3s ease !important;
-}
-.legacy-game-playing sl-error-image svg {
-    margin-top: 100px;
-    transform: scale(40);
-    --fg-negative-normal: transparent;
-}
-.legacy-game-playing sl-error-image svg * {
-    transition: fill 0.3s ease !important;
-}
-.legacy-game-playing body {
-    height: 100vh;
-    overflow: hidden;
+.legacy-game-playing sl-error-image {
+    display: none !important;
 }
 .legacy-floor,
 .legacy-wall,

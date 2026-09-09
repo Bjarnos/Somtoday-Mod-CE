@@ -4,7 +4,7 @@ Thank you for considering contributing to this project! Only pull requests with 
 <br>
 
 **Before you start, here's a few tips:**
-- *If you want to contribute to Somtoday Mod, **you'll need to install the browser extension locally**. Either the Chromium or Firefox version.*
+- *If you want to contribute to Somtoday Mod CE, **you'll need to install the browser extension locally**. Either the Chromium or Firefox version.*
   - To do this, follow the steps described in README.md
 - *Only modify one version of the code*
   - So if you're using Firefox, do not modify the Chromium version, and vice-versa

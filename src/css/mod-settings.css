@@ -548,17 +548,46 @@ textarea.mod-custom-setting {
 	font-size: 0.8em;
 }
 
-#mod-setting-panel .mod-credits-gh-pill {
-    background: var(--bg-elevated-none);
-    border-color: var(--bg-elevated-strong);
+.mod-credits-gh-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-#mod-setting-panel .mod-credits-gh-pill:hover,
-#mod-setting-panel .mod-credits-gh-pill:focus {
+.mod-credits-gh-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-elevated-none);
+    border: 1px solid var(--bg-elevated-strong);
+    border-radius: 50px;
+    padding: 6px 14px 6px 6px;
+    text-decoration: none;
+    color: var(--text-moderate);
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+
+.mod-credits-gh-pill:hover,
+.mod-credits-gh-pill:focus {
     background: var(--bg-elevated-strong);
     border-color: var(--bg-elevated-strong);
     color: var(--text-strong);
+    transform: translateY(-1px);
     box-shadow: none;
+}
+
+.mod-credits-gh-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.mod-credits-gh-name {
+    line-height: 1;
 }
 
 #mod-background-wrapper {

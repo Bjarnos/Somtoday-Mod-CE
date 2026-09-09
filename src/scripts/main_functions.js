@@ -1637,10 +1637,11 @@ function onload() {
                 set('bools', '110001110111100000000000000000');
                 set('secondarycolor', '#e69b22');
             }
-            if (get('version') == 4) {
+            const savedVersion = parseFloat(get('version'));
+            if (savedVersion == 4) {
                 set('bools', get('bools').replaceAt(12, '1'));
             }
-            if (get('version') < 4.6) {
+            if (savedVersion < 4.6) {
                 if (get('blur') == '') {
                     set('blur', '0px');
                 }
@@ -1649,7 +1650,7 @@ function onload() {
                 }
                 set('bools', get('bools').replaceAt(15, '1'));
             }
-            if (get('version') < 4.7) {
+            if (savedVersion < 4.7) {
                 set('brightness', '100%');
                 set('contrast', '100%');
                 set('saturate', '100%');
@@ -1659,13 +1660,13 @@ function onload() {
                 set('sepia', '0%');
                 set('invert', '0%');
             }
-            if (get('version') < 4.9) {
+            if (savedVersion < 4.9) {
                 set('bools', get('bools').replaceAt(16, '1'));
             }
             if (n(get('homework'))) {
                 set('homework', '[]');
             }
-            if (get('version') < 5.1) {
+            if (savedVersion < 5.1) {
                 // Update nickname storage to use JSON instead of pipe-delimited string
                 if (n(get('nicknames'))) {
                     set('nicknames', '[]');
@@ -1679,7 +1680,7 @@ function onload() {
                     set('nicknames', JSON.stringify(json));
                 }
             }
-            if (get('version') < 5.3) {
+            if (savedVersion < 5.3) {
                 set('bools', get('bools').replaceAt(17, '1'));
             }
         }

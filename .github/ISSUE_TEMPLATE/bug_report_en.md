@@ -30,7 +30,7 @@ If applicable, add screenshots to help explain the problem.
 ## Environment
 - **Platform:** <!-- Chromium / Firefox / Userscript -->
 - **Browser & version:** <!-- e.g. Chrome 121, Firefox 122 -->
-- **Somtoday Mod version:** <!-- e.g. 1.0.0 -->
+- **Somtoday Mod CE version:** <!-- e.g. 1.0.0 -->
 - **OS:** <!-- e.g. Windows 11, macOS 14 -->
 
 ## Additional context

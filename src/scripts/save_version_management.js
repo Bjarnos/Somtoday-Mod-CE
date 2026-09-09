@@ -4,10 +4,10 @@
 let versionJson = JSON.parse(window.getResourceAsText('version_info.json'));
 
 const version = versionJson.version;
-const platform = versionJson.platform;
-const minified = versionJson.minified;
-const version_name = versionJson.version_name;
-const contributors = versionJson.contributors;
+const platform = versionJson.platform || 'Chromium';
+const minified = versionJson.minified || false;
+const version_name = versionJson.version_name || versionJson.version;
+const contributors = versionJson.contributors || {};
 
 let data;
 const isExtension = platform != 'Userscript';
