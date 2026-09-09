@@ -69,8 +69,13 @@ sl-modal>div:has(sl-account-modal) {
 .navigation,
 .dagen,
 .actiepanel,
-.dag-afkortingen {
+.dag-afkortingen,
+sl-rooster-dag.weekend,
+sl-rooster-dag.weekend .uur,
+sl-rooster-week .weekend,
+sl-rooster-week-header .weekend {
     background: none !important;
+    background-color: transparent !important;
 }
 
 .zoekresultaten {
