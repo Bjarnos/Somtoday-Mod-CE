@@ -10,7 +10,7 @@ const version_name = versionJson.version_name;
 const contributors = versionJson.contributors;
 
 let data;
-const isExtension = platform != 'Userscript' && platform != 'Android';
+const isExtension = platform != 'Userscript';
 const hasSettingsHash = window.location.hash == '#mod-settings';
 let storageMethod;
 // Check if userscriptmanager allows storage access

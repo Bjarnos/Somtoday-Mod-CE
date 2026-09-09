@@ -8,10 +8,12 @@ body:has(#mod-setting-panel) #legacy-game {
     background-color: var(--border-neutral-weak);
 }
 
+#mod-play-game,
 #legacy-play-game {
     color: dodgerblue;
     text-align: center;
     cursor: pointer;
+    user-select: none;
 }
 sl-error-image svg {
     transition: 1s transform ease, margin-top 0.3s ease !important;

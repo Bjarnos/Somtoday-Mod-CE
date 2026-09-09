@@ -13,7 +13,6 @@ Sluit #
 ## Betreffende platformen
 - [ ] Chromium
 - [ ] Firefox
-- [ ] Android
 - [ ] Userscript
 
 ## Testen

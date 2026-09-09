@@ -28,7 +28,7 @@ Wat gebeurde er eigenlijk?
 Voeg indien van toepassing screenshots toe om het probleem te verduidelijken.
 
 ## Omgeving
-- **Platform:** <!-- Chromium / Firefox / Android / Userscript -->
+- **Platform:** <!-- Chromium / Firefox / Userscript -->
 - **Browser & versie:** <!-- bijv. Chrome 121, Firefox 122 -->
 - **Somtoday Mod versie:** <!-- bijv. 1.0.0 -->
 - **Besturingssysteem:** <!-- bijv. Windows 11, macOS 14 -->

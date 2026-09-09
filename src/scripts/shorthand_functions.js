@@ -154,8 +154,8 @@ window.logo = function (id, classname, color, style) {
 
 // Get image or font file URI
 window.getResource = function (file) {
-    // Browser extension uses extension storage to load files, while the userscript
-    // and Android version contain an inlined switch statement with base64 URIs
+    // Browser extension uses extension storage to load files, while the
+    // userscript contains an inlined switch statement with base64 URIs
 
     let fileMap = null;
     // [GENERATION] DEFINE_FILEMAP
@@ -164,7 +164,7 @@ window.getResource = function (file) {
     if (fileMap == null) {
         return chrome.runtime.getURL(file);
     }
-    // The userscript and Android version contain a JSON fileMap, eg { "image/example.png": "data:image/png;base64,..." }
+    // The userscript contains a JSON fileMap, eg { "image/example.png": "data:image/png;base64,..." }
     else {
         return fileMap[file];
     }
@@ -214,7 +214,7 @@ window.getResourceAsBase64 = async function (file) {
 
 // Get audio resource URI
 window.getAudioUrl = function (file) {
-    // Browser extension ships with audio, userscript and Android use external hosted audio
+    // The browser extension ships with audio, the userscript uses external hosted audio
     // Audio is too heavy to include as base64 URI
     if (isExtension) {
         return chrome.runtime.getURL('sounds/' + file + '.opus');

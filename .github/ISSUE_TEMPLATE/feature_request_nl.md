@@ -25,7 +25,6 @@ Heb je alternatieve benaderingen overwogen? Zo ja, welke zijn dat en waarom geef
 ## Betreffende platformen
 - [ ] Chromium
 - [ ] Firefox
-- [ ] Android
 - [ ] Userscript
 - [ ] Alle
 

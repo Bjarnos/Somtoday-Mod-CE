@@ -10,7 +10,7 @@ Thank you for considering contributing to this project! Only pull requests with 
   - So if you're using Firefox, do not modify the Chromium version, and vice-versa
   - The other versions are automatically generated when I run the generation process
 - *Do not touch the `// [GENERATION]` comments*
-  - These are needed for the automatic code generation for the Android and userscript versions
+  - These are needed for the automatic code generation for the userscript versions
 - *Try to keep the file structure roughly the same*
   - It's not bad if you add files, but reorganizing the whole project is just a pain, since the generation process depends on the current structure
 - *Always review AI content*

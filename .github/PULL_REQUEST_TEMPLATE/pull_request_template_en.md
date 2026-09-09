@@ -13,7 +13,6 @@ Closes #
 ## Affected platforms
 - [ ] Chromium
 - [ ] Firefox
-- [ ] Android
 - [ ] Userscript
 
 ## Testing

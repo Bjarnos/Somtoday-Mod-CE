@@ -1,16 +1,14 @@
 # Somtoday Mod (Community Edition)
-A lot of people already know Somtoday Mod. For the people who don't, here's the description:
-
 Somtoday Mod is a free browser-extension which adjusts the student website of Somtoday. With Somtoday Mod you can customise your Somtoday by setting your own backgrounds, colors, fonts, layouts and more. It also improves the functionality of Somtoday, by adding graphs to the grades pages and offering an auto-login function. At the end of the year you can view a recap of your grades with a fun quiz. And do you want to change the names of your teacher? This is also possible with Somtoday Mod, alongside many other options. Somtoday Mod is available in the Chrome Webstore, Edge Addons and Firefox Add-ons as extension. It is also available as userscript. Somtoday Mod is not affiliated with Somtoday/Topicus.
 
 > [!IMPORTANT]
-> Somtoday Mod sadly closed active development and pull requests as of September 2026, because the owner no longer has access to Somtoday. Because of this, Somtoday Mod CE was created. A community edition of the popular browser extension with revived support and active development. 
+> Somtoday Mod sadly closed active development and pull requests as of September 2026, because the owner no longer has access to Somtoday. Because of this, Somtoday Mod CE was created. A community edition of the popular browser extension with revived support and active development. A lot of people already know Somtoday Mod. For the people who don't, here's the description:
 
-<---
+
+
 [![Button Chrome]][ChromeLink]
 [![Button Edge]][EdgeLink]
 [![Button Firefox]][FirefoxLink]
---->
 
 <br>
 
@@ -59,19 +57,6 @@ Firefox Developer, Firefox Nightly or Firefox ESR extension - <b>permanent</b>, 
 Userscript:
 1. Install an userscriptmanager (<a href="https://tampermonkey.net/">Tampermonkey</a> - all browsers, <a href="https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/">Greasemonkey</a> - Firefox, <a href="https://apps.apple.com/us/app/userscripts/id1463298887">Userscripts</a> - Safari)
 2. Add <a href="https://github.com/Bjarnos/Somtoday-Mod-CE/blob/main/Userscript/SomtodayMod.user.js">this userscript</a> to the userscript manager
-<br>
-
-</details>
-
-
-
-<details>
-<summary>Android</summary>
-<br>
-
-Android app:
-1. Install **Android Studio**
-2. Import the Android folder as an Android Studio Project
 <br>
 
 </details>

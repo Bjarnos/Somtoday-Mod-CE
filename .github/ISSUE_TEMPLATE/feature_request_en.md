@@ -25,7 +25,6 @@ Have you considered any alternative approaches? If so, what are they and why did
 ## Affected platforms
 - [ ] Chromium
 - [ ] Firefox
-- [ ] Android
 - [ ] Userscript
 - [ ] All
 
