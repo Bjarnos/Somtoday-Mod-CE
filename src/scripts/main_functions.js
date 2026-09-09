@@ -689,7 +689,7 @@ function onload() {
                                         isOnSamePosition = false;
                                     }
                                     else {
-                                        // If there is "fake" Somtoday Mod homework, we also check 
+                                        // If there is "fake" Somtoday Mod homework, we also check
                                         let loopBreak = 0;
                                         while (loopBreak < 100 && !nextElement.classList.contains('mod-add-homework')) {
                                             if (nextElement.classList.contains('mod-huiswerk')) {
@@ -1437,7 +1437,7 @@ function onload() {
             .datum-container {
                 position: inherit !important;
             }
-                
+
             ${(get('layout') == 1 || get('layout') == 4) ? `
 
             /* The main menu visible on big screens */
@@ -1516,7 +1516,7 @@ function onload() {
                 sl-header .title {
                     opacity: 0;
                 }
-                    
+
                 ${(get('layout') == 1 || get('layout') == 5) ? `
                 .headers-container {
                     margin-top: calc(-1 * var(--mod-menu-height)) !important;
@@ -1568,7 +1568,7 @@ function onload() {
                 }
                 ` : ''}
             }
-            
+
             </style>`);
 
             /*if (get('layout') == 1 || get('layout') == 4) {
@@ -3041,7 +3041,7 @@ function onload() {
                             flex-grow: 1;
                             min-width: 0;
                         ">
-                            <h3 style="        
+                            <h3 style="
                                 color: ${subjectColor};
                                 font-size: 42px;
                                 overflow: hidden;
@@ -3080,7 +3080,7 @@ function onload() {
                         gap: 22px;
                         corner-shape: squircle;
                     ">
-                        <h3 style="        
+                        <h3 style="
                             color: ${subjectColor};
                             font-size: 42px;
                             font-family: ${font};
@@ -5099,12 +5099,8 @@ function onload() {
                 ">${window.getIcon('rotate-left', null, 'var(--fg-on-primary-weak)')}Reset</div>
             </div>`;
 
-            // Update details for multiple versions
-            const updatechecker = `
-            <a id="mod-update-checker" class="mod-setting-button" tabindex="0">
-                <span>${window.getIcon('globe', 'mod-update-rotate', 'var(--text-moderate)')}Check updates</span>
-            </a>`;
-            const updateinfo = 'Je browser controleert automatisch op updates.';
+            // Update details
+            const updateinfo = isExtension ? 'Je browser controleert automatisch op updates.' : 'Je userscriptmanager controleert automatisch op updates.';
 
             // Credit contributors
             let contributorContent = '';
@@ -5141,7 +5137,6 @@ function onload() {
                 '{{icon_shuffle}}': window.getIcon('shuffle', null, 'var(--fg-on-primary-weak)'),
                 '{{icon_palette}}': window.getIcon('palette', null, 'var(--fg-on-primary-weak)'),
                 '{{icon_edit}}': window.getIcon('edit', null, 'var(--fg-on-primary-weak)'),
-                '{{updatechecker}}': isExtension ? '' : updatechecker,
                 '{{addSetting_primarycolor}}': addSetting('Primaire kleur', null, 'primarycolor', 'color', '#0067c2'),
                 '{{addSetting_secondarycolor}}': addSetting('Secundaire kleur', null, 'secondarycolor', 'color', '#0067c2'),
                 '{{addLiveColors}}': addSetting(null, null, 'livecolor1', 'color', '#000000') + addSetting(null, null, 'livecolor2', 'color', '#000000') + addSetting(null, null, 'livecolor3', 'color', '#000000'),
@@ -5236,7 +5231,7 @@ function onload() {
                 '{{somtoday_version}}': 'Versie ' + version_name + ' van Somtoday Mod',
                 '{{platform}}': 'Somtoday ' + platform,
                 '{{contributors_list}}': contributorContent,
-                '{{updateinfo}}': isExtension ? updateinfo : '',
+                '{{updateinfo}}': updateinfo,
                 '{{export_import_buttons}}': `<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;"><div id="export-settings" class="mod-button">${window.getIcon('export', null, 'var(--fg-on-primary-weak)')}<span>Exporteer Mod-instellingen</span></div><div id="import-settings" class="mod-button">${window.getIcon('import', null, 'var(--fg-on-primary-weak)')}<span>Importeer Mod-instellingen</span></div></div><input type="file" id="import-settings-json" class="hidden" accept="application/json">`
             };
             for (const key in replacements) {
@@ -5652,7 +5647,7 @@ function onload() {
                 });
             }
 
-            // Make save button, reset button (and updatechecker for the Userscript-version) work
+            // Make save button and reset button work
             if (id('save')) {
                 id('save').addEventListener('click', function () {
                     execute([save]);
@@ -5672,9 +5667,6 @@ function onload() {
                     });
                     id('mod-message-action2').addEventListener('click', closeModMessage);
                 });
-            }
-            if (id('mod-update-checker')) {
-                id('mod-update-checker').addEventListener('click', function () { execute([checkUpdate]) });
             }
             // Make random background button work
             // Random background images thanks to Lorem Picsum: https://picsum.photos
@@ -6469,45 +6461,7 @@ function onload() {
 
     // SERVER REQUESTS
 
-    // Check if updates are available - userscript only (user initiated)
-    function checkUpdate() {
-        fetch('https://jonazwetsloot.nl/somtoday-mod-update-checker?v=' + version).then(function (response) {
-            if (response.ok) {
-                return response.text();
-            }
-            return Promise.reject(response);
-        }).then(text => {
-            if (text == 'Newest') {
-                modMessage('Geen updates gevonden', 'Helaas, er zijn geen updates gevonden.', 'Oke');
-                id('mod-message-action1').addEventListener('click', closeModMessage);
-            } else if (text == 'Optional') {
-                modMessage('Kleine update gevonden', 'Er is een kleine update gevonden. Wil je de update installeren?', 'Ja', 'Nee');
-                if (platform == 'Userscript') {
-                    id('mod-message-action1').addEventListener('click', function () { window.open('https://jonazwetsloot.nl/userscripts/SomtodayMod' + (minified ? '' : 'Unminified') + '.user.js'); });
-                }
-                else {
-                    id('mod-message-action1').addEventListener('click', function () { window.open('https://jonazwetsloot.nl/versions/somtoday-mod'); });
-                }
-                id('mod-message-action2').addEventListener('click', closeModMessage);
-            } else if (text == 'Update') {
-                modMessage('Update gevonden', 'Er is een update gevonden. Wil je de update installeren?', 'Ja', 'Nee');
-                if (platform == 'Userscript') {
-                    id('mod-message-action1').addEventListener('click', function () { window.open('https://jonazwetsloot.nl/userscripts/SomtodayMod' + (minified ? '' : 'Unminified') + '.user.js'); });
-                }
-                else {
-                    id('mod-message-action1').addEventListener('click', function () { window.open('https://jonazwetsloot.nl/versions/somtoday-mod'); });
-                }
-                id('mod-message-action2').addEventListener('click', closeModMessage);
-            }
-            else {
-                modMessage('Fout', 'Somtoday Mod kan de reactie van de server niet begrijpen.', 'Oke');
-                id('mod-message-action1').addEventListener('click', closeModMessage);
-            }
-        }).catch((response) => {
-            modMessage('Fout', 'Er kon niet op updates worden gechecked. Het kan zijn dat de server van Somtoday Mod down is of dat je wifi uitstaat.', 'Oke');
-            id('mod-message-action1').addEventListener('click', closeModMessage);
-        });
-    }
+
 
     // Convert an image URL to a base64 image
     function toDataURL(url, callback) {

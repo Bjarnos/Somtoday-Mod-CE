@@ -62,6 +62,7 @@ Userscript:
 </details>
 
 <!---------------------------------------------------------------------------->
+<!-- TODO: Replace with our own Somtoday Mod CE hosted icons -->
 [Button Chrome]: https://jonazwetsloot.nl/images/chrome-webstore.svg
 [ChromeLink]: https://chromewebstore.google.com/detail/somtoday-mod/gehilkhfalphnhpidceocgmdijplpkbn 'Install in the Chrome Webstore.'
 [Button Edge]: https://jonazwetsloot.nl/images/edge-addons.svg

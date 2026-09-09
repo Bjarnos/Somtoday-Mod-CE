@@ -84,7 +84,8 @@ function execute(functionarray) {
             }
             rateLimitDate = Date.now();
             if (get('bools') == null || (window.location.origin.indexOf('leerling') != -1 && get('bools').charAt(BOOL_INDEX.SHARE_DEBUG_DATA) == '1')) {
-                fetch(`https://jonazwetsloot.nl/reporterror?product=${encodeURIComponent(`Somtoday Mod ${platform}`)}&function=${encodeURIComponent(element.name)}&cause=${encodeURIComponent(e.toString())}&page=${encodeURIComponent(window.location.href.split('/').pop().split('?')[0])}&productversion=${version}&settings=${get('bools')}`);
+              // TODO: replace with our own Somtoday Mod CE server
+              fetch(`https://jonazwetsloot.nl/reporterror?product=${encodeURIComponent(`Somtoday Mod ${platform}`)}&function=${encodeURIComponent(element.name)}&cause=${encodeURIComponent(e.toString())}&page=${encodeURIComponent(window.location.href.split('/').pop().split('?')[0])}&productversion=${version}&settings=${get('bools')}`);
             }
             setTimeout(console.error.bind(console, e));
         }
@@ -220,6 +221,7 @@ window.getAudioUrl = function (file) {
         return chrome.runtime.getURL('sounds/' + file + '.opus');
     }
     else {
+        // TODO: Replace with our own Somtoday Mod CE server
         return 'https://geweldige-geluidseffecten.netlify.app/' + file + '.opus';
     }
 }

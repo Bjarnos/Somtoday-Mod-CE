@@ -90,19 +90,6 @@ a:hover .mod-info-wobble {
     }
 }
 
-a:hover .mod-update-rotate {
-    animation: 0.8s updaterotate 0.2s ease;
-}
-
-@keyframes updaterotate {
-    0% {
-        transform: rotateY(0deg);
-    }
-
-    100% {
-        transform: rotateY(360deg);
-    }
-}
 
 a:hover .mod-reset-rotate {
     animation: 0.8s resetrotate 0.2s ease;
