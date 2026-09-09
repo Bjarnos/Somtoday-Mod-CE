@@ -18,6 +18,9 @@ Closes #
 ## Testing
 Describe how you tested the changes and on which browser/version.
 
+## Screenshots / recordings
+Add screenshots or screen recordings of the changes, if they are visual.
+
 ## Checklist
 - [ ] I tested my changes locally
 - [ ] My changes work on all affected platforms listed above

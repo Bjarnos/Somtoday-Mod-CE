@@ -18,6 +18,9 @@ Sluit #
 ## Testen
 Beschrijf hoe je de wijzigingen hebt getest en op welke browser/versie.
 
+## Screenshots / opnames
+Voeg screenshots of schermopnames toe van de veranderingen, als ze visueel zijn.
+
 ## Checklist
 - [ ] Ik heb mijn wijzigingen lokaal getest
 - [ ] Mijn wijzigingen werken op alle hierboven genoemde platformen
