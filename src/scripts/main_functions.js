@@ -2463,7 +2463,7 @@ function onload() {
                     menuColor +
                     ";--action-primary-normal:" +
                     menuColor +
-                    ";position:absolute !important;width:100% !important;height:calc(100% - 80px) !important;display:block !important;overflow:hidden !important;}sl-header sl-tab-bar::-webkit-scrollbar{display:none !important;}sl-header .item span{text-align:center;margin-top:6px;display:block;}sl-header .active .item, sl-header .item:hover{background:" +
+                    ";position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:calc(100% - 80px) !important;display:block !important;overflow-y:auto !important;overflow-x:hidden !important;scrollbar-width:none !important;}sl-header sl-tab-bar::-webkit-scrollbar{display:none !important;}sl-header .item span{text-align:center;margin-top:6px;display:block;}sl-header .active .item, sl-header .item:hover{background:" +
                     highLightColor +
                     " !important;padding-top:0 !important;}sl-header .item:hover i{scale:0.9;}sl-header .item i{transition:scale 0.3s ease !important;height:36px;display:block;padding-top:0 !important;margin:0 auto;fill:var(--action-neutral-normal) !important;}sl-header .item svg{width:100%;height:36px;}sl-header sl-tab-item{height:120px !important;position:relative !important;display:block !important;}sl-header sl-tab-item .item, sl-header .item{display:flex !important;flex-direction:column !important;justify-content:center !important;align-items:center !important;height:100% !important;}sl-popup{z-index:101 !important;}sl-header{position:fixed !important;z-index:15 !important;" +
                     (get("layout") != 3 ? "left" : "right") +
@@ -2495,7 +2495,7 @@ function onload() {
                     (get("layout") != 3
                         ? "var(--safe-area-inset-left)"
                         : "var(--safe-area-inset-right)") +
-                    " !important;height:calc(100% - 80px) !important;display:block !important;overflow:hidden !important;z-index:0;background:" +
+                    " !important;height:calc(100% - 80px) !important;display:block !important;overflow-y:auto !important;overflow-x:hidden !important;scrollbar-width:none !important;z-index:0;background:" +
                     get("primarycolor") +
                     "}sl-tab-bar:first-of-type::-webkit-scrollbar{display:none !important;}sl-tab-bar:first-of-type sl-tab-item svg{width:100%;height:36px;}sl-tab-bar:first-of-type sl-tab-item span{font-size:14px;margin-top:6px;text-align:center;}sl-tab-bar:first-of-type sl-tab-item i{height:36px;fill:var(--action-neutral-normal) !important;transition:0.3s scale ease !important;padding-top:0 !important;margin:0 auto;}sl-tab-bar:first-of-type .item:hover i{scale:0.9;}sl-tab-bar:first-of-type sl-tab-item .item, sl-tab-bar:first-of-type .item{height:100% !important;display:flex !important;flex-direction:column !important;justify-content:center !important;align-items:center !important;}sl-tab-bar:first-of-type .active .item, sl-tab-bar:first-of-type .item:hover{background:" +
                     highLightColor +
@@ -2535,7 +2535,7 @@ function onload() {
                     menuColor +
                     ";}sl-header > div:first-of-type{--bg-neutral-weakest:" +
                     highLightColor +
-                    "}sl-header sl-tab-item .item *,sl-tab-bar:first-of-type sl-tab-item .item *{pointer-events:none !important;}@media (min-height:671px){sl-header,sl-header sl-tab-bar,sl-tab-bar:first-of-type{overflow:hidden !important;overflow-y:hidden !important;}}@media (max-height:670px){#mod-logo-wrapper{height:80px;}#mod-logo{height:50px !important;margin:15px 0 !important;}sl-header sl-tab-bar,sl-tab-bar:first-of-type{overflow-y:auto !important;scrollbar-width:none !important;}sl-header sl-tab-bar::-webkit-scrollbar,sl-tab-bar:first-of-type::-webkit-scrollbar{display:none !important;}sl-tab-bar:first-of-type sl-tab-item,sl-header sl-tab-item{height:110px !important;min-height:110px !important;}sl-header sl-tab-item .item,sl-tab-bar:first-of-type .item{height:100% !important;display:flex !important;flex-direction:column !important;justify-content:center !important;align-items:center !important;}}@media (max-height:600px){#mod-logo-wrapper{display:none !important;}sl-tab-bar:first-of-type sl-tab-item,sl-header sl-tab-item{height:110px !important;min-height:110px !important;}sl-header sl-tab-item .item,sl-tab-bar:first-of-type .item{height:100% !important;display:flex !important;flex-direction:column !important;justify-content:center !important;align-items:center !important;}}</style>",
+                    "}sl-header sl-tab-item .item *,sl-tab-bar:first-of-type sl-tab-item .item *{pointer-events:none !important;}@media (min-height:671px){sl-header{overflow:hidden !important;}sl-header sl-tab-bar,sl-tab-bar:first-of-type{overflow-y:auto !important;overflow-x:hidden !important;scrollbar-width:none !important;}}@media (max-height:670px){#mod-logo-wrapper{height:80px;}#mod-logo{height:50px !important;margin:15px 0 !important;}sl-header sl-tab-bar,sl-tab-bar:first-of-type{overflow-y:auto !important;scrollbar-width:none !important;}sl-header sl-tab-bar::-webkit-scrollbar,sl-tab-bar:first-of-type::-webkit-scrollbar{display:none !important;}sl-tab-bar:first-of-type sl-tab-item,sl-header sl-tab-item{height:110px !important;min-height:110px !important;}sl-header sl-tab-item .item,sl-tab-bar:first-of-type .item{height:100% !important;display:flex !important;flex-direction:column !important;justify-content:center !important;align-items:center !important;}}@media (max-height:600px){#mod-logo-wrapper{display:none !important;}sl-tab-bar:first-of-type sl-tab-item,sl-header sl-tab-item{height:110px !important;min-height:110px !important;}sl-header sl-tab-item .item,sl-tab-bar:first-of-type .item{height:100% !important;display:flex !important;flex-direction:column !important;justify-content:center !important;align-items:center !important;}}</style>",
             );
         } else if (get("layout") == 4) {
             tn("head", 0).insertAdjacentHTML(
@@ -3547,11 +3547,12 @@ function onload() {
                     tabBar.addEventListener(
                         "wheel",
                         function (e) {
-                            if (window.innerHeight <= 670) {
+                            // Laat de sidebar altijd scrollen zodra de inhoud
+                            // hoger is dan de zichtbare tab-bar (voorheen alleen
+                            // bij window-hoogte <= 670px, waardoor items op
+                            // normale schermen onbereikbaar waren).
+                            if (this.scrollHeight > this.clientHeight) {
                                 this.scrollTop += e.deltaY;
-                                e.preventDefault();
-                            } else {
-                                this.scrollTop = 0;
                                 e.preventDefault();
                             }
                         },
@@ -3571,29 +3572,12 @@ function onload() {
                                     "sl-tab-bar",
                                 )[0]) ||
                             tn("sl-tab-bar", 0);
-                        if (tb && window.innerHeight <= 670) {
+                        if (tb && tb.scrollHeight > tb.clientHeight) {
                             tb.scrollTop += e.deltaY;
-                            e.preventDefault();
-                        } else {
                             e.preventDefault();
                         }
                     },
                     { capture: true, passive: false },
-                );
-            }
-            if (!window.modSidebarScrollResizeAttached) {
-                window.modSidebarScrollResizeAttached = true;
-                window.addEventListener(
-                    "resize",
-                    () => {
-                        if (window.innerHeight > 670) {
-                            const tbs = document.querySelectorAll(
-                                "sl-header sl-tab-bar, sl-tab-bar:first-of-type",
-                            );
-                            tbs.forEach((tb) => (tb.scrollTop = 0));
-                        }
-                    },
-                    { passive: true },
                 );
             }
             if (n(id("mod-menu-resizer")) && tn("sl-tab-bar", 0)) {
