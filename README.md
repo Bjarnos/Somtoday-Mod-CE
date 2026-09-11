@@ -1,20 +1,16 @@
 # Somtoday Mod (Community Edition)
-Somtoday Mod is a free browser-extension which adjusts the student website of Somtoday. With Somtoday Mod you can customise your Somtoday by setting your own backgrounds, colors, fonts, layouts and more. It also improves the functionality of Somtoday, by adding graphs to the grades pages and offering an auto-login function. At the end of the year you can view a recap of your grades with a fun quiz. And do you want to change the names of your teacher? This is also possible with Somtoday Mod, alongside many other options. Somtoday Mod is available in the Chrome Webstore, Edge Addons and Firefox Add-ons as extension. It is also available as userscript. Somtoday Mod is not affiliated with Somtoday/Topicus.
+Somtoday Mod CE is a free browser-extension which adjusts the student website of Somtoday. With Somtoday Mod CE you can customise your Somtoday by setting your own backgrounds, colors, fonts, layouts and more. It also improves the functionality of Somtoday, by adding graphs to the grades pages and offering an auto-login function. At the end of the year you can view a recap of your grades with a fun quiz. And do you want to change the names of your teacher? This is also possible with Somtoday Mod CE, alongside many other options. Somtoday Mod CE is not yet available in the Chrome Webstore, Edge Addons and Firefox Add-ons as extension. To install Somtoday mod CE follow the instructions below. Somtoday Mod CE is not affiliated with Somtoday/Topicus.
 
 > [!IMPORTANT]
 > Somtoday Mod sadly closed active development and pull requests as of September 2026, because the owner no longer has access to Somtoday. Because of this, Somtoday Mod CE was created. A community edition of the popular browser extension with revived support and active development.
 
 
 
-[![Button Chrome]][ChromeLink]
-[![Button Edge]][EdgeLink]
-[![Button Firefox]][FirefoxLink]
-
 <br>
 
 # Install
 
-You can install the official release of Somtoday Mod in the extension stores (see links above). You can also modify Somtoday Mod and install it by using one of the methods below.
+Somtoday mod CE is not yet on any extention stores. to install Somtoday mod CE you can follow the instructions below 
 
 <details>
 <summary>Chromium extension</summary>
