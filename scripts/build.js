@@ -145,8 +145,9 @@ async function build() {
         );
         if (fs.existsSync(msgPath)) {
             const msgs = JSON.parse(fs.readFileSync(msgPath, "utf8"));
+            const baseMsg = msgs.extVersion?.message || "Somtoday Mod CE";
             msgs.extVersion = {
-                message: `Somtoday Mod CE Chromium v${version}`,
+                message: `${baseMsg} Chromium v${version}`,
             };
             fs.writeFileSync(msgPath, JSON.stringify(msgs, null, 4));
         }
@@ -181,8 +182,9 @@ async function build() {
         );
         if (fs.existsSync(msgPath)) {
             const msgs = JSON.parse(fs.readFileSync(msgPath, "utf8"));
+            const baseMsg = msgs.extVersion?.message || "Somtoday Mod CE";
             msgs.extVersion = {
-                message: `Somtoday Mod CE Firefox v${version}`,
+                message: `${baseMsg} Firefox v${version}`,
             };
             fs.writeFileSync(msgPath, JSON.stringify(msgs, null, 4));
         }

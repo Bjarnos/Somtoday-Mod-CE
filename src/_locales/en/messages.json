@@ -1,6 +1,6 @@
 {
     "extVersion": {
-        "message": "Somtoday Mod Chromium v5.5"
+        "message": "Somtoday Mod CE"
     },
     "newOne": {
         "message": "New game added by levkris"
@@ -12,7 +12,7 @@
         "message": "Grade reveal doesn't have spoilers anymore"
     },
     "extName": {
-        "message": "Somtoday Mod"
+        "message": "Somtoday Mod CE"
     },
     "extDescription": {
         "message": "Customize the appearance of Somtoday with backgrounds, fonts, colors and more!"
