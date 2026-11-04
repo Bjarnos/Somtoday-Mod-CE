@@ -931,15 +931,9 @@ export function modInit() {
                             child.addEventListener(
                                 "click",
                                 function (this: HTMLElement) {
-                                    if (
-                                        this.parentElement.getElementsByClassName(
-                                            "active",
-                                        )[0]
-                                    ) {
-                                        this.parentElement
-                                            .getElementsByClassName("active")[0]
-                                            .classList.remove("active");
-                                    }
+                                    this.parentElement
+                                        ?.getElementsByClassName("active")[0]
+                                        ?.classList.remove("active");
                                     this.classList.add("active");
                                 },
                             );
@@ -948,7 +942,11 @@ export function modInit() {
                 });
         }
         let lastShown = 0;
-        if (!Number.isNaN(Number(currentStudiewijzerDate))) {
+        if (
+            currentStudiewijzerDate &&
+            !Number.isNaN(Number(currentStudiewijzerDate))
+        ) {
+            const curDate = currentStudiewijzerDate;
             function addHomework(j: number) {
                 let i = j;
                 let lastRecurring = homework[i].returning;
@@ -967,22 +965,17 @@ export function modInit() {
                 }
                 const homeworkDate = new Date(Date.parse(homework[i].date));
                 const showIfOnce =
-                    currentStudiewijzerDate.getFullYear() ==
-                        homeworkDate.getFullYear() &&
-                    currentStudiewijzerDate.getMonth() ==
-                        homeworkDate.getMonth() &&
-                    currentStudiewijzerDate.getDate() == homeworkDate.getDate();
+                    curDate.getFullYear() == homeworkDate.getFullYear() &&
+                    curDate.getMonth() == homeworkDate.getMonth() &&
+                    curDate.getDate() == homeworkDate.getDate();
                 const showIfWeekly =
                     homework[i].returning == "1" &&
-                    currentStudiewijzerDate.getTime() >=
-                        homeworkDate.getTime() &&
-                    currentStudiewijzerDate.getDay() == homeworkDate.getDay();
+                    curDate.getTime() >= homeworkDate.getTime() &&
+                    curDate.getDay() == homeworkDate.getDay();
                 const showIfMonthly =
                     homework[i].returning == "2" &&
-                    currentStudiewijzerDate.getTime() >=
-                        homeworkDate.getTime() &&
-                    currentStudiewijzerDate.getDate() ==
-                        homeworkDate.getDate() &&
+                    curDate.getTime() >= homeworkDate.getTime() &&
+                    curDate.getDate() == homeworkDate.getDate() &&
                     !isWeek;
                 if (
                     (showIfOnce || showIfWeekly || showIfMonthly) &&
@@ -1032,10 +1025,7 @@ export function modInit() {
                     let done: any;
                     // Weekly/monthly task
                     if (typeof homework[i].done === "object") {
-                        done =
-                            homework[i].done[
-                                currentStudiewijzerDate.getTime()
-                            ] == true;
+                        done = homework[i].done[curDate.getTime()] == true;
                     } else {
                         done = homework[i].done;
                     }
@@ -1250,17 +1240,11 @@ export function modInit() {
                                     child.addEventListener(
                                         "click",
                                         function (this: HTMLElement) {
-                                            if (
-                                                this.parentElement.getElementsByClassName(
+                                            this.parentElement
+                                                ?.getElementsByClassName(
                                                     "active",
                                                 )[0]
-                                            ) {
-                                                this.parentElement
-                                                    .getElementsByClassName(
-                                                        "active",
-                                                    )[0]
-                                                    .classList.remove("active");
-                                            }
+                                                ?.classList.remove("active");
                                             this.classList.add("active");
                                         },
                                     );
@@ -1293,9 +1277,8 @@ export function modInit() {
                                     );
                                     // Weekly/monthly task
                                     if (typeof homework[i].done === "object") {
-                                        homework[i].done[
-                                            currentStudiewijzerDate.getTime()
-                                        ] = false;
+                                        homework[i].done[curDate.getTime()] =
+                                            false;
                                     }
                                     // Single task
                                     else {
@@ -1417,9 +1400,8 @@ export function modInit() {
                                     }
                                     // Weekly/monthly task
                                     if (typeof homework[i].done === "object") {
-                                        homework[i].done[
-                                            currentStudiewijzerDate.getTime()
-                                        ] = true;
+                                        homework[i].done[curDate.getTime()] =
+                                            true;
                                     }
                                     // Single task
                                     else {
@@ -1890,6 +1872,7 @@ export function modInit() {
     }
 
     async function importSettings(this: HTMLInputElement) {
+        if (!this.files?.[0]) return;
         execute([reset]);
         new Response(this.files[0]).json().then(
             (json) => {
@@ -1961,8 +1944,10 @@ export function modInit() {
                     "click",
                     function (this: HTMLButtonElement) {
                         newYearCountdownClosed = true;
-                        this.parentElement.style.height = "0px";
-                        this.parentElement.style.padding = "0px";
+                        if (this.parentElement) {
+                            this.parentElement.style.height = "0px";
+                            this.parentElement.style.padding = "0px";
+                        }
                         setTimeout(() => {
                             if (this && this.parentElement) {
                                 this.parentElement.remove();
@@ -2040,7 +2025,7 @@ export function modInit() {
                     countdownElement.appendChild(div);
                 }
                 parent.appendChild(countdownElement);
-                rosterContainer.parentElement.insertAdjacentElement(
+                rosterContainer.parentElement?.insertAdjacentElement(
                     "beforebegin",
                     parent,
                 );
@@ -2140,7 +2125,7 @@ export function modInit() {
                         h3.innerText = "GELUKKIG NIEUWJAAR!";
                         const fireworkElement = document.createElement("div");
                         fireworkElement.id = "mod-fireworks";
-                        rosterContainer.insertAdjacentElement(
+                        rosterContainer?.insertAdjacentElement(
                             "beforebegin",
                             fireworkElement,
                         );
@@ -4184,6 +4169,9 @@ export function modInit() {
         const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
         const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
         const shaderProgram = gl.createProgram();
+        if (!vertexShader || !fragmentShader || !shaderProgram) {
+            return null;
+        }
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
         gl.linkProgram(shaderProgram);
@@ -4196,6 +4184,9 @@ export function modInit() {
         source: string,
     ) {
         const shader = gl.createShader(type);
+        if (!shader) {
+            return null;
+        }
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -5202,6 +5193,7 @@ export function modInit() {
             );
             const canvas = id("mod-grade-canvas");
             const ctx = canvas.getContext("2d");
+            if (!ctx) return;
             // Use data urls for font in SVG
             const kanit = await window.getResourceAsBase64(
                 "fonts/Kanit-ExtraLight.woff2",
@@ -5262,7 +5254,8 @@ export function modInit() {
             const recapCanvas = document.getElementById(
                 "recap-chart",
             ) as HTMLCanvasElement;
-            const recapCtx = recapCanvas.getContext("2d");
+            const recapCtx = recapCanvas?.getContext("2d");
+            if (!recapCtx) return;
             const recapGradient = recapCtx.createLinearGradient(0, 0, 0, 300);
             recapGradient.addColorStop(0, "#fff");
             recapGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
@@ -5346,7 +5339,8 @@ export function modInit() {
         let canvas = document.getElementById(
             "mod-chart-1",
         ) as HTMLCanvasElement;
-        let ctx = canvas.getContext("2d");
+        let ctx = canvas?.getContext("2d");
+        if (!ctx) return;
         const points = [];
         const weight = [];
         const dates = [];
@@ -5570,7 +5564,8 @@ export function modInit() {
             },
         });
         canvas = document.getElementById("mod-chart-2") as HTMLCanvasElement;
-        ctx = canvas.getContext("2d");
+        ctx = canvas?.getContext("2d");
+        if (!ctx) return;
         const values = [];
         let totalGrades = 0;
         let rollingTotalWeight = 0;
@@ -5731,20 +5726,14 @@ export function modInit() {
             ) {
                 // Ignore this grade and continue with the next one if the weight is not a number
                 // Should never happen unless your school has a fucked up and stupid grade system
-                if (
-                    element
-                        .getElementsByClassName("weging")[0]
-                        .innerHTML.replace(",", ".")
-                        .match(/[0-9]+(\.[0-9]+)?/) == null
-                ) {
+                const wegingMatch = element
+                    .getElementsByClassName("weging")[0]
+                    ?.innerHTML.replace(",", ".")
+                    .match(/[0-9]+(\.[0-9]+)?/);
+                if (!wegingMatch) {
                     continue;
                 }
-                const tempWeight = parseFloat(
-                    element
-                        .getElementsByClassName("weging")[0]
-                        .innerHTML.replace(",", ".")
-                        .match(/[0-9]+(\.[0-9]+)?/)[0],
-                );
+                const tempWeight = parseFloat(wegingMatch[0]);
                 const tempGrade = parseFloat(
                     element
                         .getElementsByClassName("cijfer")[0]
@@ -6343,6 +6332,7 @@ export function modInit() {
                             : null;
                         if (
                             cijfer.ariaLabel &&
+                            weging !== null &&
                             !Number.isNaN(weging) &&
                             !cijfer.classList.contains("gemiddelde")
                         ) {
@@ -6595,8 +6585,8 @@ export function modInit() {
                 draggingEle.style.removeProperty("top");
                 draggingEle.style.removeProperty("left");
                 draggingEle.style.removeProperty("position");
-                x = null;
-                y = null;
+                x = 0;
+                y = 0;
                 draggingEle = null;
                 isDraggingStarted = false;
                 document.removeEventListener("mousemove", mouseMoveHandler);
@@ -6604,12 +6594,10 @@ export function modInit() {
                 document.removeEventListener("mouseup", mouseUpHandler);
                 document.removeEventListener("touchend", mouseUpHandler);
             };
-            [].slice
-                .call(list.querySelectorAll(".mod-item"))
-                .forEach((item) => {
-                    item.addEventListener("mousedown", mouseDownHandler);
-                    item.addEventListener("touchstart", mouseDownHandler);
-                });
+            list?.querySelectorAll<HTMLElement>(".mod-item").forEach((item) => {
+                item.addEventListener("mousedown", mouseDownHandler);
+                item.addEventListener("touchstart", mouseDownHandler);
+            });
 
             let clicked = false;
             let answerInterval: any;
@@ -7558,7 +7546,8 @@ export function modInit() {
             const recapCanvas = document.getElementById(
                 "recap-chart",
             ) as HTMLCanvasElement;
-            const recapCtx = recapCanvas.getContext("2d");
+            const recapCtx = recapCanvas?.getContext("2d");
+            if (!recapCtx) return;
             new Chart(recapCtx, {
                 type: "doughnut",
                 data: {
@@ -7639,7 +7628,8 @@ export function modInit() {
             const recapCanvas = document.getElementById(
                 "recap-chart",
             ) as HTMLCanvasElement;
-            const recapCtx = recapCanvas.getContext("2d");
+            const recapCtx = recapCanvas?.getContext("2d");
+            if (!recapCtx) return;
             new Chart(recapCtx, {
                 type: "doughnut",
                 data: {
@@ -7690,7 +7680,8 @@ export function modInit() {
             const recapCanvas = document.getElementById(
                 "recap-chart",
             ) as HTMLCanvasElement;
-            const recapCtx = recapCanvas.getContext("2d");
+            const recapCtx = recapCanvas?.getContext("2d");
+            if (!recapCtx) return;
             new Chart(recapCtx, {
                 type: "doughnut",
                 data: {
@@ -7749,7 +7740,8 @@ export function modInit() {
             const recapCanvas = document.getElementById(
                 "recap-chart",
             ) as HTMLCanvasElement;
-            const recapCtx = recapCanvas.getContext("2d");
+            const recapCtx = recapCanvas?.getContext("2d");
+            if (!recapCtx) return;
             new Chart(recapCtx, {
                 type: "bar",
                 data: {
@@ -8744,18 +8736,20 @@ export function modInit() {
                 id("mod-font-file").addEventListener(
                     "input",
                     function (this: HTMLInputElement) {
-                        if (this.files.length != 0) {
+                        const fontFile = this.files?.[0];
+                        if (fontFile) {
                             tryRemove(id("mod-font-preview"));
-                            (
-                                this.parentElement.getElementsByTagName(
+                            const label =
+                                this.parentElement?.getElementsByTagName(
                                     "label",
-                                )[0].children[1] as HTMLElement
-                            ).innerText = this.files[0].name.toLowerCase();
-                            this.parentElement
-                                .getElementsByTagName("label")[0]
-                                .classList.add("mod-active");
+                                )[0];
+                            if (label?.children[1]) {
+                                (label.children[1] as HTMLElement).innerText =
+                                    fontFile.name.toLowerCase();
+                            }
+                            label?.classList.add("mod-active");
                             const reader = new FileReader();
-                            reader.readAsDataURL(id("mod-font-file").files[0]);
+                            reader.readAsDataURL(fontFile);
                             reader.onload = () => {
                                 setTimeout(() => {
                                     tn("head", 0).insertAdjacentHTML(
@@ -8764,34 +8758,39 @@ export function modInit() {
                                             reader.result +
                                             '");}</style>',
                                     );
-                                    (
-                                        document.getElementById("font-box")
-                                            .children[0] as HTMLElement
-                                    ).style.setProperty(
-                                        "font-family",
-                                        "modCustomFontPreview, sans-serif",
-                                        "important",
-                                    );
-                                    (
-                                        document.getElementById("font-box")
-                                            .children[1] as HTMLElement
-                                    ).style.setProperty(
-                                        "font-family",
-                                        "modCustomFontPreview, sans-serif",
-                                        "important",
-                                    );
+                                    const fontBox =
+                                        document.getElementById("font-box");
+                                    if (fontBox?.children[0]) {
+                                        (
+                                            fontBox.children[0] as HTMLElement
+                                        ).style.setProperty(
+                                            "font-family",
+                                            "modCustomFontPreview, sans-serif",
+                                            "important",
+                                        );
+                                    }
+                                    if (fontBox?.children[1]) {
+                                        (
+                                            fontBox.children[1] as HTMLElement
+                                        ).style.setProperty(
+                                            "font-family",
+                                            "modCustomFontPreview, sans-serif",
+                                            "important",
+                                        );
+                                    }
                                 }, 100);
                             };
                         } else {
-                            (
-                                this.parentElement.getElementsByTagName(
+                            const label =
+                                this.parentElement?.getElementsByTagName(
                                     "label",
-                                )[0].children[1] as HTMLElement
-                            ).innerText = "Of upload lettertype";
-                            this.parentElement
-                                .getElementsByTagName("label")[0]
-                                .classList.remove("mod-active");
-                            this.value = null;
+                                )[0];
+                            if (label?.children[1]) {
+                                (label.children[1] as HTMLElement).innerText =
+                                    "Of upload lettertype";
+                            }
+                            label?.classList.remove("mod-active");
+                            this.value = "";
                         }
                     },
                 );
@@ -8884,11 +8883,12 @@ export function modInit() {
             );
             document
                 .getElementById("more-themes")
-                .addEventListener("click", function () {
+                ?.addEventListener("click", function (this: HTMLElement) {
                     const hiddenThemes =
-                        this.previousElementSibling.querySelectorAll(
+                        this.previousElementSibling?.querySelectorAll(
                             ".theme[style]",
                         );
+                    if (!hiddenThemes) return;
                     for (let i = 0; i < 10; i++) {
                         if (n(hiddenThemes[i])) break;
 
@@ -8988,13 +8988,16 @@ export function modInit() {
                     "input",
                     function (this: HTMLInputElement) {
                         const files = this.files;
+                        if (!files) return;
                         for (let i = 0; i < files.length; i++) {
+                            const file = files[i];
+                            if (!file) continue;
                             if (
                                 this.accept != "image/*" ||
-                                files[i].type.indexOf("image") != -1
+                                file.type.indexOf("image") != -1
                             ) {
                                 const reader = new FileReader();
-                                reader.readAsDataURL(this.files[i]);
+                                reader.readAsDataURL(file);
                                 reader.onload = () => {
                                     id("mod-background-wrapper").classList.add(
                                         "mod-modified",
@@ -9010,11 +9013,11 @@ export function modInit() {
                 id("background").addEventListener(
                     "input",
                     function (this: HTMLInputElement) {
-                        if (this.files[0] != null) {
-                            const isVideo =
-                                this.files[0].type.indexOf("video") != -1;
+                        const file = this.files?.[0];
+                        if (file != null) {
+                            const isVideo = file.type.indexOf("video") != -1;
                             const reader = new FileReader();
-                            reader.readAsDataURL(this.files[0]);
+                            reader.readAsDataURL(file);
                             id("mod-background-preview-image").style.display =
                                 !isVideo ? "block" : "none";
                             id("mod-background-preview-video").style.display =
@@ -9075,8 +9078,8 @@ export function modInit() {
                     "click",
                     function (this: HTMLElement) {
                         this.parentElement
-                            .getElementsByClassName("active")[0]
-                            .classList.remove("active");
+                            ?.getElementsByClassName("active")[0]
+                            ?.classList.remove("active");
                         this.classList.add("active");
                         show(id("mod-bg-image"));
                         hide(id("mod-bg-slideshow"));
@@ -9088,8 +9091,8 @@ export function modInit() {
                     "click",
                     function (this: HTMLElement) {
                         this.parentElement
-                            .getElementsByClassName("active")[0]
-                            .classList.remove("active");
+                            ?.getElementsByClassName("active")[0]
+                            ?.classList.remove("active");
                         this.classList.add("active");
                         hide(id("mod-bg-image"));
                         show(id("mod-bg-slideshow"));
@@ -9101,8 +9104,8 @@ export function modInit() {
                     "click",
                     function (this: HTMLElement) {
                         this.parentElement
-                            .getElementsByClassName("active")[0]
-                            .classList.remove("active");
+                            ?.getElementsByClassName("active")[0]
+                            ?.classList.remove("active");
                         this.classList.add("active");
                         hide(id("mod-bg-image"));
                         hide(id("mod-bg-slideshow"));
@@ -9114,8 +9117,8 @@ export function modInit() {
                     "click",
                     function (this: HTMLElement) {
                         this.parentElement
-                            .getElementsByClassName("active")[0]
-                            .classList.remove("active");
+                            ?.getElementsByClassName("active")[0]
+                            ?.classList.remove("active");
                         this.classList.add("active");
                         hide(id("mod-bg-image"));
                         hide(id("mod-bg-slideshow"));
@@ -9132,8 +9135,8 @@ export function modInit() {
                         "click",
                         function (this: HTMLElement) {
                             this.parentElement
-                                .getElementsByClassName("active")[0]
-                                .classList.remove("active");
+                                ?.getElementsByClassName("active")[0]
+                                ?.classList.remove("active");
                             this.classList.add("active");
                         },
                     );
@@ -9150,8 +9153,10 @@ export function modInit() {
                         "input",
                         function (this: HTMLInputElement) {
                             this.classList.add("mod-modified");
-                            this.parentElement.children[2].innerHTML =
-                                this.value + this.dataset.unit;
+                            if (this.parentElement?.children[2]) {
+                                this.parentElement.children[2].innerHTML =
+                                    this.value + (this.dataset.unit || "");
+                            }
                             id(
                                 "mod-background-preview-image",
                             ).style.setProperty(
@@ -9173,6 +9178,8 @@ export function modInit() {
                     // Prevent default behavior (Prevent file from being opened)
                     event.preventDefault();
 
+                    if (!event.dataTransfer) return;
+
                     let done = false;
                     if (event.dataTransfer.items) {
                         [...event.dataTransfer.items].forEach((item) => {
@@ -9180,14 +9187,18 @@ export function modInit() {
                                 done = true;
                                 element.classList.remove("mod-drag-and-drop");
                                 const file = item.getAsFile();
+                                if (!file) return;
                                 const dataTransfer = new DataTransfer();
                                 dataTransfer.items.add(file);
                                 const fileList = dataTransfer.files;
-                                element.parentElement.previousElementSibling.files =
-                                    fileList;
+                                const prevInput = element.parentElement
+                                    ?.previousElementSibling as HTMLInputElement | null;
+                                if (prevInput) {
+                                    prevInput.files = fileList;
+                                }
                             }
                         });
-                    } else {
+                    } else if (event.dataTransfer.files) {
                         [...event.dataTransfer.files].forEach((file) => {
                             if (!done) {
                                 done = true;
@@ -9195,15 +9206,18 @@ export function modInit() {
                                 const dataTransfer = new DataTransfer();
                                 dataTransfer.items.add(file);
                                 const fileList = dataTransfer.files;
-                                element.parentElement.previousElementSibling.files =
-                                    fileList;
+                                const prevInput = element.parentElement
+                                    ?.previousElementSibling as HTMLInputElement | null;
+                                if (prevInput) {
+                                    prevInput.files = fileList;
+                                }
                             }
                         });
                     }
                     const inputEvent = new Event("input", {
                         bubbles: false,
                     });
-                    element.parentElement.previousElementSibling.dispatchEvent(
+                    element.parentElement?.previousElementSibling?.dispatchEvent(
                         inputEvent,
                     );
                 });
@@ -9703,6 +9717,7 @@ export function modInit() {
                         size = parseInt(size, 10);
                         const canvas = document.createElement("canvas");
                         const ctx = canvas.getContext("2d");
+                        if (!ctx) return;
                         const img = new Image();
                         canvas.height = size;
                         canvas.width = size;

@@ -195,7 +195,7 @@ function addNightTheme(): void {
         'div[data-gtm="instellingen-weergave-theme-dark-mode"]',
     );
     const darkImage = darkDiv?.getElementsByTagName("img")[0];
-    if (!darkDiv) return;
+    if (!blokDiv || !darkDiv) return;
 
     const nightDiv = darkDiv.cloneNode(true) as HTMLElement;
     nightDiv.id = "mod-night-theme";

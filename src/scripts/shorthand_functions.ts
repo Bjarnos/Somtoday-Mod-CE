@@ -185,10 +185,10 @@ export const BOOL_INDEX = {
 
 // Get modlogo SVG
 window.logo = (
-    id?: string,
-    classname?: string,
-    color?: string,
-    style?: string,
+    id?: string | null,
+    classname?: string | null,
+    color?: string | null,
+    style?: string | null,
 ): string =>
     '<svg xmlns="http://www.w3.org/2000/svg"' +
     (n(id) ? "" : ` id="${id}"`) +
@@ -278,10 +278,10 @@ window.getAudioUrl = (file: string): string => {
 
 // Construct an icon in SVG format. Only contains icons used by this mod. Icons thanks to Font Awesome: https://fontawesome.com/
 window.getIcon = (
-    name?: string,
-    classname?: string,
-    color?: string,
-    start?: string,
+    name?: string | null,
+    classname?: string | null,
+    color?: string | null,
+    start?: string | null,
 ): string => {
     let svg: string;
     let viewbox = "0 0 512 512";
