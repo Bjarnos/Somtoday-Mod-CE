@@ -154,7 +154,7 @@ jobs:
           chrome-file: dist/chromium.zip
           verbose: true
 
-      - name: Publish to Firefox Add-ons (AMO)
+      - name: Publish to Firefox Add-ons
         if: env.FIREFOX_JWT_SECRET != ''
         continue-on-error: true
         uses: PlasmoHQ/bpp@v3
