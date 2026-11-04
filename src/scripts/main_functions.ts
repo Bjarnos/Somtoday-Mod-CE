@@ -1754,7 +1754,7 @@ export function modInit() {
         let json: any;
         try {
             json = JSON.parse(str);
-        } catch (e) {
+        } catch {
             return null;
         }
         return json;
@@ -2258,7 +2258,6 @@ export function modInit() {
                                 "visible";
                             // Update the time text at the left to display 'hh:mm' instead of 'nth hour'
                             if (tn("sl-rooster-tijden", 0)) {
-                                let i = 0;
                                 for (const element of tn("sl-rooster-tijden", 0)
                                     .children) {
                                     const span =
@@ -2272,7 +2271,6 @@ export function modInit() {
                                             span.dataset.modOriginalContent,
                                         );
                                     }
-                                    i++;
                                 }
                             }
                         }

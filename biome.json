@@ -35,9 +35,6 @@
                 "noDoubleEquals": "off",
                 "noExplicitAny": "off"
             },
-            "correctness": {
-                "noUnusedVariables": "off"
-            },
             "style": {
                 "noDescendingSpecificity": "off"
             }
