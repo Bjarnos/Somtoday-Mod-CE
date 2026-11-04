@@ -49,12 +49,20 @@ function copyDirRecursive(src, dest, ignoreList = []) {
         const srcPath = path.join(src, entry.name);
         const destPath = path.join(dest, entry.name);
 
-        if (ignoreList.includes(entry.name)) {
+        if (ignoreList.includes(entry.name) || entry.name.endsWith(".d.ts")) {
             continue;
         }
 
         if (entry.isDirectory()) {
             copyDirRecursive(srcPath, destPath, ignoreList);
+        } else if (entry.name.endsWith(".ts")) {
+            const tsSource = fs.readFileSync(srcPath, "utf8");
+            const transformed = esbuild.transformSync(tsSource, {
+                loader: "ts",
+                target: "es2022",
+            });
+            const outJsPath = destPath.replace(/\.ts$/, ".js");
+            fs.writeFileSync(outJsPath, transformed.code, "utf8");
         } else {
             fs.copyFileSync(srcPath, destPath);
         }
@@ -114,7 +122,11 @@ async function build() {
         fs.readFileSync(path.join(SRC_DIR, "manifest.firefox.json"), "utf8"),
     );
 
-    const ignoredInCopy = ["manifest.chromium.json", "manifest.firefox.json"];
+    const ignoredInCopy = [
+        "manifest.chromium.json",
+        "manifest.firefox.json",
+        "types",
+    ];
 
     // --- BUILD CHROMIUM EXTENSION ---
     console.log("1. Building Chromium extension...");
@@ -197,18 +209,32 @@ async function build() {
 
     // --- BUILD USERSCRIPT ---
     console.log("4. Generating Userscript...");
-    const contentScripts = chromiumManifest.content_scripts[0].js;
+    const contentScripts =
+        chromiumManifest.content_scripts.find((c) => c.js)?.js || [];
     let userscriptBody = "";
     for (const scriptFile of contentScripts) {
-        const scriptContent = fs.readFileSync(
-            path.join(SRC_DIR, scriptFile),
-            "utf8",
-        );
+        const jsPath = path.join(SRC_DIR, scriptFile);
+        let scriptContent;
+        if (fs.existsSync(jsPath)) {
+            scriptContent = fs.readFileSync(jsPath, "utf8");
+        } else {
+            const tsPath = jsPath.replace(/\.js$/, ".ts");
+            if (fs.existsSync(tsPath)) {
+                const tsContent = fs.readFileSync(tsPath, "utf8");
+                scriptContent = esbuild.transformSync(tsContent, {
+                    loader: "ts",
+                    target: "es2022",
+                }).code;
+            } else {
+                throw new Error(`Content script not found: ${scriptFile}`);
+            }
+        }
         userscriptBody += scriptContent + "\n";
     }
 
     // Insert CSS
-    const cssFiles = chromiumManifest.content_scripts[0].css;
+    const cssFiles =
+        chromiumManifest.content_scripts.find((c) => c.css)?.css || [];
     let concatenatedCss = "";
     for (const cssFile of cssFiles) {
         concatenatedCss += fs.readFileSync(path.join(SRC_DIR, cssFile), "utf8");

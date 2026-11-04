@@ -1,4 +1,5 @@
 name: Release
+run-name: Release ${{ github.ref_name }}
 
 on:
   release:
@@ -31,6 +32,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -43,6 +46,15 @@ jobs:
 
       - name: Run build script
         run: npm run build
+
+      - name: Extract Tag Message
+        id: tag_info
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+            TAG_MSG=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
+            echo "tag_body<<EOF" >> $GITHUB_OUTPUT
+            echo "$TAG_MSG" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Upload Chromium Extension
         uses: actions/upload-artifact@v4
@@ -76,6 +88,8 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.release.tag_name || inputs.release_tag || github.ref_name }}
+          name: ${{ github.event.release.name || inputs.release_tag || github.ref_name }}
+          body: ${{ steps.tag_info.outputs.tag_body }}
           generate_release_notes: true
           preserve_order: true
           files: |

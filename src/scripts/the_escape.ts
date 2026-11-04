@@ -1,6 +1,6 @@
 // MINIGAME
 // Platformer v1 minigame
-function startTheEscape() {
+function startTheEscape(): void {
     document.body.insertAdjacentHTML(
         "beforeend",
         '<div id="legacy-game"><p id="legacy-playtime"></p><p id="legacy-close-button">&times;</p><div id="legacy-basefloor"></div><div id="legacy-player-container"><svg id="legacy-flag-end" viewBox="0 0 147.6 250.5"><defs><linearGradient x1="154.8" y1="129.9" x2="287" y2="129.9" gradientUnits="userSpaceOnUse" id="a"><stop offset="0" stop-color="red"/><stop offset="1" stop-color="#ca0000"/></linearGradient></defs><g data-paper-data="{&quot;isPaintingLayer&quot;:true}" stroke-width="0" stroke-miterlimit="10" style="mix-blend-mode:normal"><path d="m155 76 132 54-132 54z" data-paper-data="{&quot;index&quot;:null}" fill="url(#a)" transform="translate(-139 -56)"/><path d="M5 244V14h11v230z" fill="#ffad66"/><path d="M22 10a11 11 0 1 1-22 2 11 11 0 0 1 22-2zm-6 235a5 5 0 1 1-11 0 5 5 0 0 1 11 0z" fill="#ffad66"/></g></svg><svg id="legacy-player" viewBox="0 0 49 49"><rect id="legacy-player-rect" x="0" y="39" width="49" height="10" fill="transparent"></rect><path d="M44.6819 17.3781H43.3148C41.7353 17.3781 40.4606 16.1316 40.4606 14.5871V11.9045C40.4606 10.36 39.1859 9.11355 37.6064 9.11355H32.6184C31.0389 9.11355 29.7642 7.8671 29.7642 6.32258V2.79097C29.7642 1.24645 28.4895 0 26.91 0H22.153C20.5734 0 19.2987 1.24645 19.2987 2.79097V6.32258C19.2987 7.8671 18.024 9.11355 16.4445 9.11355H11.4566C9.87706 9.11355 8.60236 10.36 8.60236 11.9045V14.5871C8.60236 16.1316 7.32766 17.3781 5.74814 17.3781H4.38107C2.80155 17.3781 1.52686 18.6245 1.52686 20.169V28.5058C1.52686 30.0503 2.80155 31.2968 4.38107 31.2968H5.72967C7.30918 31.2968 8.58388 32.5432 8.58388 34.0877V37.1768C8.58388 38.7213 9.85858 39.9677 11.4381 39.9677C13.0176 39.9677 14.2923 41.2142 14.2923 42.7587V46.209C14.2923 47.7535 15.567 49 17.1465 49H20.2132C21.7927 49 23.0674 47.7535 23.0674 46.209V41.4039C23.0674 40.609 23.7232 39.9768 24.5269 39.9768C25.3305 39.9768 25.9863 40.6181 25.9863 41.4039V46.209C25.9863 47.7535 27.261 49 28.8405 49H31.9072C33.4867 49 34.7614 47.7535 34.7614 46.209V42.7587C34.7614 41.2142 36.0361 39.9677 37.6156 39.9677C39.1951 39.9677 40.4698 38.7213 40.4698 37.1768V34.0877C40.4698 32.5432 41.7445 31.2968 43.324 31.2968H44.6726C46.2522 31.2968 47.5269 30.0503 47.5269 28.5058V20.169C47.5269 18.6245 46.2522 17.3781 44.6726 17.3781H44.6819ZM37.902 26.4465C37.006 29.3368 35.0108 31.7123 32.2859 33.1394C30.5863 34.0245 28.7297 34.4761 26.8453 34.4761C25.7184 34.4761 24.5823 34.3135 23.4738 33.9794C22.7995 33.7806 22.4208 33.0852 22.624 32.4348C22.8273 31.7755 23.5385 31.4052 24.2128 31.6039C26.522 32.2903 28.9606 32.0555 31.0943 30.9445C33.2188 29.8335 34.7799 27.9819 35.4819 25.7239C35.6851 25.0645 36.3963 24.7032 37.0706 24.8929C37.7449 25.0916 38.1236 25.7871 37.9204 26.4465H37.902Z" fill="var(--bg-primary-normal)" /></svg>' +
@@ -19,10 +19,10 @@ function startTheEscape() {
             '<h1 id="legacy-h1-header"></h1><h3 id="legacy-h3-header"></h3></div></div>',
     );
 
-    tn("body", 0).classList.add("legacy-game-playing");
+    (tn("body", 0) as HTMLElement | null)?.classList.add("legacy-game-playing");
 
     const detectOverlap = (() => {
-        function getPositions(elem) {
+        function getPositions(elem: Element): [number[], number[]] {
             const pos = elem.getBoundingClientRect();
             return [
                 [pos.left, pos.right],
@@ -30,8 +30,9 @@ function startTheEscape() {
             ];
         }
 
-        function comparePositions(p1, p2) {
-            let r1, r2;
+        function comparePositions(p1: number[], p2: number[]): boolean {
+            let r1: number[];
+            let r2: number[];
             if (p1[0] < p2[0]) {
                 r1 = p1;
                 r2 = p2;
@@ -42,9 +43,9 @@ function startTheEscape() {
             return r1[1] > r2[0] || r1[0] === r2[0];
         }
 
-        return (a, b) => {
-            const pos1 = getPositions(a),
-                pos2 = getPositions(b);
+        return (a: Element, b: Element): boolean => {
+            const pos1 = getPositions(a);
+            const pos2 = getPositions(b);
             return (
                 comparePositions(pos1[0], pos2[0]) &&
                 comparePositions(pos1[1], pos2[1])
@@ -52,39 +53,52 @@ function startTheEscape() {
         };
     })();
 
-    const player = id("legacy-player");
-    const playerRect = id("legacy-player-rect");
+    const player = id("legacy-player") as HTMLElement;
+    const playerRect = id("legacy-player-rect") as Element;
     let positionX = 2;
     let positionY = 0;
     let velocityX = 0;
     let velocityY = 0;
     let onGround = true;
-    let floorElements;
-    let wallElements;
-    let lavaElements;
-    let trampolineElements;
-    let enemyElements;
-    let movingPlatformsUp;
-    let movingPlatformsRight;
-    var pressedKeys = {};
+    let floorElements: HTMLCollectionOf<Element>;
+    let wallElements: HTMLCollectionOf<Element>;
+    let lavaElements: HTMLCollectionOf<Element>;
+    let trampolineElements: HTMLCollectionOf<Element>;
+    let enemyElements: HTMLCollectionOf<Element>;
+    let movingPlatformsUp: HTMLCollectionOf<Element>;
+    let movingPlatformsRight: HTMLCollectionOf<Element>;
+    const pressedKeys: Record<number, boolean> = {};
     let windowWidth = document.documentElement.clientWidth;
     let windowHeight = document.documentElement.clientHeight - 100;
     let level = 1;
-    let activeLevel;
-    for (const element of cn("legacy-enemy")) {
+    let activeLevel: HTMLElement | null;
+
+    const enemies = cn("legacy-enemy") as HTMLCollectionOf<HTMLElement>;
+    for (let i = 0; i < enemies.length; i++) {
+        const element = enemies[i];
         element.dataset.start = element.dataset.x;
         const numOne = Math.floor(Math.random() * 5 + 1);
         let numTwo = Math.floor(Math.random() * 10);
-        if (numOne == 5 && numTwo >= 5) {
+        if (numOne === 5 && numTwo >= 5) {
             numTwo = 4;
         }
-        element.innerHTML =
-            "<p>" + numOne.toString() + "," + numTwo.toString() + "</p>";
+        element.innerHTML = `<p>${numOne.toString()},${numTwo.toString()}</p>`;
     }
 
     let time = 0;
-    let timer;
-    setTimeInterval();
+    let timer: ReturnType<typeof setInterval> | undefined;
+
+    function setTime() {
+        const playtimeEl = id("legacy-playtime");
+        if (playtimeEl) {
+            if (n(get("gamerecord"))) {
+                playtimeEl.innerHTML = `Tijd: ${time}s`;
+            } else {
+                playtimeEl.innerHTML = `Tijd: ${time}s, record: ${String(get("gamerecord"))}s`;
+            }
+        }
+    }
+
     function setTimeInterval() {
         setTime();
         timer = setInterval(() => {
@@ -92,36 +106,23 @@ function startTheEscape() {
             setTime();
         }, 1000);
     }
+    setTimeInterval();
 
-    function setTime() {
-        if (id("legacy-playtime")) {
-            if (n(get("gamerecord"))) {
-                id("legacy-playtime").innerHTML = "Tijd: " + time + "s";
-            } else {
-                id("legacy-playtime").innerHTML =
-                    "Tijd: " +
-                    time +
-                    "s, " +
-                    "record: " +
-                    get("gamerecord") +
-                    "s";
-            }
-        }
-    }
-
-    function openLevel(number) {
+    function openLevel(number: number): void {
         level = number;
         activeLevel = id("legacy-level-" + level.toString());
-        if (number == 11) {
+        if (number === 11) {
             if (!n(timer)) {
                 clearInterval(timer);
             }
-            if (n(get("gamerecord")) || time < get("gamerecord")) {
+            if (n(get("gamerecord")) || time < Number(get("gamerecord"))) {
                 set("gamerecord", time);
             }
         }
         if (n(activeLevel)) {
-            tn("body", 0).classList.remove("legacy-game-playing");
+            (tn("body", 0) as HTMLElement | null)?.classList.remove(
+                "legacy-game-playing",
+            );
             if (!n(updateGame)) {
                 clearInterval(updateGame);
             }
@@ -130,7 +131,7 @@ function startTheEscape() {
             }
             setTimeout(() => {
                 if (id("legacy-game")) {
-                    id("legacy-game").remove();
+                    id("legacy-game")?.remove();
                     const urlParams = new URLSearchParams(
                         window.location.search,
                     );
@@ -144,6 +145,8 @@ function startTheEscape() {
             }, 320);
             return;
         }
+        if (!activeLevel) return;
+
         floorElements = activeLevel.getElementsByClassName("legacy-floor");
         wallElements = activeLevel.getElementsByClassName("legacy-wall");
         lavaElements = activeLevel.getElementsByClassName("legacy-lava");
@@ -156,22 +159,31 @@ function startTheEscape() {
         movingPlatformsRight = activeLevel.getElementsByClassName(
             "legacy-moving-platform-right",
         );
-        id("legacy-h1-header").innerHTML = activeLevel.dataset.title;
-        if (!n(activeLevel.dataset.description)) {
-            id("legacy-h3-header").innerHTML = activeLevel.dataset.description;
-        } else {
-            id("legacy-h3-header").innerHTML = "";
+        const h1 = id("legacy-h1-header");
+        if (h1) h1.innerHTML = activeLevel.dataset.title || "";
+        const h3 = id("legacy-h3-header");
+        if (h3) {
+            if (!n(activeLevel.dataset.description)) {
+                h3.innerHTML = activeLevel.dataset.description || "";
+            } else {
+                h3.innerHTML = "";
+            }
         }
-        cn("legacy-active-level", 0).classList.remove("legacy-active-level");
+        (cn("legacy-active-level", 0) as HTMLElement | null)?.classList.remove(
+            "legacy-active-level",
+        );
         activeLevel.classList.add("legacy-active-level");
-        if (n(activeLevel.dataset.left)) {
-            id("legacy-flag-end").style.left = "";
-            id("legacy-flag-end").style.right = activeLevel.dataset.right + "%";
-        } else {
-            id("legacy-flag-end").style.right = "";
-            id("legacy-flag-end").style.left = activeLevel.dataset.left + "%";
+        const flagEnd = id("legacy-flag-end");
+        if (flagEnd) {
+            if (n(activeLevel.dataset.left)) {
+                flagEnd.style.left = "";
+                flagEnd.style.right = (activeLevel.dataset.right || "0") + "%";
+            } else {
+                flagEnd.style.right = "";
+                flagEnd.style.left = (activeLevel.dataset.left || "0") + "%";
+            }
+            flagEnd.style.bottom = (activeLevel.dataset.bottom || "0") + "%";
         }
-        id("legacy-flag-end").style.bottom = activeLevel.dataset.bottom + "%";
         positionX = 2;
         positionY = 0;
         velocityX = 0;
@@ -181,75 +193,75 @@ function startTheEscape() {
 
     openLevel(1);
 
-    id("legacy-close-game").addEventListener("click", () => {
+    id("legacy-close-game")?.addEventListener("click", () => {
         openLevel(12);
     });
-    id("legacy-close-button").addEventListener("click", () => {
+    id("legacy-close-button")?.addEventListener("click", () => {
         openLevel(12);
     });
-    id("legacy-play-again").addEventListener("click", () => {
+    id("legacy-play-again")?.addEventListener("click", () => {
         time = 0;
         setTimeInterval();
         openLevel(1);
     });
 
-    document.addEventListener("keyup", (e) => {
+    document.addEventListener("keyup", (e: KeyboardEvent) => {
         pressedKeys[e.keyCode] = false;
     });
-    document.addEventListener("keydown", (e) => {
-        if (e.keyCode == 40) {
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.keyCode === 40) {
             e.preventDefault();
         }
         pressedKeys[e.keyCode] = true;
     });
 
-    let touchX;
-    let touchY;
+    let touchX = 0;
+    let touchY = 0;
     let isTouching = false;
-    document.addEventListener("touchstart", (e) => {
+    document.addEventListener("touchstart", (e: TouchEvent) => {
         isTouching = true;
         const touch = e.touches[0] || e.changedTouches[0];
         touchX = touch.pageX;
         touchY = touch.pageY;
     });
-    document.addEventListener("touchmove", (e) => {
+    document.addEventListener("touchmove", (e: TouchEvent) => {
         isTouching = true;
         const touch = e.touches[0] || e.changedTouches[0];
         touchX = touch.pageX;
         touchY = touch.pageY;
     });
-    document.addEventListener("touchend", (e) => {
+    document.addEventListener("touchend", () => {
         isTouching = false;
     });
-    document.addEventListener("touchcancel", (e) => {
+    document.addEventListener("touchcancel", () => {
         isTouching = false;
     });
 
-    document.addEventListener("mousedown", (e) => {
+    document.addEventListener("mousedown", (e: MouseEvent) => {
         isTouching = true;
         touchX = e.clientX;
         touchY = e.clientY;
     });
-    document.addEventListener("mousemove", (e) => {
+    document.addEventListener("mousemove", (e: MouseEvent) => {
         touchX = e.clientX;
         touchY = e.clientY;
     });
-    document.addEventListener("mouseover", (e) => {
+    document.addEventListener("mouseover", (e: MouseEvent) => {
         touchX = e.clientX;
         touchY = e.clientY;
     });
-    document.addEventListener("mouseenter", (e) => {
+    document.addEventListener("mouseenter", (e: MouseEvent) => {
         touchX = e.clientX;
         touchY = e.clientY;
     });
-    document.addEventListener("mouseup", (e) => {
+    document.addEventListener("mouseup", () => {
         isTouching = false;
     });
-    document.addEventListener("mouseleave", (e) => {
+    document.addEventListener("mouseleave", () => {
         isTouching = false;
     });
 
-    document.addEventListener("resize", () => {
+    window.addEventListener("resize", () => {
         windowWidth = document.documentElement.clientWidth;
         windowHeight = document.documentElement.clientHeight;
     });
@@ -264,13 +276,17 @@ function startTheEscape() {
             pressedKeys[87]
         ) {
             if (onGround) {
-                for (const element of movingPlatformsUp) {
-                    if (
-                        element.dataset.direction == "up" &&
-                        detectOverlap(playerRect, element.children[0])
-                    ) {
-                        velocityY += 0.7;
-                        positionY += 0.7;
+                if (movingPlatformsUp) {
+                    for (let i = 0; i < movingPlatformsUp.length; i++) {
+                        const element = movingPlatformsUp[i] as HTMLElement;
+                        if (
+                            element.dataset.direction === "up" &&
+                            element.children[0] &&
+                            detectOverlap(playerRect, element.children[0])
+                        ) {
+                            velocityY += 0.7;
+                            positionY += 0.7;
+                        }
                     }
                 }
                 velocityY += 1.7;
@@ -309,59 +325,75 @@ function startTheEscape() {
         if (velocityX < -1) {
             velocityX = -1;
         }
-        for (const element of movingPlatformsUp) {
-            if (element.dataset.direction == "up") {
-                const newValue = parseFloat(element.dataset.bottom) + 0.5;
-                element.dataset.bottom = newValue;
-                element.children[0].style.bottom = newValue.toString() + "%";
-                if (newValue >= 100) {
-                    element.dataset.direction = "down";
-                }
-                if (detectOverlap(playerRect, element.children[0])) {
-                    positionY +=
-                        ((element.clientHeight / 100) * 0.5) / windowHeight;
-                    onGround = true;
-                }
-            } else {
-                const newValue = parseFloat(element.dataset.bottom) - 0.5;
-                element.dataset.bottom = newValue;
-                element.children[0].style.bottom = newValue.toString() + "%";
-                if (newValue <= 0) {
-                    element.dataset.direction = "up";
-                }
-                if (detectOverlap(playerRect, element.children[0])) {
-                    positionY -=
-                        ((element.clientHeight / 100) * 0.5) / windowHeight;
-                    onGround = true;
+        if (movingPlatformsUp) {
+            for (let i = 0; i < movingPlatformsUp.length; i++) {
+                const element = movingPlatformsUp[i] as HTMLElement;
+                const child = element.children[0] as HTMLElement | undefined;
+                if (!child) continue;
+                if (element.dataset.direction === "up") {
+                    const newValue =
+                        parseFloat(element.dataset.bottom || "0") + 0.5;
+                    element.dataset.bottom = String(newValue);
+                    child.style.bottom = newValue.toString() + "%";
+                    if (newValue >= 100) {
+                        element.dataset.direction = "down";
+                    }
+                    if (detectOverlap(playerRect, child)) {
+                        positionY +=
+                            ((element.clientHeight / 100) * 0.5) / windowHeight;
+                        onGround = true;
+                    }
+                } else {
+                    const newValue =
+                        parseFloat(element.dataset.bottom || "0") - 0.5;
+                    element.dataset.bottom = String(newValue);
+                    child.style.bottom = newValue.toString() + "%";
+                    if (newValue <= 0) {
+                        element.dataset.direction = "up";
+                    }
+                    if (detectOverlap(playerRect, child)) {
+                        positionY -=
+                            ((element.clientHeight / 100) * 0.5) / windowHeight;
+                        onGround = true;
+                    }
                 }
             }
         }
-        for (const element of movingPlatformsRight) {
-            if (element.dataset.direction == "left") {
-                const newValue = parseFloat(element.dataset.right) + 0.4;
-                element.dataset.right = newValue;
-                element.children[0].style.right = newValue.toString() + "%";
-                if (newValue >= 100) {
-                    element.dataset.direction = "right";
-                }
-                if (detectOverlap(playerRect, element.children[0])) {
-                    positionX -=
-                        (((element.clientWidth / 100) * 0.4) / windowWidth) *
-                        100;
-                    onGround = true;
-                }
-            } else {
-                const newValue = parseFloat(element.dataset.right) - 0.4;
-                element.dataset.right = newValue;
-                element.children[0].style.right = newValue.toString() + "%";
-                if (newValue <= 0) {
-                    element.dataset.direction = "left";
-                }
-                if (detectOverlap(playerRect, element.children[0])) {
-                    positionX +=
-                        (((element.clientWidth / 100) * 0.4) / windowWidth) *
-                        100;
-                    onGround = true;
+        if (movingPlatformsRight) {
+            for (let i = 0; i < movingPlatformsRight.length; i++) {
+                const element = movingPlatformsRight[i] as HTMLElement;
+                const child = element.children[0] as HTMLElement | undefined;
+                if (!child) continue;
+                if (element.dataset.direction === "left") {
+                    const newValue =
+                        parseFloat(element.dataset.right || "0") + 0.4;
+                    element.dataset.right = String(newValue);
+                    child.style.right = newValue.toString() + "%";
+                    if (newValue >= 100) {
+                        element.dataset.direction = "right";
+                    }
+                    if (detectOverlap(playerRect, child)) {
+                        positionX -=
+                            (((element.clientWidth / 100) * 0.4) /
+                                windowWidth) *
+                            100;
+                        onGround = true;
+                    }
+                } else {
+                    const newValue =
+                        parseFloat(element.dataset.right || "0") - 0.4;
+                    element.dataset.right = String(newValue);
+                    child.style.right = newValue.toString() + "%";
+                    if (newValue <= 0) {
+                        element.dataset.direction = "left";
+                    }
+                    if (detectOverlap(playerRect, child)) {
+                        positionX +=
+                            (((element.clientWidth / 100) * 0.4) /
+                                windowWidth) *
+                            100;
+                        onGround = true;
+                    }
                 }
             }
         }
@@ -370,42 +402,52 @@ function startTheEscape() {
             onGround = true;
         } else {
             onGround = false;
-            for (const element of floorElements) {
-                if (detectOverlap(playerRect, element)) {
-                    if (velocityY <= 0) {
-                        velocityY = 0;
-                        onGround = true;
-                        player.style.bottom = positionY + 0.3 + "%";
-                        if (detectOverlap(playerRect, element)) {
-                            positionY += 0.3;
+            if (floorElements) {
+                for (let i = 0; i < floorElements.length; i++) {
+                    const element = floorElements[i];
+                    if (detectOverlap(playerRect, element)) {
+                        if (velocityY <= 0) {
+                            velocityY = 0;
+                            onGround = true;
+                            player.style.bottom = positionY + 0.3 + "%";
+                            if (detectOverlap(playerRect, element)) {
+                                positionY += 0.3;
+                            }
+                        } else {
+                            velocityY = -0.5;
                         }
-                    } else {
+                        break;
+                    } else if (detectOverlap(player, element)) {
                         velocityY = -0.5;
+                        break;
                     }
-                    break;
-                } else if (detectOverlap(player, element)) {
-                    velocityY = -0.5;
-                    break;
                 }
             }
         }
-        for (const element of wallElements) {
-            if (detectOverlap(playerRect, element)) {
-                if (velocityX > 0) {
-                    velocityX = -0.5;
-                } else if (velocityX < 0) {
-                    velocityX = 0.5;
+        if (wallElements) {
+            for (let i = 0; i < wallElements.length; i++) {
+                const element = wallElements[i];
+                if (detectOverlap(playerRect, element)) {
+                    if (velocityX > 0) {
+                        velocityX = -0.5;
+                    } else if (velocityX < 0) {
+                        velocityX = 0.5;
+                    }
                 }
             }
         }
-        for (const element of trampolineElements) {
-            if (detectOverlap(player, element)) {
-                if (n(element.dataset.strength)) {
-                    velocityY = 2.5;
-                } else {
-                    velocityY = 2.5 * parseFloat(element.dataset.strength);
+        if (trampolineElements) {
+            for (let i = 0; i < trampolineElements.length; i++) {
+                const element = trampolineElements[i] as HTMLElement;
+                if (detectOverlap(player, element)) {
+                    if (n(element.dataset.strength)) {
+                        velocityY = 2.5;
+                    } else {
+                        velocityY =
+                            2.5 * parseFloat(element.dataset.strength || "1");
+                    }
+                    onGround = false;
                 }
-                onGround = false;
             }
         }
         if (positionX + velocityX < 0) {
@@ -413,7 +455,7 @@ function startTheEscape() {
             const newLevel = level - 1;
             if (newLevel >= 0) {
                 setTimeout(() => {
-                    if (level != newLevel && positionX + velocityX < 0) {
+                    if (level !== newLevel && positionX + velocityX < 0) {
                         openLevel(newLevel);
                     }
                 }, 2000);
@@ -437,52 +479,62 @@ function startTheEscape() {
         }
         player.style.left = positionX + "%";
         player.style.bottom = positionY + "%";
-        if (detectOverlap(player, id("legacy-flag-end"))) {
+        const flag = id("legacy-flag-end");
+        if (flag && detectOverlap(player, flag)) {
             openLevel(level + 1);
         }
-        for (const element of lavaElements) {
-            if (detectOverlap(player, element)) {
-                positionX = 2;
-                positionY = 0;
-                velocityX = 0;
-                velocityY = 0;
-                onGround = true;
+        if (lavaElements) {
+            for (let i = 0; i < lavaElements.length; i++) {
+                const element = lavaElements[i];
+                if (detectOverlap(player, element)) {
+                    positionX = 2;
+                    positionY = 0;
+                    velocityX = 0;
+                    velocityY = 0;
+                    onGround = true;
+                }
             }
         }
-        for (const element of enemyElements) {
-            if (detectOverlap(player, element)) {
-                positionX = 2;
-                positionY = 0;
-                velocityX = 0;
-                velocityY = 0;
-                onGround = true;
-                for (const element of enemyElements) {
-                    element.dataset.x = element.dataset.start;
-                    element.style.left =
-                        parseFloat(element.dataset.x).toString() + "%";
-                }
-            } else {
-                const currentPositionX = parseFloat(element.dataset.x);
-                let newValue;
-                if (currentPositionX > positionX) {
-                    newValue = currentPositionX - 0.18;
+        if (enemyElements) {
+            for (let i = 0; i < enemyElements.length; i++) {
+                const element = enemyElements[i] as HTMLElement;
+                if (detectOverlap(player, element)) {
+                    positionX = 2;
+                    positionY = 0;
+                    velocityX = 0;
+                    velocityY = 0;
+                    onGround = true;
+                    for (let j = 0; j < enemyElements.length; j++) {
+                        const enemy = enemyElements[j] as HTMLElement;
+                        enemy.dataset.x = enemy.dataset.start;
+                        enemy.style.left =
+                            parseFloat(enemy.dataset.x || "0").toString() + "%";
+                    }
                 } else {
-                    newValue = currentPositionX + 0.18;
+                    const currentPositionX = parseFloat(
+                        element.dataset.x || "0",
+                    );
+                    let newValue: number;
+                    if (currentPositionX > positionX) {
+                        newValue = currentPositionX - 0.18;
+                    } else {
+                        newValue = currentPositionX + 0.18;
+                    }
+                    if (
+                        !n(element.dataset.min) &&
+                        newValue < parseFloat(element.dataset.min || "0")
+                    ) {
+                        newValue = parseFloat(element.dataset.min || "0");
+                    }
+                    if (
+                        !n(element.dataset.max) &&
+                        newValue > parseFloat(element.dataset.max || "0")
+                    ) {
+                        newValue = parseFloat(element.dataset.max || "0");
+                    }
+                    element.dataset.x = String(newValue);
+                    element.style.left = newValue.toString() + "%";
                 }
-                if (
-                    !n(element.dataset.min) &&
-                    newValue < parseFloat(element.dataset.min)
-                ) {
-                    newValue = parseFloat(element.dataset.min);
-                }
-                if (
-                    !n(element.dataset.max) &&
-                    newValue > parseFloat(element.dataset.max)
-                ) {
-                    newValue = parseFloat(element.dataset.max);
-                }
-                element.dataset.x = newValue;
-                element.style.left = newValue.toString() + "%";
             }
         }
     }, 10);

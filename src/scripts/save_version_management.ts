@@ -1,28 +1,48 @@
 // VERSION & SAVE MANAGEMENT
 // This script is used to save data for both the Extension and the Userscript version. Also contains indexedDB and localStorage as fallback storage.
 
-const versionJson = JSON.parse(window.getResourceAsText("version_info.json"));
+let versionJson: Record<string, any> = {};
+try {
+    const raw = window.getResourceAsText
+        ? window.getResourceAsText("version_info.json")
+        : "";
+    if (raw) {
+        versionJson = JSON.parse(raw);
+    }
+} catch {
+    versionJson = {};
+}
 
-const version = versionJson.version;
-const platform = versionJson.platform || "Chromium";
-const minified = versionJson.minified || false;
-const version_name = versionJson.version_name || versionJson.version;
-const contributors = versionJson.contributors || {};
+const version: string = versionJson.version || "";
+const platform: string = versionJson.platform || "Chromium";
+const minified: boolean = versionJson.minified || false;
+const version_name: string = versionJson.version_name || versionJson.version;
+const contributors: Record<string, unknown> = versionJson.contributors || {};
 
-let data;
-const isExtension = platform != "Userscript";
-const hasSettingsHash = window.location.hash == "#mod-settings";
-let storageMethod;
+let data: Record<string, unknown> | null | undefined;
+const isExtension = platform !== "Userscript";
+const hasSettingsHash = window.location.hash === "#mod-settings";
+let storageMethod: string;
+
+let get: (key: string) => any;
+let set: (key: string, value: any) => void;
+
+const storage =
+    typeof chrome !== "undefined" && chrome.storage && chrome.storage.local
+        ? chrome.storage
+        : typeof browser !== "undefined" &&
+            browser.storage &&
+            browser.storage.local
+          ? browser.storage
+          : null;
+
 // Check if userscriptmanager allows storage access
 if (typeof GM_getValue === "function" && typeof GM_setValue === "function") {
     storageMethod = "userscript";
-    function get(key) {
-        return GM_getValue(key, null);
-    }
-    function set(key, value) {
-        return GM_setValue(key, value);
-    }
-    if (platform != "Userscript") {
+    get = (key: string) => GM_getValue(key, null);
+    set = (key: string, value: unknown) =>
+        GM_setValue(key, value as Parameters<typeof GM_setValue>[1]);
+    if (platform !== "Userscript") {
         setTimeout(
             console.warn.bind(
                 console,
@@ -32,36 +52,61 @@ if (typeof GM_getValue === "function" && typeof GM_setValue === "function") {
     }
 }
 // Check if extension allows storage access
-else if (
-    typeof chrome !== "undefined" &&
-    chrome.storage &&
-    chrome.storage.local
-) {
+else if (storage) {
     storageMethod = "extension";
-    chrome.storage.local.get(null).then((result) => {
-        data = result;
-    });
-    chrome.storage.onChanged.addListener((changes) => {
+    const onDataLoaded = (result: any) => {
+        data = result || {};
+        (window as any).data = data;
+    };
+    try {
+        const loadPromise = storage.local.get(null, onDataLoaded);
+        if (loadPromise && typeof loadPromise.then === "function") {
+            loadPromise.then(onDataLoaded).catch((err: unknown) => {
+                console.error("SOMTODAY MOD: Error loading storage", err);
+                onDataLoaded({});
+            });
+        }
+    } catch {
+        storage.local.get(null, onDataLoaded);
+    }
+    storage.onChanged?.addListener((changes: any) => {
         if (changes.enabled != null) {
             window.location.reload();
         }
     });
 
-    function get(key) {
-        if (data == null) {
+    get = (key: string) => {
+        const currentData = data || (window as any).data;
+        if (currentData == null) {
             return "";
         }
-        if (data[key] == null) {
+        if (currentData[key] == null) {
             return "";
         }
-        return data[key];
-    }
-    function set(key, value) {
-        const prop = key;
-        const obj = {};
-        obj[prop] = value;
+        return currentData[key];
+    };
+    set = (key: string, value: unknown) => {
+        const obj: Record<string, unknown> = {};
+        obj[key] = value;
+        if (data != null) {
+            data[key] = value;
+        }
+        if ((window as any).data != null) {
+            (window as any).data[key] = value;
+        }
         try {
-            chrome.storage.local.set(obj);
+            const res = storage.local.set(obj);
+            if (res && typeof res.catch === "function") {
+                res.catch((e: unknown) => {
+                    setTimeout(
+                        console.warn.bind(
+                            console,
+                            "SOMTODAY MOD: Couldn't save value. Somtoday Mod is probably updating right now.\nError: " +
+                                e,
+                        ),
+                    );
+                });
+            }
         } catch (e) {
             setTimeout(
                 console.warn.bind(
@@ -71,10 +116,7 @@ else if (
                 ),
             );
         }
-        if (data != null) {
-            data[key] = value;
-        }
-    }
+    };
     if (!isExtension) {
         setTimeout(
             console.warn.bind(
@@ -93,7 +135,7 @@ else if (window?.indexedDB) {
     const STORE_NAME = "kv";
     const DB_VERSION = 1;
 
-    async function persistStorage() {
+    const persistStorage = async (): Promise<boolean> => {
         if (!navigator.storage || !navigator.storage.persist) {
             return false;
         }
@@ -105,12 +147,12 @@ else if (window?.indexedDB) {
 
         try {
             return await navigator.storage.persist();
-        } catch (e) {
+        } catch {
             return false;
         }
-    }
+    };
 
-    async function openDB() {
+    const openDB = async (): Promise<IDBDatabase> => {
         const persistent = await persistStorage();
         if (!persistent) {
             setTimeout(
@@ -134,13 +176,9 @@ else if (window?.indexedDB) {
             request.onsuccess = () => resolve(request.result);
             request.onerror = () => reject(request.error);
         });
-    }
+    };
 
-    async function getAllFromStore() {
-        data = await realGetAllFromStore();
-    }
-
-    async function realGetAllFromStore() {
+    const realGetAllFromStore = async (): Promise<Record<string, unknown>> => {
         const db = await openDB();
         return new Promise((resolve, reject) => {
             const tx = db.transaction(STORE_NAME, "readonly");
@@ -150,23 +188,22 @@ else if (window?.indexedDB) {
             const keysReq = store.getAllKeys();
 
             tx.oncomplete = () => {
-                const map = {};
+                const map: Record<string, unknown> = {};
                 keysReq.result.forEach((key, i) => {
-                    map[key] = valuesReq.result[i];
+                    map[String(key)] = valuesReq.result[i];
                 });
                 resolve(map);
             };
 
             tx.onerror = () => reject(tx.error);
         });
-    }
+    };
 
-    function set(key, value) {
-        data[key] = value;
-        realSet(key, value);
-    }
+    const getAllFromStore = async () => {
+        data = await realGetAllFromStore();
+    };
 
-    async function realSet(key, value) {
+    const realSet = async (key: string, value: unknown): Promise<boolean> => {
         const db = await openDB();
         return new Promise((resolve, reject) => {
             const tx = db.transaction(STORE_NAME, "readwrite");
@@ -174,9 +211,16 @@ else if (window?.indexedDB) {
             tx.oncomplete = () => resolve(true);
             tx.onerror = () => reject(tx.error);
         });
-    }
+    };
 
-    function get(key) {
+    set = (key: string, value: unknown) => {
+        if (data) {
+            data[key] = value;
+        }
+        realSet(key, value);
+    };
+
+    get = (key: string) => {
         if (data == null) {
             return "";
         }
@@ -184,7 +228,7 @@ else if (window?.indexedDB) {
             return "";
         }
         return data[key];
-    }
+    };
 
     getAllFromStore();
 }
@@ -192,15 +236,15 @@ else if (window?.indexedDB) {
 else if (window?.localStorage) {
     storageMethod = "localStorage";
     let messageShown = false;
-    function set(key, value) {
+    set = (key: string, value: unknown) => {
         try {
-            localStorage.setItem(key, value);
-        } catch (e) {
-            if (messageShown == false) {
+            localStorage.setItem(key, String(value));
+        } catch {
+            if (!messageShown) {
                 if (
                     confirm(
                         "De LocalStorage-limiet is bereikt. Sommige instellingen zijn niet opgeslagen.\nControleer of je Somtoday Mod " +
-                            (platform == "Userscript"
+                            (platform === "Userscript"
                                 ? "GM_getValue en GM_setValue hebt gegrant"
                                 : "toestemming hebt gegeven tot de storage") +
                             " als je meer opslagruimte wil.\nWil je de LocalStorage wissen?",
@@ -212,10 +256,10 @@ else if (window?.localStorage) {
                 messageShown = true;
             }
         }
-    }
-    function get(key) {
+    };
+    get = (key: string) => {
         return localStorage.getItem(key);
-    }
+    };
     setTimeout(
         console.warn.bind(
             console,
@@ -227,7 +271,13 @@ else if (window?.localStorage) {
         "Somtoday Mod ERROR\nCould not find any place to store setting data.\nConsider updating your browser, or giving Somtoday Mod storage access.",
     );
 }
+
 // Remember to open settings if settings hash is present
 if (hasSettingsHash) {
     set("opensettingsIntention", "1");
 }
+
+(window as any).get = get;
+(window as any).set = set;
+(window as any).data = data;
+(window as any).storageMethod = storageMethod;

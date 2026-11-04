@@ -1,14 +1,22 @@
 // SHORTHAND FUNCTIONS
 
+interface String {
+    replaceAt(index: number, replacement: string): string;
+}
+
 // document.getElementById(...) --> id(...)
-function id(id) {
-    return document.getElementById(id);
+function id(elementId: string, ..._args: unknown[]): any {
+    return document.getElementById(elementId);
 }
 
 // document.getElementsByClassName(...)[i] --> cn(..., i)
-function cn(cl, index) {
+function cn(cl: string): HTMLCollectionOf<any>;
+function cn(cl: string, index: number): any;
+function cn(cl: string, index?: number): any {
     if (index == null) {
-        return document.getElementsByClassName(cl);
+        return document.getElementsByClassName(
+            cl,
+        ) as unknown as HTMLCollectionOf<any>;
     } else if (document.getElementsByClassName(cl)[index] != null) {
         return document.getElementsByClassName(cl)[index];
     }
@@ -16,61 +24,61 @@ function cn(cl, index) {
 }
 
 // document.getElementsByTagName(...)[i] --> tn(..., i)
-function tn(tn, index) {
+function tn(tagName: string): HTMLCollectionOf<any>;
+function tn(tagName: string, index: number): any;
+function tn(tagName: string, index?: number): any {
     if (index == null) {
-        return document.getElementsByTagName(tn);
-    } else if (document.getElementsByTagName(tn)[index] != null) {
-        return document.getElementsByTagName(tn)[index];
+        return document.getElementsByTagName(
+            tagName,
+        ) as unknown as HTMLCollectionOf<any>;
+    } else if (document.getElementsByTagName(tagName)[index] != null) {
+        return document.getElementsByTagName(tagName)[index];
     }
     return null;
 }
 
 // element.style.display = 'none' --> hide(element)
-function hide(element) {
+function hide(element: HTMLElement | null): void {
     if (element != null) {
         element.style.display = "none";
     }
 }
 
 // element.style.display = 'block' --> show(element)
-function show(element) {
+function show(element: HTMLElement | null): void {
     if (element != null) {
         element.style.display = "block";
     }
 }
 
 // object == '' || object == null || object == '0' --> n(object)
-function n(object) {
+function n(object: unknown): boolean {
     if (object instanceof Element) {
-        if (object == null) {
-            return true;
-        } else {
-            return false;
-        }
+        return object == null;
     }
-    if (object == "" || object == null) {
+    if (object === "" || object == null) {
         return true;
     }
     return false;
 }
 
 // if (element != null) { element.innerHTML = html } --> setHTML(element, html)
-function setHTML(element, html) {
+function setHTML(element: Element | null, html: string): void {
     if (element != null) {
         element.innerHTML = html;
     }
 }
 
 // if (element != null) { element.remove() } --> tryRemove(element)
-function tryRemove(element) {
+function tryRemove(element: Element | null): void {
     if (element != null) {
         element.remove();
     }
 }
 
 // try { function() } catch (e) { ... } --> execute([function])
-let rateLimitDate;
-function execute(functionarray) {
+let rateLimitDate: number | undefined;
+function execute(functionarray: Array<(...args: never[]) => unknown>): void {
     for (const element of functionarray) {
         try {
             element();
@@ -85,14 +93,17 @@ function execute(functionarray) {
                 return;
             }
             rateLimitDate = Date.now();
+            const getFn = typeof get === "function" ? get : (window as any).get;
+            const boolsVal = getFn ? getFn("bools") : null;
             if (
-                get("bools") == null ||
-                (window.location.origin.indexOf("leerling") != -1 &&
-                    get("bools").charAt(BOOL_INDEX.SHARE_DEBUG_DATA) == "1")
+                boolsVal == null ||
+                (window.location.origin.indexOf("leerling") !== -1 &&
+                    String(boolsVal).charAt(BOOL_INDEX.SHARE_DEBUG_DATA) ===
+                        "1")
             ) {
                 // TODO: replace with our own Somtoday Mod CE server
                 fetch(
-                    `https://jonazwetsloot.nl/reporterror?product=${encodeURIComponent(`Somtoday Mod ${platform}`)}&function=${encodeURIComponent(element.name)}&cause=${encodeURIComponent(e.toString())}&page=${encodeURIComponent(window.location.href.split("/").pop().split("?")[0])}&productversion=${version}&settings=${get("bools")}`,
+                    `https://jonazwetsloot.nl/reporterror?product=${encodeURIComponent(`Somtoday Mod ${platform}`)}&function=${encodeURIComponent(element.name)}&cause=${encodeURIComponent(String(e))}&page=${encodeURIComponent(window.location.href.split("/").pop()?.split("?")[0] || "")}&productversion=${version}&settings=${boolsVal}`,
                 );
             }
             setTimeout(console.error.bind(console, e));
@@ -101,7 +112,11 @@ function execute(functionarray) {
 }
 
 // string.substring(0, index) + replacement + string.substring(index + replacement.length) --> string.replaceAt(index, replacement)
-String.prototype.replaceAt = function (index, replacement) {
+String.prototype.replaceAt = function (
+    this: string,
+    index: number,
+    replacement: string,
+): string {
     return (
         this.substring(0, index) +
         replacement +
@@ -109,7 +124,7 @@ String.prototype.replaceAt = function (index, replacement) {
     );
 };
 
-function sanitizeString(str) {
+function sanitizeString(str: string | null | undefined): string {
     if (str == null) {
         return "";
     }
@@ -121,18 +136,24 @@ function sanitizeString(str) {
         .replaceAll("'", "&#x27;");
 }
 
-function waitForElement(selector, timeout = 30000) {
+function waitForElement(
+    selector: string,
+    timeout = 30000,
+): Promise<Element | null> {
     return new Promise((resolve) => {
-        if (document.querySelector(selector)) {
-            return resolve(document.querySelector(selector));
+        const found = document.querySelector(selector);
+        if (found) {
+            return resolve(found);
         }
-        const observer = new MutationObserver((mutations) => {
-            if (document.querySelector(selector)) {
-                resolve(document.querySelector(selector));
+        const observer = new MutationObserver(() => {
+            const el = document.querySelector(selector);
+            if (el) {
+                resolve(el);
                 observer.disconnect();
             }
         });
-        observer.observe(document.body, {
+        const target = document.body || document.documentElement || document;
+        observer.observe(target, {
             childList: true,
             subtree: true,
         });
@@ -163,10 +184,15 @@ const BOOL_INDEX = {
     CUSTOM_HOMEWORK: 16,
     EVENTS: 17,
     GRADE_ANALYSIS: 18,
-};
+} as const;
 
 // Get modlogo SVG
-window.logo = (id, classname, color, style) =>
+window.logo = (
+    id?: string,
+    classname?: string,
+    color?: string,
+    style?: string,
+): string =>
     '<svg xmlns="http://www.w3.org/2000/svg"' +
     (n(id) ? "" : ' id="' + id + '"') +
     (n(classname) ? "" : ' class="' + classname + '"') +
@@ -176,12 +202,12 @@ window.logo = (id, classname, color, style) =>
     '" /><path d="M289.8 179.2c1.3 0 2.9.3 4.6.9 2.2.7 4 1.7 5 2.7v.2c.8.6 1.3 1.5 1.4 2.6 0 .9-.2 1.7-.6 2.3l-6.8 10.8a60.2 60.2 0 0 1-27.5 19.8c-8.5 3.2-17 4.7-24.7 4.5l-13.2-.1a1.6 1.6 0 0 1-1.7-1.5v-3.3a1.6 1.6 0 0 1 1.7-1.5h.1c7.9.3 16.3-1 24.7-4.2a56 56 0 0 0 34.3-31.4v-.3c.5-1 1.4-1.5 2.3-1.5z" fill="#000000" stroke="none" /><g class="glasses"><path d="M171.4 150.8v-9h137.2v9z" fill="#000000" stroke="none" /><path d="M175.7 155.5v-6h57.5v6z" fill="#000000" stroke="none" /><path d="M179.8 160v-9h48.9v9z" fill="#000000" stroke="none" /><path d="M184 164.5v-9h44.7v9z" fill="#000000" stroke="none" /><path d="M188.6 168.6v-7h31.7v7z" fill="#000000" stroke="none" /><path d="M245.9 155.5v-6h57.4v6z" fill="#000000" stroke="none" /><path d="M250 160v-9h48.8v9z" fill="#000000" stroke="none" /><path d="M254 164.5v-9h41v9z" fill="#000000" stroke="none" /><path d="M258.8 168.6v-7h31.6v7z" fill="#000000" stroke="none" /><path d="M184.5 155.1v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M188.8 159.2V155h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M193.3 163.5v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M193.3 155.1v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M197.6 159.2V155h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M202.1 163.5v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M254.8 155.1v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M259.1 159.2V155h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M263.6 163.5v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M263.6 155.1v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M268 159.2V155h4.4v4.3z" fill="#ffffff" stroke="none" /><path d="M272.4 163.5v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /></g></g></g></svg>';
 
 // Get image or font file URI
-window.getResource = (file) => {
+window.getResource = (file: string): string => {
     // Browser extension uses extension storage to load files, while the
     // userscript contains an inlined switch statement with base64 URIs
 
     // biome-ignore lint/style/useConst: fileMap is reassigned during userscript build step
-    let fileMap = null;
+    let fileMap: Record<string, string> | null = null;
     // [GENERATION] DEFINE_FILEMAP
 
     // Browser extension uses extension storage to load files
@@ -196,30 +222,30 @@ window.getResource = (file) => {
 
 // Get file contents as text
 window.getResourceAsTextCache = {};
-window.getResourceAsText = (file) => {
-    if (window.getResourceAsTextCache[file] == null) {
-        const resource = window.getResource(file);
+window.getResourceAsText = (file: string): string => {
+    const cache = (window.getResourceAsTextCache =
+        window.getResourceAsTextCache || {});
+    if (cache[file] == null) {
+        const resource = window.getResource ? window.getResource(file) : "";
         // Base64 URI
         if (resource.startsWith("data:")) {
             const base64 = resource.split(",")[1];
-            window.getResourceAsTextCache[file] = decodeURIComponent(
-                escape(window.atob(base64)),
-            );
+            cache[file] = decodeURIComponent(escape(window.atob(base64)));
         }
         // File URL
         else {
             const xhr = new XMLHttpRequest();
             xhr.open("GET", resource, false);
             xhr.send();
-            window.getResourceAsTextCache[file] = xhr.responseText ?? null;
+            cache[file] = xhr.responseText ?? null;
         }
     }
-    return window.getResourceAsTextCache[file];
+    return cache[file] || "";
 };
 
 // Get file contents as base64 URI
-window.getResourceAsBase64 = async (file) => {
-    const resource = window.getResource(file);
+window.getResourceAsBase64 = async (file: string): Promise<string> => {
+    const resource = window.getResource ? window.getResource(file) : "";
     // Base64 URI
     if (resource.startsWith("data:")) {
         return resource;
@@ -231,7 +257,7 @@ window.getResourceAsBase64 = async (file) => {
         const blob = await response.blob();
         return await new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
+            reader.onloadend = () => resolve(reader.result as string);
             reader.onerror = reject;
             reader.readAsDataURL(blob);
         });
@@ -239,7 +265,7 @@ window.getResourceAsBase64 = async (file) => {
 };
 
 // Get audio resource URI
-window.getAudioUrl = (file) => {
+window.getAudioUrl = (file: string): string => {
     // The browser extension ships with audio, the userscript uses external hosted audio
     // Audio is too heavy to include as base64 URI
     if (isExtension) {
@@ -253,13 +279,18 @@ window.getAudioUrl = (file) => {
 };
 
 // Construct an icon in SVG format. Only contains icons used by this mod. Icons thanks to Font Awesome: https://fontawesome.com/
-window.getIcon = (name, classname, color, start) => {
-    let svg;
+window.getIcon = (
+    name?: string,
+    classname?: string,
+    color?: string,
+    start?: string,
+): string => {
+    let svg: string;
     let viewbox = "0 0 512 512";
-    n(name) ? (name = "") : null;
-    classname = n(classname) ? "" : 'class="' + classname + '" ';
-    start = n(start) ? "" : start + " ";
-    switch (name) {
+    const iconName = name || "";
+    const iconClass = n(classname) ? "" : 'class="' + classname + '" ';
+    const iconStart = n(start) ? "" : start + " ";
+    switch (iconName) {
         // FONT AWESOME
         case "envelope":
             svg =
@@ -433,8 +464,8 @@ window.getIcon = (name, classname, color, start) => {
     }
     return (
         '<svg aria-hidden="true" ' +
-        start +
-        classname +
+        iconStart +
+        iconClass +
         'height="1em" viewBox="' +
         viewbox +
         '"><path fill-rule="evenodd" ' +

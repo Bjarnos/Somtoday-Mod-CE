@@ -12,27 +12,31 @@
     },
     "content_scripts": [
         {
-            "js": [
-                "scripts\/shorthand_functions.js",
-                "scripts\/save_version_management.js",
-                "scripts\/colors.js",
-                "scripts\/minigame.js",
-                "scripts\/fireworks.js",
-                "scripts\/chart.js",
-                "scripts\/main_functions.js",
-                "scripts\/execute_after_page_load.js",
-                "scripts\/the_escape.js"
-            ],
             "css": [
-                "css\/night.css",
-                "css\/styles.css",
-                "css\/somtoday-recap.css",
-                "css\/mod-settings.css",
-                "css\/custom-homework.css",
-                "css\/legacy-platformer.css",
-                "css\/easter-eggs.css"
+                "css/night.css",
+                "css/styles.css",
+                "css/somtoday-recap.css",
+                "css/mod-settings.css",
+                "css/custom-homework.css",
+                "css/legacy-platformer.css",
+                "css/easter-eggs.css"
             ],
-            "matches": ["*:\/\/*.somtoday.nl\/*", "*:\/\/som.today\/*"],
+            "matches": ["*://*.somtoday.nl/*", "*://som.today/*"],
+            "run_at": "document_start"
+        },
+        {
+            "js": [
+                "scripts/shorthand_functions.js",
+                "scripts/save_version_management.js",
+                "scripts/colors.js",
+                "scripts/minigame.js",
+                "scripts/fireworks.js",
+                "scripts/chart.js",
+                "scripts/main_functions.js",
+                "scripts/execute_after_page_load.js",
+                "scripts/the_escape.js"
+            ],
+            "matches": ["*://*.somtoday.nl/*", "*://som.today/*"],
             "run_at": "document_end"
         }
     ],

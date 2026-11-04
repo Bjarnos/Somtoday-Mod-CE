@@ -1,13 +1,16 @@
 // MINIGAME
 // Platformer minigame
-function errorPage() {
-    if (tn("hmy-button", 0)) {
-        tn("hmy-button", 0).insertAdjacentHTML(
+declare function startTheEscape(): void;
+
+function errorPage(): void {
+    const button = tn("hmy-button", 0) as HTMLElement | null;
+    if (button) {
+        button.insertAdjacentHTML(
             "afterend",
             '<a id="mod-play-game">Of speel een game</a>',
         );
 
-        id("mod-play-game").addEventListener("click", () => {
+        id("mod-play-game")?.addEventListener("click", () => {
             startTheEscape();
         });
 

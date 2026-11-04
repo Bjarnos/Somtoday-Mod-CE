@@ -1,6 +1,6 @@
 // MAIN FUNCTIONS
 
-function onload() {
+function modInit() {
     // Make sure to have only one instance of the mod active at a time
     if (id("somtoday-mod-active")) {
         setTimeout(
@@ -676,10 +676,10 @@ function onload() {
             .replace("juli", "july")
             .replace("augustus", "august")
             .replace("oktober", "october");
-        return (dateObject = new Date(Date.parse(englishDateString)));
+        return new Date(Date.parse(englishDateString));
     }
 
-    function customHomeworkIcons(activeIcon, activeColor) {
+    function customHomeworkIcons(activeIcon?: any, activeColor?: any) {
         const icons = [
             {
                 name: "edit",
@@ -868,7 +868,7 @@ function onload() {
                 });
         }
         let lastShown = 0;
-        if (!isNaN(currentStudiewijzerDate)) {
+        if (!isNaN(Number(currentStudiewijzerDate))) {
             function addHomework(j) {
                 let i = j;
                 let lastRecurring = homework[i].returning;
@@ -1408,7 +1408,28 @@ function onload() {
                 }, 10);
             });
             id("mod-messages").addEventListener("click", () => {
-                tn("sl-tab-item", 3).click();
+                for (const element of tn("sl-tab-item")) {
+                    const text = (element.textContent || "")
+                        .trim()
+                        .toLowerCase();
+                    if (text.includes("bericht")) {
+                        element.click();
+                        return;
+                    }
+                }
+                for (const element of tn("sl-tab-item")) {
+                    const a = element.querySelector("a");
+                    const href = (
+                        a?.getAttribute("href") ||
+                        element.getAttribute("routerlink") ||
+                        ""
+                    ).toLowerCase();
+                    if (href.includes("bericht")) {
+                        element.click();
+                        return;
+                    }
+                }
+                window.location.href = `${window.location.origin}/berichten`;
             });
         } else if (get("layout") != 5) {
             tryRemove(id("mod-top-menu"));
@@ -1533,13 +1554,13 @@ function onload() {
 
     // Simple count animation
     function countAnimation(
-        element,
-        begin,
-        target,
-        time,
-        update,
-        className,
-        elapsedTime,
+        element: any,
+        begin: any,
+        target: any,
+        time: any,
+        update: any,
+        className?: any,
+        elapsedTime?: any,
     ) {
         if (elapsedTime === undefined) {
             elapsedTime = 0;
@@ -1867,7 +1888,7 @@ function onload() {
     function newYearCountdown() {
         const now = new Date();
         const newYear = new Date(now.getFullYear() + 1, 0, 1);
-        const diff = newYear - now;
+        const diff = newYear.getTime() - now.getTime();
         if (
             (ignoreCountdownConditions ||
                 (get("bools").charAt(BOOL_INDEX.EVENTS) == "1" &&
@@ -1922,7 +1943,7 @@ function onload() {
 
                 setInterval(() => {
                     const now = new Date();
-                    const diff = newYear - now;
+                    const diff = newYear.getTime() - now.getTime();
                     if (diff <= 0) {
                         return;
                     }
@@ -1940,10 +1961,13 @@ function onload() {
                         )
                         .replace(
                             "{seconds_to_next_year}",
-                            Math.round(diff / 1000),
+                            Math.round(diff / 1000).toString(),
                         )
-                        .replace("{next_year}", now.getFullYear() + 1)
-                        .replace("{year}", now.getFullYear());
+                        .replace(
+                            "{next_year}",
+                            (now.getFullYear() + 1).toString(),
+                        )
+                        .replace("{year}", now.getFullYear().toString());
                     h3.classList.add("mod-letter-slide");
                     setTimeout(() => {
                         h3.classList.remove("mod-letter-slide");
@@ -1991,7 +2015,7 @@ function onload() {
                     countdownElement.children[3].getElementsByTagName("p")[0];
                 function updateCountdown() {
                     const now = new Date();
-                    const diff = newYear - now;
+                    const diff = newYear.getTime() - now.getTime();
 
                     const days = Math.max(
                         Math.floor(diff / (1000 * 60 * 60 * 24)),
@@ -2014,7 +2038,7 @@ function onload() {
 
                     if (p1.innerText !== days.toString()) {
                         p1.classList.add("mod-letter-slide");
-                        p1.innerText = days;
+                        p1.innerText = days.toString();
                         countdownElement.children[0].getElementsByTagName(
                             "span",
                         )[0].innerText = days == 1 ? "dag" : "dagen";
@@ -2024,7 +2048,7 @@ function onload() {
                     }
                     if (p2.innerText !== hours.toString()) {
                         p2.classList.add("mod-letter-slide");
-                        p2.innerText = hours;
+                        p2.innerText = hours.toString();
                         countdownElement.children[1].getElementsByTagName(
                             "span",
                         )[0].innerText = hours == 1 ? "uur" : "uren";
@@ -2034,7 +2058,7 @@ function onload() {
                     }
                     if (p3.innerText !== minutes.toString()) {
                         p3.classList.add("mod-letter-slide");
-                        p3.innerText = minutes;
+                        p3.innerText = minutes.toString();
                         countdownElement.children[2].getElementsByTagName(
                             "span",
                         )[0].innerText = minutes == 1 ? "minuut" : "minuten";
@@ -2044,7 +2068,7 @@ function onload() {
                     }
                     if (p4.innerText !== seconds.toString()) {
                         p4.classList.add("mod-letter-slide");
-                        p4.innerText = seconds;
+                        p4.innerText = seconds.toString();
                         countdownElement.children[3].getElementsByTagName(
                             "span",
                         )[0].innerText = seconds == 1 ? "seconde" : "seconden";
@@ -2214,11 +2238,12 @@ function onload() {
                                 10,
                             );
                             // Get top value of time indicator
-                            timeIndicatorTop = cn("tijdlijn", 0).style.top;
+                            const rawTimeIndicatorTop = cn("tijdlijn", 0).style
+                                .top;
                             timeIndicatorTop = parseInt(
-                                timeIndicatorTop.substring(
+                                rawTimeIndicatorTop.substring(
                                     0,
-                                    timeIndicatorTop.length - 2,
+                                    rawTimeIndicatorTop.length - 2,
                                 ),
                                 10,
                             );
@@ -2442,7 +2467,7 @@ function onload() {
             } else {
                 tn("head", 0).insertAdjacentHTML(
                     "beforeend",
-                    '<style class="mod-style">sl-sidebar-page{top: 0px !important; height: 100% !important;}sl-rooster-weken{margin-top:63px;}sl-registratie-overzicht{margin-top:50px;}sl-gepubliceerde-schoolinformatie-navigation{padding-top: 80px !important;;}sl-popup{position:fixed !important;top:130px !important;}hmy-popup:has(sl-leerling-menu-acties){position:fixed !important;top:65px !important;right:30px !important;left:unset !important;}#mod-top-menu{display:none;}@media (min-width: 767px) and (max-width:1279px){.berichten-lijst{height:calc(100vh - 129px) !important;}sl-header{height:0px !important;position:fixed !important;left: 0px !important;right: 0px !important;}}@media (min-width: 767px){sl-header{background:none !important;backdrop-filter:none !important;}#mod-new-year{margin-top:calc(64px + var(--safe-area-inset-top));}:root:has(sl-berichten){--safe-area-inset-top:64px !important;}body:has(sl-cijfers),body:has(sl-berichten) .tabs,body:has(sl-berichten) .main,sl-studiewijzer-weken{margin-top:63px;}.menu-avatar{position:fixed !important;top:25px;right:150px;left:unset !important;bottom:unset !important;opacity:0;}#mod-top-menu-title{color:var(--text-strong);}#mod-top-menu{display:block;border-bottom:var(--thinnest-solid-neutral-normal);background:var(--bg-neutral-none);position:' +
+                    '<style class="mod-style">sl-sidebar-page{top: 0px !important; height: 100% !important;}sl-rooster-weken{margin-top:63px;}sl-registratie-overzicht{margin-top:50px;}sl-gepubliceerde-schoolinformatie-navigation{padding-top: 80px !important;;}sl-popup{position:fixed !important;top:130px !important;}hmy-popup:has(sl-leerling-menu-acties){position:fixed !important;top:65px !important;right:30px !important;left:unset !important;}#mod-top-menu{display:none;}@media (min-width: 767px) and (max-width:1279px){.berichten-lijst{height:calc(100vh - 129px) !important;}sl-header{height:0px !important;position:fixed !important;left: 0px !important;right: 0px !important;}}@media (min-width: 767px){sl-header{background:none !important;backdrop-filter:none !important;}#mod-new-year{margin-top:calc(64px + var(--safe-area-inset-top));}:root:has(sl-berichten){--safe-area-inset-top:64px !important;}body:has(sl-cijfers),body:has(sl-berichten) .tabs,body:has(sl-berichten) .main,sl-studiewijzer-weken,sl-home{margin-top:63px !important;}.menu-avatar{position:fixed !important;top:25px !important;right:150px !important;left:unset !important;bottom:unset !important;opacity:0 !important;pointer-events:none !important;}sl-header > div:first-of-type{pointer-events:none !important;}#mod-top-menu-title{color:var(--text-strong);}#mod-top-menu{display:block;border-bottom:var(--thinnest-solid-neutral-normal);background:var(--bg-neutral-none);position:' +
                         (get("bools").charAt(BOOL_INDEX.MENU_ALWAYS_SHOW) == "1"
                             ? "fixed"
                             : "absolute") +
@@ -2463,7 +2488,9 @@ function onload() {
                     menuColor +
                     ";--action-primary-normal:" +
                     menuColor +
-                    ";position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:calc(100% - 80px) !important;display:block !important;overflow-y:auto !important;overflow-x:hidden !important;scrollbar-width:none !important;}sl-header sl-tab-bar::-webkit-scrollbar{display:none !important;}sl-header .item span{text-align:center;margin-top:6px;display:block;}sl-header .active .item, sl-header .item:hover{background:" +
+                    ";position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:" +
+                    (get("layout") == 5 ? "100%" : "calc(100% - 80px)") +
+                    " !important;display:block !important;overflow-y:auto !important;overflow-x:hidden !important;scrollbar-width:none !important;}sl-header sl-tab-bar::-webkit-scrollbar{display:none !important;}sl-header .item span{text-align:center;margin-top:6px;display:block;}sl-header .active .item, sl-header .item:hover{background:" +
                     highLightColor +
                     " !important;padding-top:0 !important;}sl-header .item:hover i{scale:0.9;}sl-header .item i{transition:scale 0.3s ease !important;height:36px;display:block;padding-top:0 !important;margin:0 auto;fill:var(--action-neutral-normal) !important;}sl-header .item svg{width:100%;height:36px;}sl-header sl-tab-item{height:120px !important;position:relative !important;display:block !important;}sl-header sl-tab-item .item, sl-header .item{display:flex !important;flex-direction:column !important;justify-content:center !important;align-items:center !important;height:100% !important;}sl-popup{z-index:101 !important;}sl-header{position:fixed !important;z-index:15 !important;" +
                     (get("layout") != 3 ? "left" : "right") +
@@ -2473,9 +2500,13 @@ function onload() {
                     get("primarycolor") +
                     " !important;color:" +
                     menuColor +
-                    " !important;}sl-header > div:first-of-type{position:absolute !important;bottom:20px !important;left:12px !important;z-index:20 !important;width:calc(100% - 24px) !important;display:flex !important;justify-content:center !important;align-items:center !important;--bg-elevated-weakest:" +
-                    highLightColor +
-                    ";}}</style>",
+                    " !important;}" +
+                    (get("layout") == 5
+                        ? "sl-header > div:first-of-type{position:fixed !important;top:25px !important;right:150px !important;left:unset !important;bottom:unset !important;width:auto !important;z-index:20 !important;pointer-events:none !important;opacity:0 !important;}"
+                        : "sl-header > div:first-of-type{position:absolute !important;bottom:20px !important;left:12px !important;z-index:20 !important;width:calc(100% - 24px) !important;display:flex !important;justify-content:center !important;align-items:center !important;--bg-elevated-weakest:" +
+                          highLightColor +
+                          ";}") +
+                    "}}</style>",
             );
             tn("head", 0).insertAdjacentHTML(
                 "beforeend",
@@ -2495,7 +2526,9 @@ function onload() {
                     (get("layout") != 3
                         ? "var(--safe-area-inset-left)"
                         : "var(--safe-area-inset-right)") +
-                    " !important;height:calc(100% - 80px) !important;display:block !important;overflow-y:auto !important;overflow-x:hidden !important;scrollbar-width:none !important;z-index:0;background:" +
+                    " !important;height:" +
+                    (get("layout") == 5 ? "100%" : "calc(100% - 80px)") +
+                    " !important;display:block !important;overflow-y:auto !important;overflow-x:hidden !important;scrollbar-width:none !important;z-index:0;background:" +
                     get("primarycolor") +
                     "}sl-tab-bar:first-of-type::-webkit-scrollbar{display:none !important;}sl-tab-bar:first-of-type sl-tab-item svg{width:100%;height:36px;}sl-tab-bar:first-of-type sl-tab-item span{font-size:14px;margin-top:6px;text-align:center;}sl-tab-bar:first-of-type sl-tab-item i{height:36px;fill:var(--action-neutral-normal) !important;transition:0.3s scale ease !important;padding-top:0 !important;margin:0 auto;}sl-tab-bar:first-of-type .item:hover i{scale:0.9;}sl-tab-bar:first-of-type sl-tab-item .item, sl-tab-bar:first-of-type .item{height:100% !important;display:flex !important;flex-direction:column !important;justify-content:center !important;align-items:center !important;}sl-tab-bar:first-of-type .active .item, sl-tab-bar:first-of-type .item:hover{background:" +
                     highLightColor +
@@ -2503,13 +2536,17 @@ function onload() {
                     menuColor +
                     ";--action-primary-normal:" +
                     menuColor +
-                    ";display:block !important;width:100%;position:relative !important;height:120px !important;}sl-header > div:first-of-type, .menu-avatar{position:fixed !important;bottom:20px !important;top:unset !important;" +
-                    (get("layout") == 3 ? "right" : "left") +
-                    ":12px !important;width:calc(var(--safe-area-inset-" +
-                    (get("layout") != 3 ? "left" : "right") +
-                    ") - 24px) !important;justify-content:center !important;display:flex !important;align-items:center !important;z-index:20 !important;--bg-elevated-weakest:" +
-                    highLightColor +
-                    ";}#mod-logo{--action-neutral-normal: " +
+                    ";display:block !important;width:100%;position:relative !important;height:120px !important;}" +
+                    (get("layout") == 5
+                        ? "sl-header > div:first-of-type, .menu-avatar{position:fixed !important;top:25px !important;right:150px !important;left:unset !important;bottom:unset !important;width:auto !important;pointer-events:none !important;opacity:0 !important;}"
+                        : "sl-header > div:first-of-type, .menu-avatar{position:fixed !important;bottom:20px !important;top:unset !important;" +
+                          (get("layout") == 3 ? "right" : "left") +
+                          ":12px !important;width:calc(var(--safe-area-inset-" +
+                          (get("layout") != 3 ? "left" : "right") +
+                          ") - 24px) !important;justify-content:center !important;display:flex !important;align-items:center !important;z-index:20 !important;--bg-elevated-weakest:" +
+                          highLightColor +
+                          ";}") +
+                    "#mod-logo{--action-neutral-normal: " +
                     menuColor +
                     ";width:100%;height:60px;margin:20px 0;}}</style>",
             );
@@ -2692,9 +2729,6 @@ function onload() {
                 sl-studiewijzer-weken-header {
                     top: 0px !important;
                 }
-                `
-                        : ""
-                }
                 sl-header {
                     position: fixed !important;
                     left: 0px !important;
@@ -2709,6 +2743,9 @@ function onload() {
                 }
                 .menu-avatar .hamburger {
                     fill: #fff !important;
+                }
+                `
+                        : ""
                 }
                 `
                         : ""
@@ -3052,13 +3089,13 @@ function onload() {
 
     // Show a message on top of the page. Similair to browser confirm().
     function modMessage(
-        title,
-        description,
-        link1,
-        link2,
-        red1,
-        red2,
-        noBackgroundClick,
+        title?: any,
+        description?: any,
+        link1?: any,
+        link2?: any,
+        red1?: any,
+        red2?: any,
+        noBackgroundClick?: any,
     ) {
         tn("sl-root", 0).inert = true;
         if (tn("sl-modal", 0)) {
@@ -3538,7 +3575,7 @@ function onload() {
     let logoClicks = 0;
     function modLogo() {
         if (get("layout") == 2 || get("layout") == 3 || get("layout") == 5) {
-            const tabBars = document.querySelectorAll(
+            const tabBars = document.querySelectorAll<HTMLElement>(
                 "sl-header sl-tab-bar, sl-tab-bar:first-of-type",
             );
             tabBars.forEach((tabBar) => {
@@ -3546,7 +3583,7 @@ function onload() {
                     tabBar.dataset.modWheelAttached = "true";
                     tabBar.addEventListener(
                         "wheel",
-                        function (e) {
+                        function (this: HTMLElement, e: WheelEvent) {
                             // Laat de sidebar altijd scrollen zodra de inhoud
                             // hoger is dan de zichtbare tab-bar (voorheen alleen
                             // bij window-hoogte <= 670px, waardoor items op
@@ -3938,6 +3975,10 @@ function onload() {
 
     // Live Wallpaper
     function stopLiveWallpaper() {
+        if (liveWallpaperFrame) {
+            cancelAnimationFrame(liveWallpaperFrame);
+            liveWallpaperFrame = undefined;
+        }
         tryRemove(id("mod-background-live"));
     }
 
@@ -3950,7 +3991,13 @@ function onload() {
         ];
     }
 
-    function startLiveWallpaper(preview = false, col1, col2, col3) {
+    let liveWallpaperFrame: number | undefined;
+    function startLiveWallpaper(
+        preview = false,
+        col1?: any,
+        col2?: any,
+        col3?: any,
+    ) {
         let gl;
         if (!preview) {
             stopLiveWallpaper();
@@ -4439,7 +4486,14 @@ function onload() {
             const firstused = new Date(get("firstused"));
             const lastused = new Date(get("lastused"));
             const yeardifference = parseInt(
-                (lastused - firstused) / 1000 / 60 / 60 / 24 / 365,
+                (
+                    (lastused.getTime() - firstused.getTime()) /
+                    1000 /
+                    60 /
+                    60 /
+                    24 /
+                    365
+                ).toString(),
                 10,
             );
             // Get birthday date
@@ -5166,7 +5220,9 @@ function onload() {
                 recapChart.destroy();
             }
             Chart.defaults.color = "#fff";
-            const recapCanvas = document.getElementById("recap-chart");
+            const recapCanvas = document.getElementById(
+                "recap-chart",
+            ) as HTMLCanvasElement;
             const recapCtx = recapCanvas.getContext("2d");
             const recapGradient = recapCtx.createLinearGradient(0, 0, 0, 300);
             recapGradient.addColorStop(0, "#fff");
@@ -5244,7 +5300,9 @@ function onload() {
         }
 
         Chart.defaults.color = darkmode ? "#fff" : "#000";
-        let canvas = document.getElementById("mod-chart-1");
+        let canvas = document.getElementById(
+            "mod-chart-1",
+        ) as HTMLCanvasElement;
         let ctx = canvas.getContext("2d");
         const points = [];
         const weight = [];
@@ -5468,7 +5526,7 @@ function onload() {
                 },
             },
         });
-        canvas = document.getElementById("mod-chart-2");
+        canvas = document.getElementById("mod-chart-2") as HTMLCanvasElement;
         ctx = canvas.getContext("2d");
         const values = [];
         let totalGrades = 0;
@@ -5528,7 +5586,7 @@ function onload() {
         });
     }
 
-    function showLetterbeoordelingenMessage(letter) {
+    function showLetterbeoordelingenMessage(letter?: string) {
         const list = {
             U: ["Uitstekend", 10],
             ZG: ["Zeer goed", 9],
@@ -6145,7 +6203,7 @@ function onload() {
                         return;
                     }
 
-                    const subject = {};
+                    const subject: any = {};
                     let subjectTotalGrades = 0;
                     let subjectTotalWeight = 0;
                     const subjectGradingSystems = {
@@ -7424,7 +7482,9 @@ function onload() {
                 return;
             }
             Chart.defaults.color = "#fff";
-            const recapCanvas = document.getElementById("recap-chart");
+            const recapCanvas = document.getElementById(
+                "recap-chart",
+            ) as HTMLCanvasElement;
             const recapCtx = recapCanvas.getContext("2d");
             const recapChart = new Chart(recapCtx, {
                 type: "doughnut",
@@ -7503,7 +7563,9 @@ function onload() {
                       : "Dat is niet zo best. Volgend jaar beter?") +
                 '</h3><br><br><div id="recap-chart-wrapper"><canvas id="recap-chart" width="300" height="300"></canvas></div><a id="recap-nextpage">Doorgaan</a>';
             Chart.defaults.color = "#fff";
-            const recapCanvas = document.getElementById("recap-chart");
+            const recapCanvas = document.getElementById(
+                "recap-chart",
+            ) as HTMLCanvasElement;
             const recapCtx = recapCanvas.getContext("2d");
             const recapChart = new Chart(recapCtx, {
                 type: "doughnut",
@@ -7552,7 +7614,9 @@ function onload() {
             cn("recap-page", 0).innerHTML =
                 '<h1>Doel gehaald! 🎯</h1><h2>Goed gedaan! Ook dit jaar is weer voorbij!</h2><h3>Hoeveel proefwerken en opdrachten heb je wel niet gemaakt? Veel.</h3><br><br><div id="recap-chart-wrapper"><canvas id="recap-chart" width="300" height="300"></canvas></div><a id="recap-nextpage">Doorgaan</a>';
             Chart.defaults.color = "#fff";
-            const recapCanvas = document.getElementById("recap-chart");
+            const recapCanvas = document.getElementById(
+                "recap-chart",
+            ) as HTMLCanvasElement;
             const recapCtx = recapCanvas.getContext("2d");
             const recapChart = new Chart(recapCtx, {
                 type: "doughnut",
@@ -7609,7 +7673,9 @@ function onload() {
                       : "Het is een gelijkspel! Je hebt precies evenveel plussen als minnen!") +
                 '</h2><br><br><div id="recap-chart-wrapper"><canvas id="recap-chart"></canvas></div><a id="recap-nextpage">Doorgaan</a>';
             Chart.defaults.color = "#fff";
-            const recapCanvas = document.getElementById("recap-chart");
+            const recapCanvas = document.getElementById(
+                "recap-chart",
+            ) as HTMLCanvasElement;
             const recapCtx = recapCanvas.getContext("2d");
             const recapChart = new Chart(recapCtx, {
                 type: "bar",
@@ -7963,7 +8029,7 @@ function onload() {
             for (const [key, value] of Object.entries(contributors)) {
                 contributorContent += `
                 <a class="mod-credits-gh-pill" href="https://github.com/${sanitizeString(key)}/" target="_blank" rel="noopener">
-                    <img src="${sanitizeString(value)}" alt="${sanitizeString(key)}" class="mod-credits-gh-avatar">
+                    <img src="${sanitizeString(value as string)}" alt="${sanitizeString(key)}" class="mod-credits-gh-avatar">
                     <span class="mod-credits-gh-name">${sanitizeString(key)}</span>
                 </a>
                 `;
@@ -8623,20 +8689,22 @@ function onload() {
                                         reader.result +
                                         '");}</style>',
                                 );
-                                document
-                                    .getElementById("font-box")
-                                    .children[0].style.setProperty(
-                                        "font-family",
-                                        "modCustomFontPreview, sans-serif",
-                                        "important",
-                                    );
-                                document
-                                    .getElementById("font-box")
-                                    .children[1].style.setProperty(
-                                        "font-family",
-                                        "modCustomFontPreview, sans-serif",
-                                        "important",
-                                    );
+                                (
+                                    document.getElementById("font-box")
+                                        .children[0] as HTMLElement
+                                ).style.setProperty(
+                                    "font-family",
+                                    "modCustomFontPreview, sans-serif",
+                                    "important",
+                                );
+                                (
+                                    document.getElementById("font-box")
+                                        .children[1] as HTMLElement
+                                ).style.setProperty(
+                                    "font-family",
+                                    "modCustomFontPreview, sans-serif",
+                                    "important",
+                                );
                             }, 100);
                         };
                     } else {
@@ -8761,13 +8829,13 @@ function onload() {
 
             // Add slideshow image asynchronous
             async function addImage(url, element = null) {
-                return new Promise((resolve, reject) => {
+                return new Promise<void>((resolve, reject) => {
                     if (n(slideshowLabel)) {
                         resolve();
                     }
 
                     const img = document.createElement("img");
-                    img.onload = resolve;
+                    img.onload = () => resolve();
                     img.onerror = reject;
                     img.addEventListener("click", function () {
                         id("mod-background-wrapper").classList.add(
@@ -9265,7 +9333,7 @@ function onload() {
                     }
                 });
 
-                function resetLiveButtons(e) {
+                function resetLiveButtons(e?: any) {
                     if (e) return;
 
                     id("mod-bg-live").dataset.type = liveType;
@@ -9883,17 +9951,17 @@ function onload() {
 
     // Constructs HTML code for the setting page
     function addSetting(
-        name,
-        description,
-        key,
-        type,
-        value,
-        param1,
-        param2,
-        param3,
-        param4,
-        param5,
-        param6,
+        name?: any,
+        description?: any,
+        key?: any,
+        type?: any,
+        value?: any,
+        param1?: any,
+        param2?: any,
+        param3?: any,
+        param4?: any,
+        param5?: any,
+        param6?: any,
     ) {
         if (get(key) == null && !key.startsWith("bools")) {
             set(key, value);
@@ -9943,15 +10011,20 @@ function onload() {
                     'style="' +
                         (param6 == "opacity"
                             ? "opacity:" +
-                              parseFloat(
-                                  (100 - (param4 != null ? value : get(key))) /
-                                      100,
+                              (
+                                  (100 -
+                                      (param4 != null
+                                          ? Number(value)
+                                          : Number(get(key)))) /
+                                  100
                               ).toString()
                             : "filter:" +
                               param6 +
                               "(" +
-                              parseFloat(
-                                  (param4 != null ? value : get(key)) / 4,
+                              (
+                                  (param4 != null
+                                      ? Number(value)
+                                      : Number(get(key))) / 4
                               ).toString() +
                               "px)") +
                         '"',
@@ -10406,6 +10479,7 @@ function onload() {
         profilePicture,
         initTheme,
         consoleMessage,
+        pageUpdate,
     ]);
 
     // Allow transitions after 0.4s
@@ -10413,3 +10487,5 @@ function onload() {
         tryRemove(id("transitions-disabled"));
     }, 400);
 }
+
+(window as any).modInit = modInit;

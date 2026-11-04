@@ -40,7 +40,9 @@
                 "noGlobalIsNan": "off",
                 "useIterableCallbackReturn": "off",
                 "noRedeclare": "off",
-                "noFallthroughSwitchClause": "off"
+                "noFallthroughSwitchClause": "off",
+                "noExplicitAny": "off",
+                "noImplicitAnyLet": "off"
             },
             "correctness": {
                 "noUnusedVariables": "off",
