@@ -9,6 +9,7 @@
         "lint:fix": "biome lint --write .",
         "format": "biome format --write .",
         "format:check": "biome format .",
+        "release": "node scripts/release.js",
         "prepare": "husky"
     },
     "repository": {

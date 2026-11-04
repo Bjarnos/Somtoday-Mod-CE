@@ -110,6 +110,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: extension-stores
+    env:
+      CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+      FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
 
     if: |
       startsWith(github.ref, 'refs/tags/') ||
@@ -133,7 +137,7 @@ jobs:
           path: dist
 
       - name: Publish to Chrome Web Store
-        if: secrets.CHROME_CLIENT_SECRET != ''
+        if: env.CHROME_CLIENT_SECRET != ''
         continue-on-error: true
         uses: PlasmoHQ/bpp@v3
         with:
@@ -151,7 +155,7 @@ jobs:
           verbose: true
 
       - name: Publish to Firefox Add-ons (AMO)
-        if: secrets.FIREFOX_JWT_SECRET != ''
+        if: env.FIREFOX_JWT_SECRET != ''
         continue-on-error: true
         uses: PlasmoHQ/bpp@v3
         with:
@@ -168,7 +172,7 @@ jobs:
           verbose: true
 
       - name: Publish to Microsoft Edge Add-ons
-        if: secrets.EDGE_API_KEY != ''
+        if: env.EDGE_API_KEY != ''
         continue-on-error: true
         uses: PlasmoHQ/bpp@v3
         with:
