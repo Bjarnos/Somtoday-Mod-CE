@@ -1466,8 +1466,6 @@ export function modInit() {
                 "beforeend",
                 '<div id="mod-top-menu"><h2 id="mod-top-menu-title">Titel</h2><div id="mod-logout">' +
                     window.getIcon("right-from-bracket") +
-                    '</div><div id="mod-messages">' +
-                    window.getIcon("envelope") +
                     '</div><div id="mod-profile-link"></div></div>',
             );
             id("mod-profile-link").addEventListener("click", () => {
@@ -1482,30 +1480,6 @@ export function modInit() {
                         clearInterval(checkLogoutButtonPresent);
                     }
                 }, 10);
-            });
-            id("mod-messages").addEventListener("click", () => {
-                for (const element of tn("sl-tab-item")) {
-                    const text = (element.textContent || "")
-                        .trim()
-                        .toLowerCase();
-                    if (text.includes("bericht")) {
-                        element.click();
-                        return;
-                    }
-                }
-                for (const element of tn("sl-tab-item")) {
-                    const a = element.querySelector("a");
-                    const href = (
-                        a?.getAttribute("href") ||
-                        element.getAttribute("routerlink") ||
-                        ""
-                    ).toLowerCase();
-                    if (href.includes("bericht")) {
-                        element.click();
-                        return;
-                    }
-                }
-                window.location.href = `${window.location.origin}/berichten`;
             });
         } else if (get("layout") != 5) {
             tryRemove(id("mod-top-menu"));
@@ -2545,7 +2519,7 @@ export function modInit() {
                         (get("bools").charAt(BOOL_INDEX.MENU_ALWAYS_SHOW) == "1"
                             ? "fixed"
                             : "absolute") +
-                        ";top:0;left:var(--safe-area-inset-left);right:0;height:64px;z-index:50;}#mod-top-menu h2{margin:18px 24px;}#mod-profile-link:hover{filter:brightness(0.8);}#mod-profile-link{transition:0.2s filter ease;box-sizing:border-box;position:absolute;right:24px;cursor:pointer;top:0;bottom:0;height:100%;padding:15px;}#mod-logout{right:145px;}#mod-messages{right:90px;}#mod-logout,#mod-messages{cursor:pointer;position:absolute;padding:15px;top:0;}#mod-logout svg,#mod-messages svg{fill:var(--action-primary-normal);height:25px !important;margin-top:4px;transition:fill 0.2s ease;}#mod-logout:hover svg,#mod-messages:hover svg{fill:var(--action-primary-strong);}#mod-profile-link div{height:100%;aspect-ratio:1 / 1;background:var(--bg-primary-weak);overflow:hidden;border-radius:6px;}#mod-profile-link span{margin:6px 0;text-align:center;width:100%;display:block;font-weight:700;color:var(--fg-on-primary-weak);}#mod-profile-link img{width:100%;height:100%;object-fit:cover;}}</style>",
+                        ";top:0;left:var(--safe-area-inset-left);right:0;height:64px;z-index:50;}#mod-top-menu h2{margin:18px 24px;}#mod-profile-link:hover{filter:brightness(0.8);}#mod-profile-link{transition:0.2s filter ease;box-sizing:border-box;position:absolute;right:24px;cursor:pointer;top:0;bottom:0;height:100%;padding:15px;}#mod-logout{right:90px;cursor:pointer;position:absolute;padding:15px;top:0;}#mod-logout svg{fill:var(--action-primary-normal);height:25px !important;margin-top:4px;transition:fill 0.2s ease;}#mod-logout:hover svg{fill:var(--action-primary-strong);}#mod-profile-link div{height:100%;aspect-ratio:1 / 1;background:var(--bg-primary-weak);overflow:hidden;border-radius:6px;}#mod-profile-link span{margin:6px 0;text-align:center;width:100%;display:block;font-weight:700;color:var(--fg-on-primary-weak);}#mod-profile-link img{width:100%;height:100%;object-fit:cover;}}</style>",
                 );
             }
             tn("head", 0).insertAdjacentHTML(
