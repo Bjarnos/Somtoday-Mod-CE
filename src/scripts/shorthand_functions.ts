@@ -194,9 +194,9 @@ window.logo = (
     style?: string,
 ): string =>
     '<svg xmlns="http://www.w3.org/2000/svg"' +
-    (n(id) ? "" : ' id="' + id + '"') +
-    (n(classname) ? "" : ' class="' + classname + '"') +
-    (n(style) ? "" : ' style="' + style + '"') +
+    (n(id) ? "" : ` id="${id}"`) +
+    (n(classname) ? "" : ` class="${classname}"`) +
+    (n(style) ? "" : ` style="${style}"`) +
     ' viewBox="0 0 190.5 207" width="190.5" height="207"><g transform="translate(-144.8 -76.5)"><g><path d="M261 107.8v.3c0 3.7 3 6.7 6.6 6.7H299a6.8 6.8 0 0 1 6.7 7V143.2c0 3.7 3 6.7 6.7 6.7h16.1a6.8 6.8 0 0 1 6.7 7V201.6c0 3.7-3 6.6-6.7 6.7h-16.1a6.8 6.8 0 0 0-6.7 7v23.1c0 3.7-3 6.7-6.7 6.7h-10.5a6.8 6.8 0 0 0-6.7 7l-.1 24.4v.3c0 3.6-3 6.6-6.7 6.7h-22.3a6.8 6.8 0 0 1-6.7-7v-24.6c0-3.8-2.8-6.9-6.3-6.9s-6.4 3.1-6.4 7v24.8c0 3.6-3 6.6-6.7 6.7h-22.3a6.8 6.8 0 0 1-6.6-7l.1-24.4v-.3c0-3.7-3-6.7-6.6-6.7h-10.5a6.8 6.8 0 0 1-6.7-7V215c0-3.6-3-6.6-6.7-6.7h-15.8a6.8 6.8 0 0 1-6.7-7V156.6c0-3.7 3-6.7 6.7-6.7h15.8a6.8 6.8 0 0 0 6.7-7v-21.4c0-3.6 3-6.6 6.7-6.7h31a6.8 6.8 0 0 0 6.7-7l.1-24.3v-.3c0-3.6 3-6.6 6.7-6.7h29a6.8 6.8 0 0 1 6.8 7z" fill="' +
     color +
     '" /><path d="M289.8 179.2c1.3 0 2.9.3 4.6.9 2.2.7 4 1.7 5 2.7v.2c.8.6 1.3 1.5 1.4 2.6 0 .9-.2 1.7-.6 2.3l-6.8 10.8a60.2 60.2 0 0 1-27.5 19.8c-8.5 3.2-17 4.7-24.7 4.5l-13.2-.1a1.6 1.6 0 0 1-1.7-1.5v-3.3a1.6 1.6 0 0 1 1.7-1.5h.1c7.9.3 16.3-1 24.7-4.2a56 56 0 0 0 34.3-31.4v-.3c.5-1 1.4-1.5 2.3-1.5z" fill="#000000" stroke="none" /><g class="glasses"><path d="M171.4 150.8v-9h137.2v9z" fill="#000000" stroke="none" /><path d="M175.7 155.5v-6h57.5v6z" fill="#000000" stroke="none" /><path d="M179.8 160v-9h48.9v9z" fill="#000000" stroke="none" /><path d="M184 164.5v-9h44.7v9z" fill="#000000" stroke="none" /><path d="M188.6 168.6v-7h31.7v7z" fill="#000000" stroke="none" /><path d="M245.9 155.5v-6h57.4v6z" fill="#000000" stroke="none" /><path d="M250 160v-9h48.8v9z" fill="#000000" stroke="none" /><path d="M254 164.5v-9h41v9z" fill="#000000" stroke="none" /><path d="M258.8 168.6v-7h31.6v7z" fill="#000000" stroke="none" /><path d="M184.5 155.1v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M188.8 159.2V155h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M193.3 163.5v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M193.3 155.1v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M197.6 159.2V155h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M202.1 163.5v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M254.8 155.1v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M259.1 159.2V155h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M263.6 163.5v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M263.6 155.1v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /><path d="M268 159.2V155h4.4v4.3z" fill="#ffffff" stroke="none" /><path d="M272.4 163.5v-4.3h4.5v4.3z" fill="#ffffff" stroke="none" /></g></g></g></svg>';
@@ -223,8 +223,8 @@ window.getResource = (file: string): string => {
 // Get file contents as text
 window.getResourceAsTextCache = {};
 window.getResourceAsText = (file: string): string => {
-    const cache = (window.getResourceAsTextCache =
-        window.getResourceAsTextCache || {});
+    window.getResourceAsTextCache = window.getResourceAsTextCache || {};
+    const cache = window.getResourceAsTextCache;
     if (cache[file] == null) {
         const resource = window.getResource ? window.getResource(file) : "";
         // Base64 URI
@@ -269,12 +269,10 @@ window.getAudioUrl = (file: string): string => {
     // The browser extension ships with audio, the userscript uses external hosted audio
     // Audio is too heavy to include as base64 URI
     if (isExtension) {
-        return chrome.runtime.getURL("sounds/" + file + ".opus");
+        return chrome.runtime.getURL(`sounds/${file}.opus`);
     } else {
         // TODO: Replace with our own Somtoday Mod CE server
-        return (
-            "https://geweldige-geluidseffecten.netlify.app/" + file + ".opus"
-        );
+        return `https://geweldige-geluidseffecten.netlify.app/${file}.opus`;
     }
 };
 
@@ -288,8 +286,8 @@ window.getIcon = (
     let svg: string;
     let viewbox = "0 0 512 512";
     const iconName = name || "";
-    const iconClass = n(classname) ? "" : 'class="' + classname + '" ';
-    const iconStart = n(start) ? "" : start + " ";
+    const iconClass = n(classname) ? "" : `class="${classname}" `;
+    const iconStart = n(start) ? "" : `${start} `;
     switch (iconName) {
         // FONT AWESOME
         case "envelope":
@@ -469,7 +467,7 @@ window.getIcon = (
         'height="1em" viewBox="' +
         viewbox +
         '"><path fill-rule="evenodd" ' +
-        (n(color) ? "" : 'fill="' + color + '" ') +
+        (n(color) ? "" : `fill="${color}" `) +
         'd="' +
         svg +
         '"/></svg>'

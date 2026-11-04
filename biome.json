@@ -31,29 +31,17 @@
                 "recommended": false
             },
             "complexity": {
-                "noImportantStyles": "off",
-                "noCommaOperator": "off",
-                "useOptionalChain": "off"
+                "noImportantStyles": "off"
             },
             "suspicious": {
                 "noDoubleEquals": "off",
-                "noAssignInExpressions": "off",
-                "noGlobalIsNan": "off",
-                "useIterableCallbackReturn": "off",
-                "noRedeclare": "off",
-                "noFallthroughSwitchClause": "off",
                 "noExplicitAny": "off",
                 "noImplicitAnyLet": "off"
             },
             "correctness": {
-                "noUnusedVariables": "off",
-                "noUnusedFunctionParameters": "off",
-                "noInnerDeclarations": "off",
-                "noConstantCondition": "off",
-                "noSwitchDeclarations": "off"
+                "noUnusedVariables": "off"
             },
             "style": {
-                "useTemplate": "off",
                 "noDescendingSpecificity": "off"
             }
         }

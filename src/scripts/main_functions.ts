@@ -169,8 +169,7 @@ function modInit() {
             font != "OpenDyslexic2" &&
             font != "Open Sans"
         ) {
-            fontUrl +=
-                (first ? "?" : "&") + "family=" + font.replaceAll(" ", "+");
+            fontUrl += `${first ? "?" : "&"}family=${font.replaceAll(" ", "+")}`;
             first = false;
         }
     }
@@ -224,7 +223,8 @@ function modInit() {
     function editGrades() {
         // Change to true to be able to edit your grades. Not added by default to prevent students from misleading their parents.
         // If you see this, you are smart enough to know how inspect element works, so just enable it if you want to.
-        if (false) {
+        const allowEditGrades = false;
+        if (allowEditGrades) {
             for (const element of cn("cijfer")) {
                 element.contentEditable = true;
                 element.addEventListener("click", function (event) {
@@ -414,27 +414,13 @@ function modInit() {
             easterEggShake();
         }
         function easterEggShake() {
-            var shakingElements = [];
-            shakingElements = Array.prototype.concat.apply(
-                shakingElements,
-                cn("terug"),
-            );
-            shakingElements = Array.prototype.concat.apply(
-                shakingElements,
-                cn("sluiten"),
-            );
-            shakingElements = Array.prototype.concat.apply(
-                shakingElements,
-                tn("hmy-button"),
-            );
-            shakingElements = Array.prototype.concat.apply(
-                shakingElements,
-                tn("hmy-tab"),
-            );
-            shakingElements = Array.prototype.concat.apply(
-                shakingElements,
-                tn("hmy-switch"),
-            );
+            const shakingElements = [
+                ...Array.from(cn("terug") as HTMLCollectionOf<Element>),
+                ...Array.from(cn("sluiten") as HTMLCollectionOf<Element>),
+                ...Array.from(tn("hmy-button") as HTMLCollectionOf<Element>),
+                ...Array.from(tn("hmy-tab") as HTMLCollectionOf<Element>),
+                ...Array.from(tn("hmy-switch") as HTMLCollectionOf<Element>),
+            ];
             for (const element of shakingElements) {
                 element.addEventListener("mouseover", function () {
                     shakeOnHover(this, -30, 30, -30, 30);
@@ -521,12 +507,12 @@ function modInit() {
         ) {
             if (document.documentElement.clientWidth <= 767) {
                 homeworkBusy = true;
-                document
-                    .querySelectorAll(".mod-huiswerk")
-                    .forEach((e) => e.remove());
-                document
-                    .querySelectorAll(".mod-placeholder")
-                    .forEach((e) => e.remove());
+                document.querySelectorAll(".mod-huiswerk").forEach((e) => {
+                    e.remove();
+                });
+                document.querySelectorAll(".mod-placeholder").forEach((e) => {
+                    e.remove();
+                });
                 homeworkBusy = false;
             }
             homework = JSON.parse(get("homework"));
@@ -565,7 +551,9 @@ function modInit() {
                 const elements = document.querySelectorAll(
                     "sl-rooster-week-header .mod-huiswerk",
                 );
-                elements.forEach((el) => el.remove());
+                elements.forEach((el) => {
+                    el.remove();
+                });
                 // Then add new custom homework
                 index = 0;
                 for (const element of tn(
@@ -577,15 +565,15 @@ function modInit() {
             }
         } else if (!homeworkBusy) {
             homeworkBusy = true;
-            document
-                .querySelectorAll(".mod-huiswerk")
-                .forEach((e) => e.remove());
-            document
-                .querySelectorAll(".mod-add-homework")
-                .forEach((e) => e.remove());
-            document
-                .querySelectorAll(".mod-placeholder")
-                .forEach((e) => e.remove());
+            document.querySelectorAll(".mod-huiswerk").forEach((e) => {
+                e.remove();
+            });
+            document.querySelectorAll(".mod-add-homework").forEach((e) => {
+                e.remove();
+            });
+            document.querySelectorAll(".mod-placeholder").forEach((e) => {
+                e.remove();
+            });
             homeworkBusy = false;
         }
     }
@@ -611,21 +599,22 @@ function modInit() {
     function ariaLabelToDate(element) {
         let dateString;
         if (n(element.children[0])) {
-            return;
+            return undefined;
         }
         if (element.getElementsByClassName("header")[0]) {
             element = element.getElementsByClassName("header")[0];
-            dateString =
-                (n(element.children[0].ariaLabel) ||
+            dateString = `${
+                n(element.children[0].ariaLabel) ||
                 !element.children[0].ariaLabel.match(/ (\d*? [a-z]*?)$/, "")
                     ? ""
                     : element.children[0].ariaLabel.match(
                           / (\d*? [a-z]*?)$/,
                           "",
-                      )[1]) + " ";
+                      )[1]
+            } `;
         } else {
-            dateString =
-                (n(element.children[0].ariaLabel) ||
+            dateString = `${
+                n(element.children[0].ariaLabel) ||
                 !element.children[0].ariaLabel.match(
                     /^[A-Za-z]+? ([0-9]+?[ -][A-Za-z]+)/,
                     "",
@@ -634,11 +623,12 @@ function modInit() {
                     : element.children[0].ariaLabel.match(
                           /^[A-Za-z]+? ([0-9]+?[ -][A-Za-z]+)/,
                           "",
-                      )[1]) + " ";
+                      )[1]
+            } `;
         }
         // Datestring does not include the current year. So we have to reason which year it is based on the current month and datestring month
         if (dateString == " ") {
-            return;
+            return undefined;
         }
         if (
             dateString.indexOf("januari") != -1 ||
@@ -720,8 +710,8 @@ function modInit() {
                 icon.name,
                 "mod-homework-icon" +
                     (activeIcon == icon.name ? " mod-active" : ""),
-                "var(" + icon.color + ")",
-                'data-icon="' + icon.name + '" ',
+                `var(${icon.color})`,
+                `data-icon="${icon.name}" `,
             );
         }
         const col = window
@@ -731,7 +721,7 @@ function modInit() {
             '<div style="display:flex;margin-top:20px;align-items:center;gap:10px;flex-wrap:wrap;">' +
             iconHTML +
             '<label tabindex="0" for="homeworkcolor" style="margin-left:auto;cursor:pointer;">Kleur kiezen</label><input style="display:none;" value="' +
-            (activeColor && activeColor.startsWith("#") ? activeColor : col) +
+            (activeColor?.startsWith("#") ? activeColor : col) +
             '" id="homeworkcolor" type="color"></div>'
         );
     }
@@ -739,7 +729,7 @@ function modInit() {
     // Called for each day/week in the roster
     function customHomeworkInner(element, startIndex, recurringTasksEndIndex) {
         if (homeworkBusy) {
-            return;
+            return startIndex;
         }
         const currentStudiewijzerDate = ariaLabelToDate(
             element.classList.contains("week")
@@ -868,7 +858,7 @@ function modInit() {
                 });
         }
         let lastShown = 0;
-        if (!isNaN(Number(currentStudiewijzerDate))) {
+        if (!Number.isNaN(Number(currentStudiewijzerDate))) {
             function addHomework(j) {
                 let i = j;
                 let lastRecurring = homework[i].returning;
@@ -908,7 +898,7 @@ function modInit() {
                     (showIfOnce || showIfWeekly || showIfMonthly) &&
                     n(
                         element.getElementsByClassName(
-                            "mod-homework-" + homework[i].id,
+                            `mod-homework-${homework[i].id}`,
                         )[0],
                     ) &&
                     ((isWeek && homework[i].week) ||
@@ -975,15 +965,9 @@ function modInit() {
                                 )[0];
                     }
                     if (!n(insertElement)) {
-                        const noMoving =
-                            element.getElementsByTagName(
-                                "sl-studiewijzer-items",
-                            )[0] &&
-                            element
-                                .getElementsByTagName(
-                                    "sl-studiewijzer-items",
-                                )[0]
-                                .classList.contains("mod-rooster");
+                        const noMoving = element
+                            .getElementsByTagName("sl-studiewijzer-items")[0]
+                            ?.classList.contains("mod-rooster");
                         insertElement.insertAdjacentHTML(
                             "afterend",
                             '<div class="mod-huiswerk ' +
@@ -1015,8 +999,7 @@ function modInit() {
                                 '</p><div><svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 24 24" display="block"><path fill-rule="evenodd" d="m9.706 21.576 13.876-14.05c.538-.55.56-1.43.044-1.998l-2.769-3.06a1.41 1.41 0 0 0-2.076-.025L9.83 11.858a1.41 1.41 0 0 1-2.06-.01L5.424 9.342a1.414 1.414 0 0 0-2.041-.032l-2.96 2.982a1.45 1.45 0 0 0 .003 2.052l7.27 7.242c.56.555 1.455.552 2.01-.01"></path></svg></div></div>',
                         );
                         const homeworkItem = insertElement.nextElementSibling;
-                        const homeworkClassName =
-                            "mod-homework-" + homework[i].id;
+                        const homeworkClassName = `mod-homework-${homework[i].id}`;
                         function saveAdjustedHomework(e) {
                             updateIndex();
                             e.stopPropagation();
@@ -1070,8 +1053,10 @@ function modInit() {
                             if (isRecurringAdjusted) {
                                 homeworkBusy = true;
                                 document
-                                    .querySelectorAll("." + homeworkClassName)
-                                    .forEach((e) => e.remove());
+                                    .querySelectorAll(`.${homeworkClassName}`)
+                                    .forEach((e) => {
+                                        e.remove();
+                                    });
                                 homeworkBusy = false;
                             }
                             closeModMessage();
@@ -1151,9 +1136,11 @@ function modInit() {
                                     homeworkBusy = true;
                                     document
                                         .querySelectorAll(
-                                            "." + homeworkClassName,
+                                            `.${homeworkClassName}`,
                                         )
-                                        .forEach((e) => e.remove());
+                                        .forEach((e) => {
+                                            e.remove();
+                                        });
                                     homeworkBusy = false;
                                     closeModMessage();
                                 },
@@ -1193,15 +1180,11 @@ function modInit() {
                             .addEventListener("click", (e) => {
                                 updateIndex();
                                 e.stopPropagation();
-                                const noMoving =
-                                    element.getElementsByTagName(
+                                const noMoving = element
+                                    .getElementsByTagName(
                                         "sl-studiewijzer-items",
-                                    )[0] &&
-                                    element
-                                        .getElementsByTagName(
-                                            "sl-studiewijzer-items",
-                                        )[0]
-                                        .classList.contains("mod-rooster");
+                                    )[0]
+                                    ?.classList.contains("mod-rooster");
                                 // Unchecking homework
                                 // We place the item above native homework, and above checked Somtoday Mod homework
                                 if (
@@ -1434,8 +1417,7 @@ function modInit() {
         } else if (get("layout") != 5) {
             tryRemove(id("mod-top-menu"));
         } else if (
-            cn("avatar", 0) &&
-            cn("avatar", 0).getElementsByClassName("foto")[0] &&
+            cn("avatar", 0)?.getElementsByClassName("foto")[0] &&
             id("mod-profile-link")
         ) {
             id("mod-profile-link").innerHTML =
@@ -1444,9 +1426,8 @@ function modInit() {
                     .getElementsByClassName("foto")[0]
                     .classList.contains("hidden")
                     ? "<span>" +
-                      (cn("avatar", 0).getElementsByClassName("initials")[0] &&
-                      cn("avatar", 0).getElementsByClassName("initials")[0]
-                          .children[0]
+                      (cn("avatar", 0).getElementsByClassName("initials")[0]
+                          ?.children[0]
                           ? cn("avatar", 0).getElementsByClassName(
                                 "initials",
                             )[0].children[0].innerHTML
@@ -1531,7 +1512,11 @@ function modInit() {
                             );
                         }
                         element.classList.add("mod-animation-finished");
-                        if (!isNaN(parseFloat(element.children[0].innerHTML))) {
+                        if (
+                            !Number.isNaN(
+                                parseFloat(element.children[0].innerHTML),
+                            )
+                        ) {
                             countAnimation(
                                 element.children[0],
                                 0,
@@ -1648,8 +1633,8 @@ function modInit() {
             settings[key] = get(key);
         }
         let i = 0;
-        while (!n(get("background" + i))) {
-            settings["background" + i] = get("background" + i);
+        while (!n(get(`background${i}`))) {
+            settings[`background${i}`] = get(`background${i}`);
             i++;
         }
         const json = JSON.stringify(settings);
@@ -1869,7 +1854,7 @@ function modInit() {
                     saveReload(true);
                 }, 1000);
             },
-            (err) => {
+            (_err) => {
                 modMessage(
                     "Oeps...",
                     "Het lijkt erop dat dit bestand ongeldig is.",
@@ -2164,7 +2149,7 @@ function modInit() {
                         n(element.getElementsByClassName("opacity-80")[0]) ||
                         element.getElementsByClassName("opacity-80")[0]
                             .innerHTML.length == 0 ||
-                        isNaN(
+                        Number.isNaN(
                             parseInt(
                                 element
                                     .getElementsByClassName("opacity-80")[0]
@@ -2175,7 +2160,7 @@ function modInit() {
                     ) {
                         if (isWeekShown) {
                             tn("sl-rooster-weken", 0).style.height =
-                                normalRosterHeight + "px";
+                                `${normalRosterHeight}px`;
                             tn("sl-rooster-weken", 0).style.overflowY =
                                 "visible";
                             // Update the time text at the left to display 'hh:mm' instead of 'nth hour'
@@ -2249,12 +2234,12 @@ function modInit() {
                             );
                             // If the top value of the last hour is less than the top value of the time indicator the time indicator should be repositioned
                             if (
-                                !isNaN(hour) &&
-                                !isNaN(lastHourTop) &&
-                                !isNaN(timeIndicatorTop) &&
+                                !Number.isNaN(hour) &&
+                                !Number.isNaN(lastHourTop) &&
+                                !Number.isNaN(timeIndicatorTop) &&
                                 lastHourTop < timeIndicatorTop
                             ) {
-                                cn("tijdlijn", 0).style.top = hour * 84 + "px";
+                                cn("tijdlijn", 0).style.top = `${hour * 84}px`;
                                 timeIndicatorTop = hour * 84;
                                 timeIndicatorPositioned = true;
                             }
@@ -2290,7 +2275,7 @@ function modInit() {
                                 parseFloat(lessonTime[0]) +
                                 parseFloat(lessonTime[1]) / 60;
                             let top;
-                            if (isNaN(hour)) {
+                            if (Number.isNaN(hour)) {
                                 top = prevHour * 84 + prevHeight - 84;
                                 prevHour++;
                                 if (prevHour > lastHour) {
@@ -2303,10 +2288,10 @@ function modInit() {
                                     lastHour = hour;
                                 }
                             }
-                            element.style.top = top + "px";
+                            element.style.top = `${top}px`;
                             if (
                                 isWeekShown &&
-                                !isNaN(lessonTime) &&
+                                !Number.isNaN(lessonTime) &&
                                 cn("tijdlijn", 0) &&
                                 currentTime < lessonTime &&
                                 !timeIndicatorPositioned &&
@@ -2317,7 +2302,7 @@ function modInit() {
                                 )
                             ) {
                                 if (cn("tijdlijn", 0)) {
-                                    cn("tijdlijn", 0).style.top = top + "px";
+                                    cn("tijdlijn", 0).style.top = `${top}px`;
                                 }
                                 timeIndicatorTop = top;
                                 timeIndicatorPositioned = true;
@@ -2327,7 +2312,7 @@ function modInit() {
                     }
                     if (isWeekShown) {
                         tn("sl-rooster-weken", 0).style.height =
-                            Math.max(lastHour + 2, 5) * 84 - 54 + "px";
+                            `${Math.max(lastHour + 2, 5) * 84 - 54}px`;
                         tn("sl-rooster-weken", 0).style.overflowY = "hidden";
                     }
                     if (tn("sl-vakantie-header", 0)) {
@@ -2356,7 +2341,7 @@ function modInit() {
                                     span.dataset.modOriginalContent =
                                         span.innerHTML;
                                 }
-                                setHTML(span, i.toString() + "e uur");
+                                setHTML(span, `${i.toString()}e uur`);
                             }
                             i++;
                         }
@@ -2580,7 +2565,7 @@ function modInit() {
                 '<style class="mod-style">:root{--safe-area-inset-left:calc((100% - 1200px) / 2) !important;--safe-area-inset-right:calc((100% - 1200px) / 2) !important;}#mod-background{left:0;width:100%;}sl-home{position:relative;border:var(--thinnest-solid-neutral-normal);display:block;background:var(--bg-neutral-none) !important;' +
                     (get("ui") == 0
                         ? ""
-                        : "backdrop-filter:blur(" + get("uiblur") + "px);") +
+                        : `backdrop-filter:blur(${get("uiblur")}px);`) +
                     "}sl-rooster-week.week{width:calc(100% - 55px) !important;}</style>",
             );
         }
@@ -2858,9 +2843,9 @@ function modInit() {
                     set("blur", "0px");
                 } else if (
                     get("blur") != null &&
-                    !isNaN(parseInt(get("blur"), 10))
+                    !Number.isNaN(parseInt(get("blur"), 10))
                 ) {
-                    set("blur", get("blur") + "px");
+                    set("blur", `${get("blur")}px`);
                 }
                 set("bools", get("bools").replaceAt(15, "1"));
             }
@@ -2953,11 +2938,11 @@ function modInit() {
                     (darkmode && get("ui") > 0.9 ? "--text-weak:#fff;" : "") +
                     "--bg-neutral-none:" +
                     (darkmode
-                        ? "rgba(0,0,0," + (1 - get("ui") / 100) + ")"
-                        : "rgba(255,255,255," + (1 - get("ui") / 100) + ")") +
+                        ? `rgba(0,0,0,${1 - get("ui") / 100})`
+                        : `rgba(255,255,255,${1 - get("ui") / 100})`) +
                     ";--bg-neutral-weakest:" +
                     (darkmode
-                        ? "rgba(0, 0, 0, " + (1 - get("ui") / 100) + ")"
+                        ? `rgba(0, 0, 0, ${1 - get("ui") / 100})`
                         : "rgba(255, 255, 255, " +
                           (1 - get("ui") / 100) +
                           ")") +
@@ -2988,7 +2973,6 @@ function modInit() {
             get("primarycolor") != "#0067c2" ||
             get("secondarycolor") != "#e69b22"
         ) {
-            const rgbcolor = hexToRgb(get("primarycolor"));
             let cssVariables = "";
             const blueBrightness = [
                 "241",
@@ -3274,7 +3258,7 @@ function modInit() {
                         if (!element.classList.contains("mod-nickname")) {
                             const text = element.innerHTML.replace(
                                 regex,
-                                "$1" + nick + "$2",
+                                `$1${nick}$2`,
                             );
                             if (text != element.innerHTML) {
                                 element.classList.add("mod-nickname");
@@ -3292,7 +3276,7 @@ function modInit() {
                         if (!element.classList.contains("mod-nickname")) {
                             const text = element.innerHTML.replace(
                                 regex,
-                                "$1" + nick + "$2",
+                                `$1${nick}$2`,
                             );
                             if (text != element.innerHTML) {
                                 element.classList.add("mod-nickname");
@@ -3329,7 +3313,7 @@ function modInit() {
                                 element.innerHTML.indexOf("<hmy-") != -1
                                     ? regexWhichPreservesIcons
                                     : regex,
-                                "$1" + nick + "$2",
+                                `$1${nick}$2`,
                             );
                             if (text != element.innerHTML) {
                                 element.classList.add("mod-nickname");
@@ -3349,7 +3333,7 @@ function modInit() {
                                 element.innerHTML.indexOf("<hmy-") != -1
                                     ? regexWhichPreservesIcons
                                     : regex,
-                                "$1" + nick + "$2",
+                                `$1${nick}$2`,
                             );
                             if (text != element.innerHTML) {
                                 element.classList.add("mod-nickname");
@@ -3369,7 +3353,7 @@ function modInit() {
                         if (!element.classList.contains("mod-nickname")) {
                             const text = element.innerHTML.replace(
                                 regex,
-                                "$1" + nick + "$2",
+                                `$1${nick}$2`,
                             );
                             if (text != element.innerHTML) {
                                 element.classList.add("mod-nickname");
@@ -3389,7 +3373,7 @@ function modInit() {
                         ) {
                             const text = element
                                 .getElementsByTagName("span")[0]
-                                .innerHTML.replace(regex, "$1" + nick + "$2");
+                                .innerHTML.replace(regex, `$1${nick}$2`);
                             if (
                                 text !=
                                 element.getElementsByTagName("span")[0]
@@ -3440,10 +3424,7 @@ function modInit() {
                             } else {
                                 const text = element
                                     .getElementsByTagName("span")[0]
-                                    .innerHTML.replace(
-                                        regex,
-                                        "$1" + nick + "$2",
-                                    );
+                                    .innerHTML.replace(regex, `$1${nick}$2`);
                                 if (
                                     text !=
                                     element.getElementsByTagName("span")[0]
@@ -3604,11 +3585,9 @@ function modInit() {
                     "wheel",
                     (e) => {
                         const tb =
-                            (tn("sl-header", 0) &&
-                                tn("sl-header", 0).getElementsByTagName(
-                                    "sl-tab-bar",
-                                )[0]) ||
-                            tn("sl-tab-bar", 0);
+                            tn("sl-header", 0)?.getElementsByTagName(
+                                "sl-tab-bar",
+                            )[0] || tn("sl-tab-bar", 0);
                         if (tb && tb.scrollHeight > tb.clientHeight) {
                             tb.scrollTop += e.deltaY;
                             e.preventDefault();
@@ -3634,16 +3613,16 @@ function modInit() {
                         menuWidth +
                         "px !important";
                 }
-                id("mod-menu-resizer").addEventListener("mousedown", (e) => {
+                id("mod-menu-resizer").addEventListener("mousedown", () => {
                     moving = true;
                 });
-                id("mod-menu-resizer").addEventListener("touchstart", (e) => {
+                id("mod-menu-resizer").addEventListener("touchstart", () => {
                     moving = true;
                 });
-                document.addEventListener("mouseup", (e) => {
+                document.addEventListener("mouseup", () => {
                     moving = false;
                 });
-                document.addEventListener("touchend", (e) => {
+                document.addEventListener("touchend", () => {
                     moving = false;
                 });
                 function moveEventHandler(e) {
@@ -3717,8 +3696,7 @@ function modInit() {
                 "</div>";
             if (
                 n(id("mod-logo")) &&
-                tn("sl-header", 0) &&
-                tn("sl-header", 0).getElementsByTagName("sl-tab-bar")[0]
+                tn("sl-header", 0)?.getElementsByTagName("sl-tab-bar")[0]
             ) {
                 tn("sl-header", 0)
                     .getElementsByTagName("sl-tab-bar")[0]
@@ -4235,7 +4213,7 @@ function modInit() {
             id("somtoday-mod", 0).insertAdjacentHTML(
                 "beforeend",
                 '<img id="mod-backgroundslide" src="' +
-                    get("background" + randomChoice) +
+                    get(`background${randomChoice}`) +
                     '">',
             );
             tn("head", 0).insertAdjacentHTML(
@@ -4279,7 +4257,7 @@ function modInit() {
         }
         if (fromSavedSettings) {
             if (!n(filter)) {
-                filter = "filter:" + filter + ";";
+                filter = `filter:${filter};`;
             }
         }
         return filter;
@@ -4318,12 +4296,10 @@ function modInit() {
     let startConfetti;
     let stopConfetti;
     let toggleConfetti;
-    let removeConfetti;
     (() => {
         startConfetti = startConfettiInner;
         stopConfetti = stopConfettiInner;
         toggleConfetti = toggleConfettiInner;
-        removeConfetti = removeConfettiInner;
         const colors = [
             "#ec1254",
             "#f27c14",
@@ -4334,7 +4310,7 @@ function modInit() {
         ];
         let streamingConfetti = false;
         let animationTimer = null;
-        let particles = [];
+        const particles = [];
         let waveAngle = 0;
 
         function resetParticle(particle, width, height) {
@@ -4406,11 +4382,6 @@ function modInit() {
             streamingConfetti = false;
         }
 
-        function removeConfettiInner() {
-            stopConfetti();
-            particles = [];
-        }
-
         function toggleConfettiInner() {
             if (streamingConfetti) {
                 stopConfettiInner();
@@ -4480,7 +4451,7 @@ function modInit() {
         // Only activate it when enabled in settings and if it is the first time Somtoday is used on the current day (months are zero-based)
         if (
             get("bools").charAt(BOOL_INDEX.CONGRATULATIONS) == "1" &&
-            year + "-" + (month + 1) + "-" + dayInt != get("lastused")
+            `${year}-${month + 1}-${dayInt}` != get("lastused")
         ) {
             // Get years since first use
             const firstused = new Date(get("firstused"));
@@ -4497,7 +4468,6 @@ function modInit() {
                 10,
             );
             // Get birthday date
-            const date = new Date();
             const birthdayday = parseInt(
                 get("birthday").charAt(0) + get("birthday").charAt(1),
                 10,
@@ -4514,8 +4484,8 @@ function modInit() {
                         (n(get("username"))
                             ? n(get("realname"))
                                 ? ""
-                                : ", " + get("realname").replace(/ .*/, "")
-                            : ", " + get("username").replace(/ .*/, "")) +
+                                : `, ${get("realname").replace(/ .*/, "")}`
+                            : `, ${get("username").replace(/ .*/, "")}`) +
                         "!",
                     "Je gebruikt Somtoday Mod nu al " +
                         yeardifference +
@@ -4556,7 +4526,7 @@ function modInit() {
                         '</h2><center><a class="verjaardagbtn" id="congrats-continue">Doorgaan</a></center></div></div>',
                 );
                 id("congrats-continue").addEventListener("click", () => {
-                    set("lastused", year + "-" + (month + 1) + "-" + dayInt);
+                    set("lastused", `${year}-${month + 1}-${dayInt}`);
                     id("confetti-canvas").style.opacity = "0";
                     id("verjaardag").style.opacity = "0";
                     setTimeout(() => {
@@ -4571,10 +4541,10 @@ function modInit() {
                 });
                 setTimeout(startConfetti, 500);
             } else {
-                set("lastused", year + "-" + (month + 1) + "-" + dayInt);
+                set("lastused", `${year}-${month + 1}-${dayInt}`);
             }
         } else {
-            set("lastused", year + "-" + (month + 1) + "-" + dayInt);
+            set("lastused", `${year}-${month + 1}-${dayInt}`);
         }
     }
 
@@ -4659,15 +4629,14 @@ function modInit() {
                           tn("sl-resultaat-item").length,
                       )
                     : tn("sl-vakgemiddelde-item").length;
-                if (isNaN(number)) {
+                if (Number.isNaN(number)) {
                     number = 1;
                 }
             }
 
-            const cijferOverzichtPeriod =
-                tn("sl-dropdown", 0) && tn("sl-dropdown", 0).ariaLabel
-                    ? tn("sl-dropdown", 0).ariaLabel
-                    : "Cijferoverzicht";
+            const cijferOverzichtPeriod = tn("sl-dropdown", 0)?.ariaLabel
+                ? tn("sl-dropdown", 0).ariaLabel
+                : "Cijferoverzicht";
 
             // Show a loading message
             modMessage(
@@ -5000,10 +4969,9 @@ function modInit() {
                         ">${gradeDescription}</p>`
                         : "";
                     const red =
-                        (tn("sl-resultaat-item", i) &&
-                            tn("sl-resultaat-item", i).getElementsByClassName(
-                                "cijfer",
-                            )[0] &&
+                        (tn("sl-resultaat-item", i)?.getElementsByClassName(
+                            "cijfer",
+                        )[0] &&
                             tn("sl-resultaat-item", i)
                                 .getElementsByClassName("cijfer")[0]
                                 .classList.contains("onvoldoende")) ||
@@ -5020,10 +4988,9 @@ function modInit() {
                                     "onvoldoende",
                                 ));
                     const green =
-                        (tn("sl-resultaat-item", i) &&
-                            tn("sl-resultaat-item", i).getElementsByClassName(
-                                "cijfer",
-                            )[0] &&
+                        (tn("sl-resultaat-item", i)?.getElementsByClassName(
+                            "cijfer",
+                        )[0] &&
                             tn("sl-resultaat-item", i)
                                 .getElementsByClassName("cijfer")[0]
                                 .classList.contains("ruimvoldoende")) ||
@@ -5040,10 +5007,9 @@ function modInit() {
                                     "ruimvoldoende",
                                 ));
                     let grey =
-                        (tn("sl-resultaat-item", i) &&
-                            tn("sl-resultaat-item", i).getElementsByClassName(
-                                "cijfer",
-                            )[0] &&
+                        (tn("sl-resultaat-item", i)?.getElementsByClassName(
+                            "cijfer",
+                        )[0] &&
                             tn("sl-resultaat-item", i)
                                 .getElementsByClassName("cijfer")[0]
                                 .classList.contains("neutraal")) ||
@@ -5177,8 +5143,7 @@ function modInit() {
                 '\')}</style></defs><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">' +
                 html +
                 "</div></foreignObject></svg>";
-            const svgObjectUrl =
-                "data:image/svg+xml; charset=utf8, " + encodeURIComponent(svg);
+            const svgObjectUrl = `data:image/svg+xml; charset=utf8, ${encodeURIComponent(svg)}`;
             const tempImg = new Image();
             tempImg.addEventListener("load", () => {
                 ctx.drawImage(tempImg, 0, 0);
@@ -5230,7 +5195,7 @@ function modInit() {
             const recapPoints = [];
             const recapDates = [];
             for (const grade of recapData.grades) {
-                if (!isNaN(grade.cijfer)) {
+                if (!Number.isNaN(grade.cijfer)) {
                     recapPoints.unshift(grade.cijfer);
                     recapDates.push("Mysterieus vak");
                 }
@@ -5367,12 +5332,12 @@ function modInit() {
                         .replace("okt", "oct");
                     // Then add the year if not present
                     if (englishDateString.match(".*?[0-9]{4}") == null) {
-                        englishDateString += " " + year;
+                        englishDateString += ` ${year}`;
                     }
                     dateObject = Date.parse(englishDateString);
                 }
 
-                if (isNaN(grade) && weging != 0) {
+                if (Number.isNaN(grade) && weging != 0) {
                     const letterbeoordelingen = parseJSON(
                         get("letterbeoordelingen"),
                     );
@@ -5385,7 +5350,7 @@ function modInit() {
                     ) {
                         // Letter value is not set, user should set it in modsettings if they want to count it
                         continue;
-                    } else if (isNaN(letterbeoordelingen[letter])) {
+                    } else if (Number.isNaN(letterbeoordelingen[letter])) {
                         // Letter should be ignored if set to "-" (or if non-numeric in general)
                         continue;
                     } else {
@@ -5394,7 +5359,7 @@ function modInit() {
                     }
                 }
 
-                if (!isNaN(grade)) {
+                if (!Number.isNaN(grade)) {
                     if (dateObjects.length == 0) {
                         points.push(grade);
                         dates.push(dateString);
@@ -5625,7 +5590,7 @@ function modInit() {
             listHTML +=
                 "<div><label>" +
                 key +
-                (value[0] ? " (" + value[0] + ")" : "") +
+                (value[0] ? ` (${value[0]})` : "") +
                 '</label><input class="mod-letterbeoordelingen-letter" value="' +
                 value[1] +
                 '" data-mod-letter="' +
@@ -5648,7 +5613,7 @@ function modInit() {
             }
             // Save letterbeoordelingen
             for (const element of cn("mod-letterbeoordelingen-letter")) {
-                if (!isNaN(parseFloat(element.value))) {
+                if (!Number.isNaN(parseFloat(element.value))) {
                     letterbeoordelingen[element.dataset.modLetter] =
                         element.value;
                 } else {
@@ -5709,7 +5674,7 @@ function modInit() {
                 );
 
                 // If grade is not a number, check if user has set a corresponding numeric value
-                if (isNaN(tempGrade)) {
+                if (Number.isNaN(tempGrade)) {
                     // If weight is zero, it is probably a "handelingsdeel" and we can ignore it
                     if (tempWeight != 0) {
                         const letterbeoordelingen = parseJSON(
@@ -5732,7 +5697,7 @@ function modInit() {
                             }
                             // Letter value is not set, ask user to define it
                             showLetterbeoordelingenMessage(letter);
-                        } else if (isNaN(letterbeoordelingen[letter])) {
+                        } else if (Number.isNaN(letterbeoordelingen[letter])) {
                         } else {
                             // Letter value is numeric and set
                             total += letterbeoordelingen[letter] * tempWeight;
@@ -5755,7 +5720,7 @@ function modInit() {
         for (const element of tn("sl-resultaat-item")) {
             if (element.getElementsByClassName("cijfer")[0]) {
                 if (
-                    !isNaN(
+                    !Number.isNaN(
                         parseFloat(
                             element
                                 .getElementsByClassName("cijfer")[0]
@@ -5789,7 +5754,7 @@ function modInit() {
                 // Calculate grade needed for chosen average
                 const chosenAverage = parseFloat(id("mod-grade-one-one").value);
                 const chosenWeight = parseFloat(id("mod-grade-one-two").value);
-                if (isNaN(chosenAverage) || isNaN(chosenWeight)) {
+                if (Number.isNaN(chosenAverage) || Number.isNaN(chosenWeight)) {
                     id("mod-grade-one-three").value = "Berekenen";
                 } else {
                     id("mod-grade-one-three").value = (
@@ -5811,7 +5776,7 @@ function modInit() {
                 // Calculate average with chosen grade added
                 const chosenGrade = parseFloat(id("mod-grade-two-one").value);
                 const chosenWeight = parseFloat(id("mod-grade-two-two").value);
-                if (isNaN(chosenGrade) || isNaN(chosenWeight)) {
+                if (Number.isNaN(chosenGrade) || Number.isNaN(chosenWeight)) {
                     id("mod-grade-two-three").value = "Berekenen";
                 } else {
                     averageData.total += chosenGrade * chosenWeight;
@@ -5978,13 +5943,9 @@ function modInit() {
             tryRemove(id("somtoday-recap"));
         }
         if (id("mod-recap-year")) {
-            id("mod-recap-year").innerText =
-                tn("sl-dropdown", 0) && tn("sl-dropdown", 0).ariaLabel
-                    ? tn("sl-dropdown", 0).ariaLabel.replace(
-                          /^[^/]+\/(\d+)/,
-                          "$1",
-                      )
-                    : year;
+            id("mod-recap-year").innerText = tn("sl-dropdown", 0)?.ariaLabel
+                ? tn("sl-dropdown", 0).ariaLabel.replace(/^[^/]+\/(\d+)/, "$1")
+                : year;
         }
         if (
             (tn("sl-resultaat-item", 0) ||
@@ -5999,13 +5960,9 @@ function modInit() {
                 console.warn(e);
             }
             music.loop = true;
-            const recapYear =
-                tn("sl-dropdown", 0) && tn("sl-dropdown", 0).ariaLabel
-                    ? tn("sl-dropdown", 0).ariaLabel.replace(
-                          /^[^/]+\/(\d+)/,
-                          "$1",
-                      )
-                    : year;
+            const recapYear = tn("sl-dropdown", 0)?.ariaLabel
+                ? tn("sl-dropdown", 0).ariaLabel.replace(/^[^/]+\/(\d+)/, "$1")
+                : year;
             tn("hmy-switch-group", 0).insertAdjacentHTML(
                 "afterend",
                 '<div id="somtoday-recap"><h3>Somtoday Recap' +
@@ -6057,15 +6014,14 @@ function modInit() {
                 const currentYear = year || new Date().getFullYear();
                 const prevYear = currentYear - 1;
 
-                const recapYears =
-                    tn("sl-dropdown", 0) && tn("sl-dropdown", 0).ariaLabel
-                        ? tn("sl-dropdown", 0).ariaLabel.replace(
-                              /^[^/]+(\d\d)\/\d+(\d\d)$/,
-                              "$1/$2",
-                          )
-                        : prevYear.toString().slice(-2) +
-                          "/" +
-                          currentYear.toString().slice(-2);
+                const recapYears = tn("sl-dropdown", 0)?.ariaLabel
+                    ? tn("sl-dropdown", 0).ariaLabel.replace(
+                          /^[^/]+(\d\d)\/\d+(\d\d)$/,
+                          "$1/$2",
+                      )
+                    : prevYear.toString().slice(-2) +
+                      "/" +
+                      currentYear.toString().slice(-2);
 
                 const wrapper = id("somtoday-mod");
                 if (wrapper) {
@@ -6180,7 +6136,7 @@ function modInit() {
                     }
                 }
 
-                for (i = 0; true; i++) {
+                for (i = 0; !closing; i++) {
                     if (closing) {
                         return;
                     }
@@ -6218,10 +6174,9 @@ function modInit() {
                             element.getElementsByClassName("naam")[0].innerText;
                     }
                     if (
-                        element.getElementsByTagName("hmy-vak-icon")[0] &&
                         element
                             .getElementsByTagName("hmy-vak-icon")[0]
-                            .getElementsByTagName("svg")[0]
+                            ?.getElementsByTagName("svg")[0]
                     ) {
                         subject.icon = element
                             .getElementsByTagName("hmy-vak-icon")[0]
@@ -6251,10 +6206,10 @@ function modInit() {
                                     .innerText;
                         }
 
-                        subject.average = isNaN(parseFloat(average))
+                        subject.average = Number.isNaN(parseFloat(average))
                             ? average
                             : parseFloat(average);
-                        if (!isNaN(parseFloat(subject.average))) {
+                        if (!Number.isNaN(parseFloat(subject.average))) {
                             totalAverageGrades += Math.round(
                                 parseFloat(subject.average),
                             );
@@ -6284,14 +6239,16 @@ function modInit() {
                             : null;
                         if (
                             cijfer.ariaLabel &&
-                            !isNaN(weging) &&
+                            !Number.isNaN(weging) &&
                             !cijfer.classList.contains("gemiddelde")
                         ) {
                             subject.grades.push({
-                                cijfer: isNaN(grade) ? cijfer.innerText : grade,
+                                cijfer: Number.isNaN(grade)
+                                    ? cijfer.innerText
+                                    : grade,
                                 weging: weging,
                             });
-                            if (isNaN(grade)) {
+                            if (Number.isNaN(grade)) {
                                 if (
                                     cijfer.innerText.indexOf("+") != -1 ||
                                     cijfer.innerText.indexOf("-") != -1
@@ -6375,7 +6332,7 @@ function modInit() {
                     availablePages.push(onvoldoendeGraph);
                     i = 0;
                     for (const subject of gradedata) {
-                        if (!isNaN(subject.average)) {
+                        if (!Number.isNaN(subject.average)) {
                             i++;
                         }
                     }
@@ -6383,7 +6340,7 @@ function modInit() {
                         availablePages.push(overgangsCheck);
                     }
                     for (const subject of gradedata) {
-                        if (!isNaN(subject.average)) {
+                        if (!Number.isNaN(subject.average)) {
                             availablePages.push(orderSubjects);
                             break;
                         }
@@ -6412,7 +6369,7 @@ function modInit() {
             const usedSubjects = [];
             const subjects = [];
             let html = "";
-            for (var i = 0; i < 5 && i < gradedata.length; i++) {
+            for (let i = 0; i < 5 && i < gradedata.length; i++) {
                 let randomSubject =
                     gradedata[Math.floor(Math.random() * gradedata.length)];
                 if (
@@ -6499,7 +6456,6 @@ function modInit() {
                 document.addEventListener("touchend", mouseUpHandler);
             };
             const mouseMoveHandler = (e) => {
-                const draggingRect = draggingEle.getBoundingClientRect();
                 if (!isDraggingStarted) {
                     isDraggingStarted = true;
                     placeholder = document.createElement("div");
@@ -6512,11 +6468,11 @@ function modInit() {
                 }
                 draggingEle.style.position = "absolute";
                 if (e.touches == null || e.touches[0] == null) {
-                    draggingEle.style.top = e.pageY - y + "px";
-                    draggingEle.style.left = e.pageX - x + "px";
+                    draggingEle.style.top = `${e.pageY - y}px`;
+                    draggingEle.style.left = `${e.pageX - x}px`;
                 } else {
-                    draggingEle.style.top = e.touches[0].pageY - y + "px";
-                    draggingEle.style.left = e.touches[0].pageX - x + "px";
+                    draggingEle.style.top = `${e.touches[0].pageY - y}px`;
+                    draggingEle.style.left = `${e.touches[0].pageX - x}px`;
                 }
                 const prevEle = draggingEle.previousElementSibling;
                 const nextEle = placeholder.nextElementSibling;
@@ -6531,9 +6487,7 @@ function modInit() {
                 }
             };
             const mouseUpHandler = () => {
-                placeholder &&
-                    placeholder.parentNode &&
-                    placeholder.parentNode.removeChild(placeholder);
+                placeholder?.parentNode?.removeChild(placeholder);
                 draggingEle.style.removeProperty("top");
                 draggingEle.style.removeProperty("left");
                 draggingEle.style.removeProperty("position");
@@ -6572,10 +6526,10 @@ function modInit() {
                     const orderedSubjects = subjects.slice();
                     const loopCount = orderedSubjects.length;
                     let correct = true;
-                    for (var i = 0; i < loopCount; i++) {
+                    for (let i = 0; i < loopCount; i++) {
                         let maxGrade = 0;
                         let maxGradeIndex = 0;
-                        for (var j = 0; j < orderedSubjects.length; j++) {
+                        for (let j = 0; j < orderedSubjects.length; j++) {
                             if (orderedSubjects[j].average > maxGrade) {
                                 maxGrade = orderedSubjects[j].average;
                                 maxGradeIndex = j;
@@ -6619,7 +6573,7 @@ function modInit() {
                             if (first) {
                                 pElement.insertAdjacentHTML(
                                     "afterend",
-                                    "<p>" + subjectAverage + "</p>",
+                                    `<p>${subjectAverage}</p>`,
                                 );
                             }
                         }
@@ -6683,6 +6637,8 @@ function modInit() {
                         break;
                     } else {
                         pages = 7;
+                        award();
+                        break;
                     }
                 case 7:
                     award();
@@ -6744,7 +6700,7 @@ function modInit() {
             let icon;
             let times = 0;
             while (award == "none" && times < 50) {
-                let min, max, i, subject, gradeVar;
+                let min, max;
                 const randomAwardTry = Math.round(Math.random() * (13 - 1) + 1);
                 switch (randomAwardTry) {
                     case 1:
@@ -6762,7 +6718,7 @@ function modInit() {
                             max = 0;
                             for (const subject of gradedata) {
                                 for (const grade of subject.grades) {
-                                    if (!isNaN(grade.cijfer)) {
+                                    if (!Number.isNaN(grade.cijfer)) {
                                         if (grade.cijfer > max) {
                                             max = grade.cijfer;
                                         }
@@ -6909,10 +6865,9 @@ function modInit() {
                     case 9:
                         // FOCUSED AWARD
                         max = false;
-                        i = 2;
                         for (const subject of gradedata) {
                             if (
-                                !isNaN(parseFloat(subject.average)) &&
+                                !Number.isNaN(parseFloat(subject.average)) &&
                                 parseFloat(subject[0]) >= 8.5
                             ) {
                                 max = true;
@@ -6972,7 +6927,7 @@ function modInit() {
                         if (gradingSystems.cijfers) {
                             for (const subject of gradedata) {
                                 for (const grade of subject.grades) {
-                                    if (!isNaN(grade) && grade == 10) {
+                                    if (!Number.isNaN(grade) && grade == 10) {
                                         tens++;
                                     }
                                 }
@@ -7048,7 +7003,10 @@ function modInit() {
             for (const subject of gradedata) {
                 if (subject.systems.cijfers) {
                     for (const grade of subject.grades) {
-                        if (!isNaN(grade.cijfer) && grade.cijfer >= highest) {
+                        if (
+                            !Number.isNaN(grade.cijfer) &&
+                            grade.cijfer >= highest
+                        ) {
                             if (highestName) {
                                 secondHighest = highest;
                                 secondHighestName = highestName;
@@ -7104,7 +7062,10 @@ function modInit() {
             for (const subject of gradedata) {
                 if (subject.systems.cijfers) {
                     for (const grade of subject.grades) {
-                        if (!isNaN(grade.cijfer) && grade.cijfer < lowest) {
+                        if (
+                            !Number.isNaN(grade.cijfer) &&
+                            grade.cijfer < lowest
+                        ) {
                             lowest = grade.cijfer;
                             lowestName = subject.name;
                             lowestAverage = subject.average;
@@ -7180,7 +7141,7 @@ function modInit() {
                         break;
                     }
                     real = average;
-                    if (isNaN(parseFloat(average))) {
+                    if (Number.isNaN(parseFloat(average))) {
                         let choices;
                         if (
                             average.indexOf("+") != -1 ||
@@ -7213,9 +7174,9 @@ function modInit() {
                 case 2:
                     real = grade;
                     if (gradeSubject.systems.cijfers) {
-                        if (isNaN(grade)) {
+                        if (Number.isNaN(grade)) {
                             for (const gradeInList of gradeSubject.grades) {
-                                if (gradeInList && !isNaN(gradeInList)) {
+                                if (gradeInList && !Number.isNaN(gradeInList)) {
                                     grade = gradeInList;
                                     break;
                                 }
@@ -7279,7 +7240,7 @@ function modInit() {
                     i = 0;
                     while (real == amount) {
                         if (i > 100) {
-                            if (isNaN(amount)) {
+                            if (Number.isNaN(amount)) {
                                 amount = 0;
                             } else {
                                 amount += 1;
@@ -7330,16 +7291,16 @@ function modInit() {
                 id("recap-option-1").parentElement.style.pointerEvents = "none";
                 id("recap-option-2").parentElement.style.pointerEvents = "none";
                 id("recap-option-3").parentElement.style.pointerEvents = "none";
-                if (id("recap-option-" + random).checked) {
+                if (id(`recap-option-${random}`).checked) {
                     clicked = true;
-                    id("recap-option-" + random).parentElement.classList.add(
+                    id(`recap-option-${random}`).parentElement.classList.add(
                         "right",
                     );
                     id(
-                        "recap-option-" + random,
+                        `recap-option-${random}`,
                     ).parentElement.getElementsByClassName(
                         "correction",
-                    )[0].innerHTML = " " + real;
+                    )[0].innerHTML = ` ${real}`;
                     this.innerHTML = "Volgende";
                     try {
                         new Audio(window.getAudioUrl("correct")).play();
@@ -7370,14 +7331,14 @@ function modInit() {
                             "wrong",
                         );
                     }
-                    id("recap-option-" + random).parentElement.classList.add(
+                    id(`recap-option-${random}`).parentElement.classList.add(
                         "right",
                     );
                     id(
-                        "recap-option-" + random,
+                        `recap-option-${random}`,
                     ).parentElement.getElementsByClassName(
                         "correction",
-                    )[0].innerHTML = " " + real;
+                    )[0].innerHTML = ` ${real}`;
                     this.innerHTML = "Volgende";
                 }
             });
@@ -7404,7 +7365,7 @@ function modInit() {
             const onvoldoendes = [];
             let overgang = 100;
             for (const subject of gradedata) {
-                if (!isNaN(parseFloat(subject.average))) {
+                if (!Number.isNaN(parseFloat(subject.average))) {
                     const average = Math.round(subject.average);
                     const kernvak =
                         subject.name.toLowerCase().indexOf("wiskunde") != -1 &&
@@ -7432,7 +7393,7 @@ function modInit() {
                     }
                 }
                 for (const grade of subject.grades) {
-                    if (!isNaN(parseFloat(grade.cijfer))) {
+                    if (!Number.isNaN(parseFloat(grade.cijfer))) {
                         distribution[Math.round(grade.cijfer) - 1]++;
                     }
                 }
@@ -7486,7 +7447,7 @@ function modInit() {
                 "recap-chart",
             ) as HTMLCanvasElement;
             const recapCtx = recapCanvas.getContext("2d");
-            const recapChart = new Chart(recapCtx, {
+            new Chart(recapCtx, {
                 type: "doughnut",
                 data: {
                     labels: ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"],
@@ -7536,7 +7497,7 @@ function modInit() {
             for (const subject of gradedata) {
                 if (subject.systems.cijfers) {
                     for (const grade of subject.grades) {
-                        if (!isNaN(parseFloat(grade.cijfer))) {
+                        if (!Number.isNaN(parseFloat(grade.cijfer))) {
                             if (grade.cijfer >= 5.5) {
                                 voldoende++;
                             } else {
@@ -7567,7 +7528,7 @@ function modInit() {
                 "recap-chart",
             ) as HTMLCanvasElement;
             const recapCtx = recapCanvas.getContext("2d");
-            const recapChart = new Chart(recapCtx, {
+            new Chart(recapCtx, {
                 type: "doughnut",
                 data: {
                     labels: ["Voldoende", "Onvoldoende"],
@@ -7618,7 +7579,7 @@ function modInit() {
                 "recap-chart",
             ) as HTMLCanvasElement;
             const recapCtx = recapCanvas.getContext("2d");
-            const recapChart = new Chart(recapCtx, {
+            new Chart(recapCtx, {
                 type: "doughnut",
                 data: {
                     labels: ["Afgerond", "Bijna", "Niet afgerond", "Lopend"],
@@ -7677,7 +7638,7 @@ function modInit() {
                 "recap-chart",
             ) as HTMLCanvasElement;
             const recapCtx = recapCanvas.getContext("2d");
-            const recapChart = new Chart(recapCtx, {
+            new Chart(recapCtx, {
                 type: "bar",
                 data: {
                     labels: ["+", "-", "-/+"],
@@ -7721,7 +7682,7 @@ function modInit() {
             }
             gradeGraphs(chosenSubject);
             const random = Math.round(Math.random() * (3 - 1) + 1);
-            id("recap-option-" + random).innerHTML = chosenSubject.name;
+            id(`recap-option-${random}`).innerHTML = chosenSubject.name;
             let fakeOptionOne =
                 gradedata[Math.round(Math.random() * (gradedata.length - 1))]
                     .name;
@@ -7772,7 +7733,7 @@ function modInit() {
                     ].name;
                 i++;
             }
-            id("recap-text-" + random).innerHTML = chosenSubject.name;
+            id(`recap-text-${random}`).innerHTML = chosenSubject.name;
             switch (random) {
                 case 1:
                     id("recap-text-2").innerHTML = fakeOptionOne;
@@ -7800,9 +7761,9 @@ function modInit() {
                 ) {
                     return;
                 }
-                if (id("recap-option-" + random).checked) {
+                if (id(`recap-option-${random}`).checked) {
                     clicked = true;
-                    id("recap-option-" + random).parentElement.classList.add(
+                    id(`recap-option-${random}`).parentElement.classList.add(
                         "right",
                     );
                     this.innerHTML = "Volgende";
@@ -7835,7 +7796,7 @@ function modInit() {
                             "wrong",
                         );
                     }
-                    id("recap-option-" + random).parentElement.classList.add(
+                    id(`recap-option-${random}`).parentElement.classList.add(
                         "right",
                     );
                     this.innerHTML = "Volgende";
@@ -7867,8 +7828,7 @@ function modInit() {
             setTimeout(() => {
                 // Set modsettings text
                 if (
-                    tn("sl-account-modal-header", 1) &&
-                    tn("sl-account-modal-header", 1).getElementsByClassName(
+                    tn("sl-account-modal-header", 1)?.getElementsByClassName(
                         "title ng-star-inserted",
                     )[0]
                 ) {
@@ -7929,9 +7889,7 @@ function modInit() {
                     "content",
                 )[0] &&
                 tn("sl-account-modal", 0).getElementsByClassName("content")[0]
-                    .children[0] &&
-                tn("sl-account-modal", 0).getElementsByClassName("content")[0]
-                    .children[0].children[0]
+                    .children[0]?.children[0]
             ) {
                 tn("sl-account-modal", 0).getElementsByClassName(
                     "content",
@@ -8143,7 +8101,7 @@ function modInit() {
                     : "",
                 "{{video_style}}": n(id("mod-background"))
                     ? ""
-                    : "filter:" + id("mod-background").style.filter + ";",
+                    : `filter:${id("mod-background").style.filter};`,
                 "{{video_src}}":
                     get("isbackgroundvideo") &&
                     get("isbackgroundvideo") != "false"
@@ -8152,7 +8110,7 @@ function modInit() {
                 "{{image_style}}":
                     (n(id("mod-background"))
                         ? ""
-                        : "filter:" + id("mod-background").style.filter + ";") +
+                        : `filter:${id("mod-background").style.filter};`) +
                     (get("isbackgroundvideo") &&
                     get("isbackgroundvideo") != "false"
                         ? "display:none;"
@@ -8613,9 +8571,8 @@ function modInit() {
                     "",
                     "",
                 ),
-                "{{somtoday_version}}":
-                    "Versie " + version_name + " van Somtoday Mod",
-                "{{platform}}": "Somtoday " + platform,
+                "{{somtoday_version}}": `Versie ${version_name} van Somtoday Mod`,
+                "{{platform}}": `Somtoday ${platform}`,
                 "{{contributors_list}}": contributorContent,
                 "{{updateinfo}}": updateinfo,
                 "{{export_import_buttons}}": `<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;"><div id="export-settings" class="mod-button">${window.getIcon("export", null, "var(--fg-on-primary-weak)")}<span>Exporteer Mod-instellingen</span></div><div id="import-settings" class="mod-button">${window.getIcon("import", null, "var(--fg-on-primary-weak)")}<span>Importeer Mod-instellingen</span></div></div><input type="file" id="import-settings-json" class="hidden" accept="application/json">`,
@@ -8870,7 +8827,9 @@ function modInit() {
                 addSlide(i + 1);
             }
             const notLoaded = slideshowWrapper.querySelectorAll("div");
-            notLoaded.forEach((el) => el.remove());
+            notLoaded.forEach((el) => {
+                el.remove();
+            });
 
             // Backgrounds section event listeners
             if (
@@ -8896,7 +8855,7 @@ function modInit() {
             if (id("addbackground")) {
                 id("addbackground").addEventListener("input", function () {
                     const files = this.files;
-                    for (var i = 0; i < files.length; i++) {
+                    for (let i = 0; i < files.length; i++) {
                         if (
                             this.accept != "image/*" ||
                             files[i].type.indexOf("image") != -1
@@ -9057,7 +9016,7 @@ function modInit() {
 
                     let done = false;
                     if (event.dataTransfer.items) {
-                        [...event.dataTransfer.items].forEach((item, i) => {
+                        [...event.dataTransfer.items].forEach((item) => {
                             if (!done && item.kind === "file") {
                                 done = true;
                                 element.classList.remove("mod-drag-and-drop");
@@ -9070,7 +9029,7 @@ function modInit() {
                             }
                         });
                     } else {
-                        [...event.dataTransfer.files].forEach((file, i) => {
+                        [...event.dataTransfer.files].forEach((file) => {
                             if (!done) {
                                 done = true;
                                 element.classList.remove("mod-drag-and-drop");
@@ -9141,7 +9100,7 @@ function modInit() {
                 "mod-setting-panel",
             ).getElementsByClassName("category")) {
                 const index = number;
-                id("category-" + element.dataset.category).style.display =
+                id(`category-${element.dataset.category}`).style.display =
                     categories.charAt(index) == "1" ? "block" : "none";
                 if (categories.charAt(index) == "1") {
                     element.classList.remove("collapsed");
@@ -9152,7 +9111,7 @@ function modInit() {
                     // Collapsed: whether the category was collapsed before toggling
                     // So if collapsed == true, then the category should be shown
                     const collapsed =
-                        id("category-" + element.dataset.category).style
+                        id(`category-${element.dataset.category}`).style
                             .display == "none";
                     set(
                         "category",
@@ -9163,7 +9122,7 @@ function modInit() {
                     } else {
                         element.classList.add("collapsed");
                     }
-                    id("category-" + element.dataset.category).style.display =
+                    id(`category-${element.dataset.category}`).style.display =
                         collapsed ? "block" : "none";
                 });
                 element.addEventListener(
@@ -9245,10 +9204,8 @@ function modInit() {
                             );
                         }
                         if (
-                            id("mod-random-background")
-                                .previousElementSibling &&
                             id("mod-random-background").previousElementSibling
-                                .previousElementSibling &&
+                                ?.previousElementSibling &&
                             id(
                                 "mod-random-background",
                             ).previousElementSibling.previousElementSibling.getElementsByTagName(
@@ -9438,8 +9395,7 @@ function modInit() {
         tryRemove(id("mod-setting-panel"));
         if (tn("sl-account-modal", 0)) {
             if (
-                tn("sl-account-modal-header", 1) &&
-                tn("sl-account-modal-header", 1).getElementsByClassName(
+                tn("sl-account-modal-header", 1)?.getElementsByClassName(
                     "title ng-star-inserted",
                 )[0]
             ) {
@@ -9475,8 +9431,8 @@ function modInit() {
     // Remove all old slideshow backgrounds
     function removeSlideshowBackgrounds() {
         let i = 0;
-        while (!n(get("background" + i))) {
-            set("background" + i, "");
+        while (!n(get(`background${i}`))) {
+            set(`background${i}`, "");
             i++;
         }
         return new Promise((resolve) => {
@@ -9486,7 +9442,7 @@ function modInit() {
 
     // Save all new slideshow backgrounds
     function saveSlideshowBackground(element, i) {
-        set("background" + i, element.src);
+        set(`background${i}`, element.src);
         return new Promise((resolve) => {
             setTimeout(resolve, 0);
         });
@@ -9526,7 +9482,7 @@ function modInit() {
                     element.getElementsByTagName("input")[0].dataset.unit,
             );
         }
-        if (id("mod-font-file") && id("mod-font-file").files[0]) {
+        if (id("mod-font-file")?.files[0]) {
             set("customfontname", id("mod-font-file").files[0].name);
             const reader = new FileReader();
             reader.readAsDataURL(id("mod-font-file").files[0]);
@@ -9536,10 +9492,7 @@ function modInit() {
                     execute([style]);
                 }, 100);
             };
-        } else if (
-            id("mod-font-select") &&
-            id("mod-font-select").classList.contains("mod-modified")
-        ) {
+        } else if (id("mod-font-select")?.classList.contains("mod-modified")) {
             set("customfont", "");
             set("customfontname", "");
             set("fontname", id("mod-font-select").value);
@@ -9784,10 +9737,10 @@ function modInit() {
             }
             if (get("layout") == 3) {
                 tn("body", 0).style.cssText =
-                    "--safe-area-inset-right: " + menuWidth + "px !important";
+                    `--safe-area-inset-right: ${menuWidth}px !important`;
             } else if (get("layout") == 2 || get("layout") == 5) {
                 tn("body", 0).style.cssText =
-                    "--safe-area-inset-left: " + menuWidth + "px !important";
+                    `--safe-area-inset-left: ${menuWidth}px !important`;
             }
         } else {
             setTimeout(saveReload, 100);
@@ -9837,8 +9790,8 @@ function modInit() {
         set("loginpass", "");
         menuWidth = 110;
         let i = 0;
-        while (!n(get("background" + i))) {
-            set("background" + i, "");
+        while (!n(get(`background${i}`))) {
+            set(`background${i}`, "");
             i++;
         }
         if (tn("sl-account-modal", 0)) {
@@ -9881,7 +9834,7 @@ function modInit() {
                     '<div tabindex="0" class="mod-button" id="mod-welcome-close">Sluiten</div></div></div></div></div>',
             );
             function closeWelcomeDialog() {
-                set("firstused", year + "-" + (month + 1) + "-" + dayInt);
+                set("firstused", `${year}-${month + 1}-${dayInt}`);
                 id("mod-welcome").style.opacity = "0";
                 if (id("errordata").checked) {
                     // Permission for sending debug-data
@@ -9920,7 +9873,7 @@ function modInit() {
         if (
             get(property) == null ||
             get(property) == "" ||
-            isNaN(parseInt(get(property), 10))
+            Number.isNaN(parseInt(get(property), 10))
         ) {
             value = defaultValue + unit;
         }
@@ -9968,10 +9921,10 @@ function modInit() {
         }
         let code =
             "<div>" +
-            (n(name) ? "" : "<h3>" + name + "</h3>") +
+            (n(name) ? "" : `<h3>${name}</h3>`) +
             (n(description) || type == "checkbox"
                 ? ""
-                : "<div><p>" + description + "</p></div>");
+                : `<div><p>${description}</p></div>`);
         if (type == "checkbox") {
             if (key.startsWith("bools")) {
                 code +=
@@ -10000,7 +9953,7 @@ function modInit() {
                     key +
                     '"/><div class="slider round"></div></label>';
             }
-            code += n(description) ? "" : "<p>" + description + "</p>";
+            code += n(description) ? "" : `<p>${description}</p>`;
         } else if (type == "range") {
             code +=
                 '<div class="mod-range-preview">' +
@@ -10126,7 +10079,7 @@ function modInit() {
         } else if (type == "file") {
             code += `
             <input
-                ${n(param2) ? "" : ' title="' + name + '" data-size="' + param2 + '"'}
+                ${n(param2) ? "" : ` title="${name}" data-size="${param2}"`}
                 class="mod-file-input mod-custom-setting"
                 type="file"
                 accept="${param1}" id="${key}"
@@ -10192,7 +10145,7 @@ function modInit() {
         let smallimg = url;
         let bigimg = url;
         let preview;
-        if (!isNaN(parseInt(url, 10))) {
+        if (!Number.isNaN(parseInt(url, 10))) {
             smallimg =
                 "https://images.pexels.com/photos/" +
                 url +
@@ -10302,8 +10255,7 @@ function modInit() {
     // Insert modsettings link in the setting menu
     function insertModSettingLink() {
         if (
-            tn("sl-account-modal", 0) &&
-            tn("sl-account-modal", 0).getElementsByTagName(
+            tn("sl-account-modal", 0)?.getElementsByTagName(
                 "sl-account-modal-tab",
             )[0] &&
             n(id("mod-setting-button"))
@@ -10344,8 +10296,7 @@ function modInit() {
             setTimeout(() => {
                 // Save username and birthday
                 if (
-                    cn("data-container", 1) &&
-                    cn("data-container", 1).getElementsByClassName(
+                    cn("data-container", 1)?.getElementsByClassName(
                         "ng-star-inserted",
                     )[0] &&
                     n(get("realname"))

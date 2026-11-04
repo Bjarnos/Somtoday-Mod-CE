@@ -46,7 +46,7 @@
         const normalized = hex
             .replace(
                 /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
-                (_, r, g, b) => "#" + r + r + g + g + b + b,
+                (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`,
             )
             .substring(1);
         const matches = normalized.match(/.{2}/g) || ["00", "00", "00"];
@@ -62,7 +62,7 @@
         [r, g, b]
             .map((x) => {
                 const hex = x.toString(16);
-                return hex.length === 1 ? "0" + hex : hex;
+                return hex.length === 1 ? `0${hex}` : hex;
             })
             .join("");
 

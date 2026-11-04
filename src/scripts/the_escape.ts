@@ -110,7 +110,7 @@ function startTheEscape(): void {
 
     function openLevel(number: number): void {
         level = number;
-        activeLevel = id("legacy-level-" + level.toString());
+        activeLevel = id(`legacy-level-${level.toString()}`);
         if (number === 11) {
             if (!n(timer)) {
                 clearInterval(timer);
@@ -177,12 +177,12 @@ function startTheEscape(): void {
         if (flagEnd) {
             if (n(activeLevel.dataset.left)) {
                 flagEnd.style.left = "";
-                flagEnd.style.right = (activeLevel.dataset.right || "0") + "%";
+                flagEnd.style.right = `${activeLevel.dataset.right || "0"}%`;
             } else {
                 flagEnd.style.right = "";
-                flagEnd.style.left = (activeLevel.dataset.left || "0") + "%";
+                flagEnd.style.left = `${activeLevel.dataset.left || "0"}%`;
             }
-            flagEnd.style.bottom = (activeLevel.dataset.bottom || "0") + "%";
+            flagEnd.style.bottom = `${activeLevel.dataset.bottom || "0"}%`;
         }
         positionX = 2;
         positionY = 0;
@@ -292,7 +292,7 @@ function startTheEscape(): void {
                 velocityY += 1.7;
                 onGround = false;
                 positionY += 0.3;
-                player.style.bottom = positionY + "%";
+                player.style.bottom = `${positionY}%`;
             }
         }
         // Down
@@ -334,7 +334,7 @@ function startTheEscape(): void {
                     const newValue =
                         parseFloat(element.dataset.bottom || "0") + 0.5;
                     element.dataset.bottom = String(newValue);
-                    child.style.bottom = newValue.toString() + "%";
+                    child.style.bottom = `${newValue.toString()}%`;
                     if (newValue >= 100) {
                         element.dataset.direction = "down";
                     }
@@ -347,7 +347,7 @@ function startTheEscape(): void {
                     const newValue =
                         parseFloat(element.dataset.bottom || "0") - 0.5;
                     element.dataset.bottom = String(newValue);
-                    child.style.bottom = newValue.toString() + "%";
+                    child.style.bottom = `${newValue.toString()}%`;
                     if (newValue <= 0) {
                         element.dataset.direction = "up";
                     }
@@ -368,7 +368,7 @@ function startTheEscape(): void {
                     const newValue =
                         parseFloat(element.dataset.right || "0") + 0.4;
                     element.dataset.right = String(newValue);
-                    child.style.right = newValue.toString() + "%";
+                    child.style.right = `${newValue.toString()}%`;
                     if (newValue >= 100) {
                         element.dataset.direction = "right";
                     }
@@ -383,7 +383,7 @@ function startTheEscape(): void {
                     const newValue =
                         parseFloat(element.dataset.right || "0") - 0.4;
                     element.dataset.right = String(newValue);
-                    child.style.right = newValue.toString() + "%";
+                    child.style.right = `${newValue.toString()}%`;
                     if (newValue <= 0) {
                         element.dataset.direction = "left";
                     }
@@ -409,7 +409,7 @@ function startTheEscape(): void {
                         if (velocityY <= 0) {
                             velocityY = 0;
                             onGround = true;
-                            player.style.bottom = positionY + 0.3 + "%";
+                            player.style.bottom = `${positionY + 0.3}%`;
                             if (detectOverlap(playerRect, element)) {
                                 positionY += 0.3;
                             }
@@ -477,8 +477,8 @@ function startTheEscape(): void {
         if (!onGround) {
             velocityY -= 0.07;
         }
-        player.style.left = positionX + "%";
-        player.style.bottom = positionY + "%";
+        player.style.left = `${positionX}%`;
+        player.style.bottom = `${positionY}%`;
         const flag = id("legacy-flag-end");
         if (flag && detectOverlap(player, flag)) {
             openLevel(level + 1);
@@ -507,8 +507,7 @@ function startTheEscape(): void {
                     for (let j = 0; j < enemyElements.length; j++) {
                         const enemy = enemyElements[j] as HTMLElement;
                         enemy.dataset.x = enemy.dataset.start;
-                        enemy.style.left =
-                            parseFloat(enemy.dataset.x || "0").toString() + "%";
+                        enemy.style.left = `${parseFloat(enemy.dataset.x || "0").toString()}%`;
                     }
                 } else {
                     const currentPositionX = parseFloat(
@@ -533,7 +532,7 @@ function startTheEscape(): void {
                         newValue = parseFloat(element.dataset.max || "0");
                     }
                     element.dataset.x = String(newValue);
-                    element.style.left = newValue.toString() + "%";
+                    element.style.left = `${newValue.toString()}%`;
                 }
             }
         }

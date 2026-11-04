@@ -229,7 +229,7 @@ async function build() {
                 throw new Error(`Content script not found: ${scriptFile}`);
             }
         }
-        userscriptBody += scriptContent + "\n";
+        userscriptBody += `${scriptContent}\n`;
     }
 
     // Insert CSS

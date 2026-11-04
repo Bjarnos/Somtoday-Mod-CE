@@ -136,7 +136,7 @@ else if (window?.indexedDB) {
     const DB_VERSION = 1;
 
     const persistStorage = async (): Promise<boolean> => {
-        if (!navigator.storage || !navigator.storage.persist) {
+        if (!navigator.storage?.persist) {
             return false;
         }
 
