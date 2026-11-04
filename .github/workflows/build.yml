@@ -16,6 +16,10 @@ on:
         description: "Release tag (e.g. v5.5.0) - only needed if you trigger a release manually"
         type: string
         default: ""
+      publish_stores:
+        description: "Publish to extension stores (Chrome, Firefox, Edge)"
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -100,3 +104,82 @@ jobs:
             dist/firefox.zip
             dist/SomtodayMod.user.js
             dist/SomtodayMod.min.user.js
+
+  publish-stores:
+    name: Publish to Extension Stores
+    needs: build
+    runs-on: ubuntu-latest
+    environment: extension-stores
+
+    if: |
+      startsWith(github.ref, 'refs/tags/') ||
+      github.event_name == 'release' ||
+      (github.event_name == 'workflow_dispatch' && (inputs.create_release == true || inputs.publish_stores == true))
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Chromium Extension
+        uses: actions/download-artifact@v4
+        with:
+          name: SomtodayMod-Chromium
+          path: dist
+
+      - name: Download Firefox Extension
+        uses: actions/download-artifact@v4
+        with:
+          name: SomtodayMod-Firefox
+          path: dist
+
+      - name: Publish to Chrome Web Store
+        if: secrets.CHROME_CLIENT_SECRET != ''
+        continue-on-error: true
+        uses: PlasmoHQ/bpp@v3
+        with:
+          keys: |
+            {
+              "chrome": {
+                "clientId": "${{ secrets.CHROME_CLIENT_ID }}",
+                "clientSecret": "${{ secrets.CHROME_CLIENT_SECRET }}",
+                "refreshToken": "${{ secrets.CHROME_REFRESH_TOKEN }}",
+                "extId": "${{ vars.CHROME_EXTENSION_ID }}",
+                "zip": "dist/chromium.zip"
+              }
+            }
+          chrome-file: dist/chromium.zip
+          verbose: true
+
+      - name: Publish to Firefox Add-ons (AMO)
+        if: secrets.FIREFOX_JWT_SECRET != ''
+        continue-on-error: true
+        uses: PlasmoHQ/bpp@v3
+        with:
+          keys: |
+            {
+              "firefox": {
+                "issuer": "${{ secrets.FIREFOX_JWT_ISSUER }}",
+                "secret": "${{ secrets.FIREFOX_JWT_SECRET }}",
+                "extId": "${{ vars.FIREFOX_EXTENSION_ID || 'somtoday-mod-ce@bjarnos.dev' }}",
+                "zip": "dist/firefox.zip"
+              }
+            }
+          firefox-file: dist/firefox.zip
+          verbose: true
+
+      - name: Publish to Microsoft Edge Add-ons
+        if: secrets.EDGE_API_KEY != ''
+        continue-on-error: true
+        uses: PlasmoHQ/bpp@v3
+        with:
+          keys: |
+            {
+              "edge": {
+                "productId": "${{ vars.EDGE_PRODUCT_ID }}",
+                "clientId": "${{ secrets.EDGE_CLIENT_ID }}",
+                "apiKey": "${{ secrets.EDGE_API_KEY }}",
+                "zip": "dist/chromium.zip"
+              }
+            }
+          edge-file: dist/chromium.zip
+          verbose: true
