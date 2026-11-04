@@ -4,7 +4,7 @@ Somtoday Mod CE is a free browser-extension which adjusts the student website of
 > [!IMPORTANT]
 > Somtoday Mod sadly closed active development and pull requests as of September 2026, because the owner no longer has access to Somtoday. Because of this, Somtoday Mod CE was created. A community edition of the popular browser extension with revived support and active development.
 
-<!--[![Button Chrome]][ChromeLink]-->
+[![Button Chrome]][ChromeLink]
 [![Button Edge]][EdgeLink]
 [![Button Firefox]][FirefoxLink]
 
@@ -62,7 +62,7 @@ Userscript:
 <!---------------------------------------------------------------------------->
 <!-- TODO: Replace with our own Somtoday Mod CE hosted icons -->
 [Button Chrome]: https://jonazwetsloot.nl/images/chrome-webstore.svg
-[ChromeLink]: https://chromewebstore.google.com/detail/somtoday-mod/gehilkhfalphnhpidceocgmdijplpkbn 'Install in the Chrome Webstore.'
+[ChromeLink]: https://chromewebstore.google.com/detail/somtoday-mod-ce/ihfpaeafponejgdhegkdfhcffpcdhbel 'Install in the Chrome Webstore.'
 [Button Edge]: https://jonazwetsloot.nl/images/edge-addons.svg
 [EdgeLink]: https://microsoftedge.microsoft.com/addons/detail/somtoday-mod-ce/cijmmhcnhlgcljcjpbodolpgaplofkgk 'Install in the Edge Addons Store.'
 [Button Firefox]: https://jonazwetsloot.nl/images/firefox-addons.svg
