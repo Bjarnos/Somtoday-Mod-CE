@@ -6011,6 +6011,11 @@ export function modInit() {
         let pages = 0;
         // Needed to collect all subject grades
         let closing = false;
+        const currentYear = year || new Date().getFullYear();
+        const startYear = month >= 7 ? currentYear : currentYear - 1;
+        const endYear = startYear + 1;
+        const fallbackRecapYears = `${startYear.toString().slice(-2)}/${endYear.toString().slice(-2)}`;
+
         if (
             id("somtoday-recap") &&
             n(id("somtoday-recap-wrapper")) &&
@@ -6023,7 +6028,7 @@ export function modInit() {
         if (id("mod-recap-year")) {
             id("mod-recap-year").innerText = tn("sl-dropdown", 0)?.ariaLabel
                 ? tn("sl-dropdown", 0).ariaLabel.replace(/^[^/]+\/(\d+)/, "$1")
-                : year;
+                : endYear.toString();
         }
         if (
             (tn("sl-resultaat-item", 0) ||
@@ -6040,7 +6045,7 @@ export function modInit() {
             music.loop = true;
             const recapYear = tn("sl-dropdown", 0)?.ariaLabel
                 ? tn("sl-dropdown", 0).ariaLabel.replace(/^[^/]+\/(\d+)/, "$1")
-                : year;
+                : endYear.toString();
             tn("hmy-switch-group", 0).insertAdjacentHTML(
                 "afterend",
                 '<div id="somtoday-recap"><h3>Somtoday Recap' +
@@ -6089,17 +6094,12 @@ export function modInit() {
                     "hidden",
                     "important",
                 );
-                const currentYear = year || new Date().getFullYear();
-                const prevYear = currentYear - 1;
-
                 const recapYears = tn("sl-dropdown", 0)?.ariaLabel
                     ? tn("sl-dropdown", 0).ariaLabel.replace(
                           /^[^/]+(\d\d)\/\d+(\d\d)$/,
                           "$1/$2",
                       )
-                    : prevYear.toString().slice(-2) +
-                      "/" +
-                      currentYear.toString().slice(-2);
+                    : fallbackRecapYears;
 
                 const wrapper = id("somtoday-mod");
                 if (wrapper) {
@@ -6110,7 +6110,7 @@ export function modInit() {
                             <div id="recap-progress"></div>
                             <div id="recap-close">&times;</div>
                             <center class="recap-page">
-                                <h1>Somtoday Recap ${recapYears}</h1>
+                                <h1 id="recap-title">Somtoday Recap ${recapYears}</h1>
                                 <h2>Het schooljaar zit er al weer bijna op! Hoog tijd voor de Somtoday Recap!</h2>
                                 <a id="recap-nextpage">Laden...</a>
                             </center>
@@ -6205,11 +6205,29 @@ export function modInit() {
                     i++;
                 }
 
+                if (tn("sl-dropdown", 0)?.ariaLabel) {
+                    const detectedYears = tn(
+                        "sl-dropdown",
+                        0,
+                    ).ariaLabel.replace(/^[^/]+(\d\d)\/\d+(\d\d)$/, "$1/$2");
+                    const recapTitle = id("recap-title");
+                    if (recapTitle && detectedYears) {
+                        recapTitle.innerText = `Somtoday Recap ${detectedYears}`;
+                    }
+                }
+
                 let totalAverageGrades = 0,
                     totalAverageWeight = 0;
 
                 for (const period of cn("periode-header")) {
-                    if (!period.classList.contains("open")) {
+                    if (
+                        !period.classList.contains("open") &&
+                        parseInt(
+                            period.style.getPropertyValue("--aantal-items"),
+                            10,
+                        ) !== 0 &&
+                        period.style.getPropertyValue("--aantal-items") != "0"
+                    ) {
                         period.click();
                     }
                 }
@@ -6221,11 +6239,19 @@ export function modInit() {
                     // Check if all periods are expanded, if so, continue
                     let allPeriodsExpanded = true;
                     for (const period of cn("periode-header")) {
-                        if (!period.classList.contains("open")) {
+                        if (
+                            !period.classList.contains("open") &&
+                            parseInt(
+                                period.style.getPropertyValue("--aantal-items"),
+                                10,
+                            ) !== 0 &&
+                            period.style.getPropertyValue("--aantal-items") !=
+                                "0"
+                        ) {
                             allPeriodsExpanded = false;
                         }
                     }
-                    if (allPeriodsExpanded) {
+                    if (allPeriodsExpanded || i > 100) {
                         break;
                     }
                     await new Promise((resolve) => setTimeout(resolve, 10));
