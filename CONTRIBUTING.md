@@ -78,10 +78,10 @@ The project is split across several scripts in `src/`:
 
 | File / Directory | Purpose |
 | :--- | :--- |
-| `src/scripts/shorthand_functions.js` | Helper utilities for DOM manipulation, SVG icons (`window.getIcon`), resource loading, and the `BOOL_INDEX` setting definitions. |
-| `src/scripts/save_version_management.js` | Cross-platform persistent storage (`get(key)` and `set(key, value)`). |
-| `src/scripts/execute_after_page_load.js` | Entry point executed after page load. Handles autologin, redirects, and triggers `onload` once Somtoday DOM elements exist. |
-| `src/scripts/main_functions.js` | Core feature implementations, Somtoday DOM modifications, recap logic, and the settings modal builder (`addSetting`). |
+| `src/scripts/shorthand_functions.ts` | Helper utilities for DOM manipulation, SVG icons (`window.getIcon`), resource loading, and the `BOOL_INDEX` setting definitions. |
+| `src/scripts/save_version_management.ts` | Cross-platform persistent storage (`get(key)` and `set(key, value)`). |
+| `src/scripts/execute_after_page_load.ts` | Entry point executed after page load. Handles autologin, redirects, and triggers `onload` once Somtoday DOM elements exist. |
+| `src/scripts/main_functions.ts` | Core feature implementations, Somtoday DOM modifications, recap logic, and the settings modal builder (`addSetting`). |
 | `src/data/settings.html` | HTML template for the Somtoday Mod in-page settings panel. |
 | `src/css/` | All stylesheets. |
 | `src/manifest.chromium.json` / `manifest.firefox.json` | Platform-specific extension manifests. |
@@ -98,9 +98,9 @@ Most features in Somtoday Mod are configurable via toggles in the Mod Settings p
 Boolean settings are indexed inside a compact bitmask string (`bools`) to keep storage lightweight across all platforms.
 
 #### Step 1: Register your flag in `BOOL_INDEX`
-Open `src/scripts/shorthand_functions.js` and add a new constant to `BOOL_INDEX`:
+Open `src/scripts/shorthand_functions.ts` and add a new constant to `BOOL_INDEX`:
 
-```javascript
+```typescript
 const BOOL_INDEX = {
     MENU_ALWAYS_SHOW: 0,
     // ...
@@ -110,9 +110,9 @@ const BOOL_INDEX = {
 ```
 
 #### Step 2: Add the toggle to the Settings panel
-In `src/scripts/main_functions.js`, find where settings category strings are constructed (search for `{{extra_settings}}` or the relevant category). Add your setting using `addSetting`:
+In `src/scripts/main_functions.ts`, find where settings category strings are constructed (search for `{{extra_settings}}` or the relevant category). Add your setting using `addSetting`:
 
-```javascript
+```typescript
 addSetting(
     "My New Feature", // Setting title
     "A short explanation of what this feature does.", // Description
@@ -123,16 +123,16 @@ addSetting(
 ```
 
 #### Step 3: Implement your feature logic
-In `src/scripts/main_functions.js` (or in a separate modular function):
+In `src/scripts/main_functions.ts` (or in a separate modular function):
 
 1. Check whether your setting is enabled:
-   ```javascript
+   ```typescript
    if (get("bools").charAt(BOOL_INDEX.MY_NEW_FEATURE) === "1") {
        // Your feature logic here
    }
    ```
 2. Because Somtoday is a dynamic Single Page Application (SPA), DOM elements are created asynchronously. Always wait for elements rather than accessing them immediately:
-   ```javascript
+   ```typescript
    async function initMyFeature() {
        const targetElement = await waitForElement(".sl-grades-container");
        if (!targetElement) return;
@@ -153,7 +153,7 @@ If your feature requires a custom value (e.g. text, color, array, number):
 
 ## Helper & Shorthand Functions Reference
 
-`src/scripts/shorthand_functions.js` provides several convenience functions used throughout the project:
+`src/scripts/shorthand_functions.ts` provides several convenience functions used throughout the project:
 
 | Function | Description |
 | :--- | :--- |
@@ -179,16 +179,17 @@ Somtoday Mod CE compiles into both browser extensions and a standalone Tampermon
 - **Do not modify or delete `// [GENERATION]` comments**: The build script (`scripts/build.js`) relies on these comments to inline stylesheets and assets for the userscript.
 - **Adding new CSS files**: If you create a new CSS file in `src/css/`, remember to add it to both `manifest.chromium.json` and `manifest.firefox.json` under `content_scripts[0].css`.
 - **Static assets**: Put new images or fonts into `src/images/` or `src/fonts/`. Always use `window.getResource("images/your-image.png")` instead of referencing chrome-specific URLs directly.
-- **Avoid external dependencies**: Keep features lightweight and vanilla JavaScript whenever possible.
+- **Avoid external dependencies**: Keep features lightweight and vanilla TypeScript / JavaScript whenever possible.
 
 ---
 
 ## Code Quality & Tooling
 
-We use [Biome](https://biomejs.dev/) for fast linting and code formatting.
+We use [Biome](https://biomejs.dev/) for fast linting and code formatting, alongside [TypeScript](https://www.typescriptlang.org/) for static type safety.
 
 | Command | Description |
 | :--- | :--- |
+| `npm run typecheck` | Checks code with TypeScript compiler (`tsc --noEmit`). |
 | `npm run lint` | Checks code for errors, syntax issues, and potential bugs. |
 | `npm run lint:fix` | Automatically fixes safe linter errors. |
 | `npm run format` | Formats all files according to project style standards. |
@@ -196,7 +197,7 @@ We use [Biome](https://biomejs.dev/) for fast linting and code formatting.
 | `npm run build` | Builds all browser extension packages and userscripts into `dist/`. |
 
 ### Git Hooks (Husky)
-A pre-commit hook automatically verifies formatting and catches syntax errors before committing. If your commit is blocked, run `npm run lint:fix && npm run format` and try again.
+A pre-commit hook automatically verifies formatting, linter rules, and TypeScript type checking before committing. If your commit is blocked, run `npm run lint:fix && npm run format` and verify `npm run typecheck`.
 
 ---
 
@@ -207,6 +208,6 @@ Before opening a pull request, please make sure:
 - [ ] You ran `npm run build` and tested your changes on Somtoday.
 - [ ] You tested the feature on at least one browser (Chromium or Firefox).
 - [ ] You tested the feature on the userscript (if relevant).
-- [ ] `npm run lint` and `npm run format:check` pass without errors.
+- [ ] `npm run typecheck`, `npm run lint` and `npm run format:check` pass without errors.
 - [ ] You added before/after screenshots or screen recordings for any visual/UI changes.
 - [ ] You referenced any related issue in your PR description (e.g. `Closes #12`).

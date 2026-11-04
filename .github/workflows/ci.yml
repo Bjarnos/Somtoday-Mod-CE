@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    name: Lint & Build Check
+    name: Lint, Typecheck & Build
     runs-on: ubuntu-latest
 
     steps:
@@ -24,8 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run TypeScript Typecheck
+        run: npm run typecheck
+
       - name: Run Biome Lint
         run: npm run lint
+
+      - name: Run Biome Format Check
+        run: npm run format:check
 
       - name: Verify Build
         run: npm run build

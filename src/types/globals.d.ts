@@ -39,9 +39,6 @@ interface Window {
     [key: string]: unknown;
 }
 
-declare let browser: any;
-declare function modInit(): void;
-
 declare let Fireworks: {
     default: new (
         container: HTMLElement,
@@ -51,12 +48,6 @@ declare let Fireworks: {
         stop: () => void;
         [key: string]: unknown;
     };
-    get?: (key: string) => any;
-    set?: (key: string, value: any) => void;
-    modInit?: () => void;
-    storageMethod?: string;
-    data?: Record<string, unknown> | null;
-    browser?: any;
     [key: string]: unknown;
 };
 

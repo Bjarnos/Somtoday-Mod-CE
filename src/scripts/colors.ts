@@ -223,7 +223,7 @@ function addNightTheme(): void {
     darkDiv.insertAdjacentElement("afterend", nightDiv);
 
     // Since we've added the night div now, we need to properly set the selected item
-    // We do so based on the html classList, which is up-to-date (handled by initTheme() in main_functions.js)
+    // We do so based on the html classList, which is up-to-date (handled by initTheme() in main_functions.ts)
     const allRadios = blokDiv.querySelectorAll<HTMLInputElement>(
         'input[type="radio"][name="thema"]',
     );
