@@ -170,7 +170,6 @@ export function modInit() {
         "Open Sans",
         "OpenDyslexic2",
         "Oswald",
-        "papyrus",
         "Permanent Marker",
         "Pixelify Sans",
         "Playfair Display",
@@ -199,7 +198,6 @@ export function modInit() {
     for (const font of fonts) {
         if (
             font != "Comic Sans MS" &&
-            font != "papyrus" &&
             font != "OpenDyslexic2" &&
             font != "Open Sans"
         ) {
