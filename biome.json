@@ -35,8 +35,7 @@
             },
             "suspicious": {
                 "noDoubleEquals": "off",
-                "noExplicitAny": "off",
-                "noImplicitAnyLet": "off"
+                "noExplicitAny": "off"
             },
             "correctness": {
                 "noUnusedVariables": "off"

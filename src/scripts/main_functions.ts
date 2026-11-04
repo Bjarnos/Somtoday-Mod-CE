@@ -83,7 +83,7 @@ function modInit() {
     const dayInt = today.getDate();
     const month = today.getMonth();
     const year = today.getFullYear();
-    let filesProcessed;
+    let filesProcessed: number = 0;
     let darkmode =
         tn("html", 0).classList.contains("dark") ||
         tn("html", 0).classList.contains("night");
@@ -91,8 +91,8 @@ function modInit() {
     let isRecapping = false;
     let ignoreRecapConditions = false;
     let ignoreCountdownConditions = false;
-    let menuColor;
-    let highLightColor;
+    let menuColor: any;
+    let highLightColor: any;
     let menuWidth = n(get("menuwidth")) ? 110 : get("menuwidth");
 
     // List of all Google Fonts to be loaded
@@ -227,10 +227,13 @@ function modInit() {
         if (allowEditGrades) {
             for (const element of cn("cijfer")) {
                 element.contentEditable = true;
-                element.addEventListener("click", function (event) {
-                    this.focus();
-                    event.stopPropagation();
-                });
+                element.addEventListener(
+                    "click",
+                    function (this: HTMLElement, event: Event) {
+                        this.focus();
+                        event.stopPropagation();
+                    },
+                );
             }
         }
     }
@@ -400,9 +403,12 @@ function modInit() {
                         "mod-easter-egg-logo mod-add-eventlistener",
                     )) {
                         element.classList.remove("mod-add-eventlistener");
-                        element.addEventListener("click", function () {
-                            this.remove();
-                        });
+                        element.addEventListener(
+                            "click",
+                            function (this: HTMLElement) {
+                                this.remove();
+                            },
+                        );
                     }
                 },
             );
@@ -422,70 +428,109 @@ function modInit() {
                 ...Array.from(tn("hmy-switch") as HTMLCollectionOf<Element>),
             ];
             for (const element of shakingElements) {
-                element.addEventListener("mouseover", function () {
-                    shakeOnHover(this, -30, 30, -30, 30);
-                });
+                element.addEventListener(
+                    "mouseover",
+                    function (this: HTMLElement) {
+                        shakeOnHover(this, -30, 30, -30, 30);
+                    },
+                );
             }
             for (const element of cn("afspraak-header")) {
                 element.children[element.children.length - 1].addEventListener(
                     "mouseover",
-                    function () {
+                    function (this: HTMLElement) {
                         shakeOnHover(this, -30, 30, -30, 30);
                     },
                 );
             }
             if (tn("sl-bericht-acties", 0)) {
                 for (const element of tn("sl-bericht-acties", 0).children) {
-                    element.addEventListener("mouseover", function () {
-                        shakeOnHover(this, -30, 30, -30, 30);
-                    });
+                    element.addEventListener(
+                        "mouseover",
+                        function (this: HTMLElement) {
+                            shakeOnHover(this, -30, 30, -30, 30);
+                        },
+                    );
                 }
             }
             for (const element of tn("sl-studiewijzer-item")) {
-                element.addEventListener("mouseover", function () {
-                    shakeOnHover(this, -30, 30, -30, 30);
-                });
+                element.addEventListener(
+                    "mouseover",
+                    function (this: HTMLElement) {
+                        shakeOnHover(this, -30, 30, -30, 30);
+                    },
+                );
             }
             for (const element of tn("sl-studiewijzer-filter-button")) {
-                element.addEventListener("mouseover", function () {
-                    shakeOnHover(this, -30, 30, -30, 30);
-                });
+                element.addEventListener(
+                    "mouseover",
+                    function (this: HTMLElement) {
+                        shakeOnHover(this, -30, 30, -30, 30);
+                    },
+                );
             }
             for (const element of tn("sl-rooster-item")) {
-                element.addEventListener("mouseover", function () {
-                    shakeOnHover(this, -30, 30, -30, 30);
-                });
+                element.addEventListener(
+                    "mouseover",
+                    function (this: HTMLElement) {
+                        shakeOnHover(this, -30, 30, -30, 30);
+                    },
+                );
             }
             for (const element of tn("sl-rooster-huiswerk-stack")) {
-                element.addEventListener("mouseover", function () {
-                    shakeOnHover(this, -30, 30, -30, 30);
-                });
+                element.addEventListener(
+                    "mouseover",
+                    function (this: HTMLElement) {
+                        shakeOnHover(this, -30, 30, -30, 30);
+                    },
+                );
             }
             for (const element of tn("sl-bericht-samenvatting")) {
-                element.addEventListener("mouseover", function () {
-                    shakeOnHover(this, -30, 30, -30, 30);
-                });
+                element.addEventListener(
+                    "mouseover",
+                    function (this: HTMLElement) {
+                        shakeOnHover(this, -30, 30, -30, 30);
+                    },
+                );
             }
             for (const element of tn("hmy-geen-data")) {
-                element.addEventListener("mouseover", function () {
-                    shakeOnHover(this, -30, 30, -30, 30);
-                });
+                element.addEventListener(
+                    "mouseover",
+                    function (this: HTMLElement) {
+                        shakeOnHover(this, -30, 30, -30, 30);
+                    },
+                );
             }
             for (const element of cn("button")) {
-                element.addEventListener("mouseover", function () {
-                    shakeOnHover(this, -30, 30, -30, 30);
-                });
+                element.addEventListener(
+                    "mouseover",
+                    function (this: HTMLElement) {
+                        shakeOnHover(this, -30, 30, -30, 30);
+                    },
+                );
             }
             for (const element of cn("nieuw-bericht")) {
-                element.addEventListener("mouseover", function () {
-                    shakeOnHover(this, -30, 30, -30, 30);
-                });
+                element.addEventListener(
+                    "mouseover",
+                    function (this: HTMLElement) {
+                        shakeOnHover(this, -30, 30, -30, 30);
+                    },
+                );
             }
-            tn("sl-header", 0).addEventListener("mouseover", function () {
-                shakeOnHover(this, -20, 20, -20, 20);
-            });
+            tn("sl-header", 0).addEventListener(
+                "mouseover",
+                function (this: HTMLElement) {
+                    shakeOnHover(this, -20, 20, -20, 20);
+                },
+            );
         }
-        function shakeOnHover(element, xMin, xMax, yMin, yMax) {
+        function shakeOnHover(
+            element: HTMLElement,
+            xMin: number,
+            xMax: number,
+            yMin: number,
+            yMax: number,
+        ) {
             element.style.transform =
                 "translate(" +
                 (Math.random() * (xMax - xMin) + xMin).toString() +
@@ -496,7 +541,7 @@ function modInit() {
     }
 
     let homeworkBusy = false;
-    let homework;
+    let homework: any;
     function customHomework() {
         if (n(get("homework"))) {
             set("homework", "[]");
@@ -578,7 +623,7 @@ function modInit() {
         }
     }
 
-    function sortByDate(a, b) {
+    function sortByDate(a: any, b: any) {
         // If weekly or monthly task, position it in the front of the array
         if (a.returning != "0") {
             return -1;
@@ -596,8 +641,8 @@ function modInit() {
         return 0;
     }
 
-    function ariaLabelToDate(element) {
-        let dateString;
+    function ariaLabelToDate(element: any) {
+        let dateString: string;
         if (n(element.children[0])) {
             return undefined;
         }
@@ -727,7 +772,11 @@ function modInit() {
     }
 
     // Called for each day/week in the roster
-    function customHomeworkInner(element, startIndex, recurringTasksEndIndex) {
+    function customHomeworkInner(
+        element: any,
+        startIndex: any,
+        recurringTasksEndIndex: any,
+    ) {
         if (homeworkBusy) {
             return startIndex;
         }
@@ -762,22 +811,28 @@ function modInit() {
                         "Annuleren",
                     );
                     for (const element of cn("mod-homework-icon")) {
-                        element.addEventListener("click", function () {
-                            cn(
-                                "mod-homework-icon mod-active",
-                                0,
-                            ).classList.remove("mod-active");
-                            this.classList.add("mod-active");
-                        });
+                        element.addEventListener(
+                            "click",
+                            function (this: HTMLElement) {
+                                cn(
+                                    "mod-homework-icon mod-active",
+                                    0,
+                                ).classList.remove("mod-active");
+                                this.classList.add("mod-active");
+                            },
+                        );
                     }
-                    id("homeworkcolor").addEventListener("input", function () {
-                        for (const element of cn("mod-homework-icon")) {
-                            element.children[0].setAttribute(
-                                "fill",
-                                this.value,
-                            );
-                        }
-                    });
+                    id("homeworkcolor").addEventListener(
+                        "input",
+                        function (this: HTMLInputElement) {
+                            for (const element of cn("mod-homework-icon")) {
+                                element.children[0].setAttribute(
+                                    "fill",
+                                    this.value,
+                                );
+                            }
+                        },
+                    );
                     id("mod-message-action1").addEventListener("click", () => {
                         const dateObject = ariaLabelToDate(
                             element.classList.contains("week")
@@ -841,25 +896,28 @@ function modInit() {
                     );
                     for (const element of cn("mod-multi-choice")) {
                         for (const child of element.children) {
-                            child.addEventListener("click", function () {
-                                if (
-                                    this.parentElement.getElementsByClassName(
-                                        "active",
-                                    )[0]
-                                ) {
-                                    this.parentElement
-                                        .getElementsByClassName("active")[0]
-                                        .classList.remove("active");
-                                }
-                                this.classList.add("active");
-                            });
+                            child.addEventListener(
+                                "click",
+                                function (this: HTMLElement) {
+                                    if (
+                                        this.parentElement.getElementsByClassName(
+                                            "active",
+                                        )[0]
+                                    ) {
+                                        this.parentElement
+                                            .getElementsByClassName("active")[0]
+                                            .classList.remove("active");
+                                    }
+                                    this.classList.add("active");
+                                },
+                            );
                         }
                     }
                 });
         }
         let lastShown = 0;
         if (!Number.isNaN(Number(currentStudiewijzerDate))) {
-            function addHomework(j) {
+            function addHomework(j: number) {
                 let i = j;
                 let lastRecurring = homework[i].returning;
                 const taskId = homework[i].id;
@@ -905,7 +963,7 @@ function modInit() {
                         (!isWeek && !homework[i].week))
                 ) {
                     lastShown = i;
-                    let insertElement;
+                    let insertElement: any;
                     const studiewijzerItems = element.getElementsByTagName(
                         "sl-studiewijzer-items",
                     )[0];
@@ -939,7 +997,7 @@ function modInit() {
                             );
                         }
                     }
-                    let done;
+                    let done: any;
                     // Weekly/monthly task
                     if (typeof homework[i].done === "object") {
                         done =
@@ -1000,7 +1058,7 @@ function modInit() {
                         );
                         const homeworkItem = insertElement.nextElementSibling;
                         const homeworkClassName = `mod-homework-${homework[i].id}`;
-                        function saveAdjustedHomework(e) {
+                        function saveAdjustedHomework(e: Event) {
                             updateIndex();
                             e.stopPropagation();
                             homework[i].subject = id(
@@ -1101,17 +1159,20 @@ function modInit() {
                                 true,
                             );
                             for (const element of cn("mod-homework-icon")) {
-                                element.addEventListener("click", function () {
-                                    cn(
-                                        "mod-homework-icon mod-active",
-                                        0,
-                                    ).classList.remove("mod-active");
-                                    this.classList.add("mod-active");
-                                });
+                                element.addEventListener(
+                                    "click",
+                                    function (this: HTMLElement) {
+                                        cn(
+                                            "mod-homework-icon mod-active",
+                                            0,
+                                        ).classList.remove("mod-active");
+                                        this.classList.add("mod-active");
+                                    },
+                                );
                             }
                             id("homeworkcolor").addEventListener(
                                 "input",
-                                function () {
+                                function (this: HTMLInputElement) {
                                     for (const element of cn(
                                         "mod-homework-icon",
                                     )) {
@@ -1128,7 +1189,7 @@ function modInit() {
                             );
                             id("mod-message-action2").addEventListener(
                                 "click",
-                                (e) => {
+                                (e: Event) => {
                                     updateIndex();
                                     e.stopPropagation();
                                     homework.splice(i, 1);
@@ -1156,7 +1217,7 @@ function modInit() {
                                 for (const child of element.children) {
                                     child.addEventListener(
                                         "click",
-                                        function () {
+                                        function (this: HTMLElement) {
                                             if (
                                                 this.parentElement.getElementsByClassName(
                                                     "active",
@@ -1177,7 +1238,7 @@ function modInit() {
                         });
                         homeworkItem
                             .getElementsByTagName("div")[0]
-                            .addEventListener("click", (e) => {
+                            .addEventListener("click", (e: Event) => {
                                 updateIndex();
                                 e.stopPropagation();
                                 const noMoving = element
@@ -1628,7 +1689,7 @@ function modInit() {
         "customcss",
     ];
     function exportSettings() {
-        const settings = {};
+        const settings: Record<string, any> = {};
         for (const key of settingKeys) {
             settings[key] = get(key);
         }
@@ -1642,7 +1703,7 @@ function modInit() {
             var a = document.createElement("a");
             document.body.appendChild(a);
             a.style = "display: none";
-            return (fileName) => {
+            return (fileName: string) => {
                 var blob = new Blob([json], { type: "octet/stream" }),
                     url = window.URL.createObjectURL(blob);
                 a.href = url;
@@ -1655,8 +1716,8 @@ function modInit() {
         saveData("config.json");
     }
 
-    function parseJSON(str) {
-        let json;
+    function parseJSON(str: string) {
+        let json: any;
         try {
             json = JSON.parse(str);
         } catch (e) {
@@ -1666,7 +1727,7 @@ function modInit() {
     }
 
     // Ensure the new value is valid
-    async function keyIsValid(key, value) {
+    async function keyIsValid(key: string, value: any) {
         if (value == null) {
             return false;
         }
@@ -1822,7 +1883,7 @@ function modInit() {
         return true;
     }
 
-    async function importSettings() {
+    async function importSettings(this: HTMLInputElement) {
         execute([reset]);
         new Response(this.files[0]).json().then(
             (json) => {
@@ -1890,16 +1951,19 @@ function modInit() {
                 parent.appendChild(div);
                 const button = document.createElement("button");
                 button.innerHTML = "&times;";
-                button.addEventListener("click", function () {
-                    newYearCountdownClosed = true;
-                    this.parentElement.style.height = "0px";
-                    this.parentElement.style.padding = "0px";
-                    setTimeout(function () {
-                        if (this && this.parentElement) {
-                            this.parentElement.remove();
-                        }
-                    }, 500);
-                });
+                button.addEventListener(
+                    "click",
+                    function (this: HTMLButtonElement) {
+                        newYearCountdownClosed = true;
+                        this.parentElement.style.height = "0px";
+                        this.parentElement.style.padding = "0px";
+                        setTimeout(() => {
+                            if (this && this.parentElement) {
+                                this.parentElement.remove();
+                            }
+                        }, 500);
+                    },
+                );
                 parent.appendChild(button);
                 const h3 = document.createElement("h3");
                 h3.innerText = "Aftellen tot het nieuwe jaar!";
@@ -1924,7 +1988,7 @@ function modInit() {
                     "Over ≈{seconds_to_next_year} seconden is {year} voorbij",
                     "Nog maar even...",
                 ];
-                let current;
+                let current: any;
 
                 setInterval(() => {
                     const now = new Date();
@@ -2274,7 +2338,7 @@ function modInit() {
                             lessonTime =
                                 parseFloat(lessonTime[0]) +
                                 parseFloat(lessonTime[1]) / 60;
-                            let top;
+                            let top: number | undefined;
                             if (Number.isNaN(hour)) {
                                 top = prevHour * 84 + prevHeight - 84;
                                 prevHour++;
@@ -2887,12 +2951,12 @@ function modInit() {
     }
 
     // Update the CSS variables used by Somtoday and Somtoday Mod
-    let primaryColorValue;
-    let secondaryColorValue;
-    let darkModeValue;
-    let uiValue;
-    let uiBlurValue;
-    let layoutValue;
+    let primaryColorValue: any;
+    let secondaryColorValue: any;
+    let darkModeValue: any;
+    let uiValue: any;
+    let uiBlurValue: any;
+    let layoutValue: any;
     function updateCssVariables() {
         // Do not update CSS variables when nothing relevant changed
         if (
@@ -3120,7 +3184,7 @@ function modInit() {
                 if (id("mod-message-action1")) {
                     id("mod-message-action1").addEventListener(
                         "keyup",
-                        (event) => {
+                        (event: KeyboardEvent) => {
                             if (
                                 event.keyCode === 39 ||
                                 event.keyCode === 37 ||
@@ -3152,7 +3216,7 @@ function modInit() {
                 if (id("mod-message-action2")) {
                     id("mod-message-action2").addEventListener(
                         "keyup",
-                        (event) => {
+                        (event: KeyboardEvent) => {
                             if (
                                 event.keyCode === 39 ||
                                 event.keyCode === 37 ||
@@ -3583,7 +3647,7 @@ function modInit() {
                 avatar.dataset.modWheelAttached = "true";
                 avatar.addEventListener(
                     "wheel",
-                    (e) => {
+                    (e: WheelEvent) => {
                         const tb =
                             tn("sl-header", 0)?.getElementsByTagName(
                                 "sl-tab-bar",
@@ -3625,9 +3689,9 @@ function modInit() {
                 document.addEventListener("touchend", () => {
                     moving = false;
                 });
-                function moveEventHandler(e) {
+                function moveEventHandler(e: any) {
                     if (moving) {
-                        let clientXInput;
+                        let clientXInput: any;
                         if (e.touches == null || e.touches[0] == null) {
                             clientXInput = e.clientX;
                         } else {
@@ -3725,7 +3789,7 @@ function modInit() {
                     setTimeout(() => {
                         id("blue-screen-of-death").addEventListener(
                             "click",
-                            function () {
+                            function (this: HTMLElement) {
                                 tn("body", 0).style.setProperty(
                                     "overflow-y",
                                     "scroll",
@@ -3817,20 +3881,25 @@ function modInit() {
                 }
                 // Add hat events
                 if (birthday || christmas || sinterklaas) {
-                    id("mod-logo-hat").addEventListener("click", function () {
-                        if (isDefaultLikeLayout) {
-                            id("mod-logo-inserted").style.bottom = "-55px";
-                            this.style.opacity = "0";
-                            this.style.animation = "none";
-                        }
-                        this.classList.add("mod-logo-hat-clicked");
-                        setTimeout(() => {
-                            tn("body", 0).classList.add("mod-logo-hat-hidden");
-                            if (id("mod-logo-hat")) {
-                                id("mod-logo-hat").remove();
+                    id("mod-logo-hat").addEventListener(
+                        "click",
+                        function (this: HTMLElement) {
+                            if (isDefaultLikeLayout) {
+                                id("mod-logo-inserted").style.bottom = "-55px";
+                                this.style.opacity = "0";
+                                this.style.animation = "none";
                             }
-                        }, 1050);
-                    });
+                            this.classList.add("mod-logo-hat-clicked");
+                            setTimeout(() => {
+                                tn("body", 0).classList.add(
+                                    "mod-logo-hat-hidden",
+                                );
+                                if (id("mod-logo-hat")) {
+                                    id("mod-logo-hat").remove();
+                                }
+                            }, 1050);
+                        },
+                    );
                 }
             }
         }
@@ -3934,7 +4003,7 @@ function modInit() {
                     tn("sl-header", 0).style.overflow = "hidden";
                     id("mod-logo-decoration").addEventListener(
                         "click",
-                        function () {
+                        function (this: HTMLElement) {
                             this.classList.add("mod-logo-decoration-clicked");
                             setTimeout(() => {
                                 tn("body", 0).classList.add(
@@ -3976,7 +4045,7 @@ function modInit() {
         col2?: any,
         col3?: any,
     ) {
-        let gl;
+        let gl: any;
         if (!preview) {
             stopLiveWallpaper();
             tn("body", 0).insertAdjacentHTML(
@@ -4062,7 +4131,7 @@ function modInit() {
 
         const buffers = initBuffers(gl);
 
-        function render(now) {
+        function render(now: number) {
             if (!gl) return;
             now *= 0.001; // convert to seconds
 
@@ -4108,7 +4177,11 @@ function modInit() {
         liveWallpaperFrame = requestAnimationFrame(render);
     }
 
-    function initShaderProgram(gl, vsSource, fsSource) {
+    function initShaderProgram(
+        gl: WebGLRenderingContext,
+        vsSource: string,
+        fsSource: string,
+    ) {
         const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
         const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
         const shaderProgram = gl.createProgram();
@@ -4118,7 +4191,11 @@ function modInit() {
         return shaderProgram;
     }
 
-    function loadShader(gl, type, source) {
+    function loadShader(
+        gl: WebGLRenderingContext,
+        type: number,
+        source: string,
+    ) {
         const shader = gl.createShader(type);
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
@@ -4129,7 +4206,7 @@ function modInit() {
         return shader;
     }
 
-    function initBuffers(gl) {
+    function initBuffers(gl: WebGLRenderingContext) {
         const positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         const positions = [1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0];
@@ -4293,9 +4370,9 @@ function modInit() {
     // Confetti effect thanks to CSS Script: https://www.cssscript.com/demo/confetti-falling-animation/
     const maxParticleCount = 150;
     const particleSpeed = 2;
-    let startConfetti;
-    let stopConfetti;
-    let toggleConfetti;
+    let startConfetti: any;
+    let stopConfetti: any;
+    let toggleConfetti: any;
     (() => {
         startConfetti = startConfettiInner;
         stopConfetti = stopConfettiInner;
@@ -4309,11 +4386,11 @@ function modInit() {
             "#26a1d5",
         ];
         let streamingConfetti = false;
-        let animationTimer = null;
-        const particles = [];
+        let animationTimer: any = null;
+        const particles: any[] = [];
         let waveAngle = 0;
 
-        function resetParticle(particle, width, height) {
+        function resetParticle(particle: any, width: number, height: number) {
             particle.color = colors[(Math.random() * colors.length) | 0];
             particle.x = Math.random() * width;
             particle.y = Math.random() * height - height;
@@ -4333,7 +4410,8 @@ function modInit() {
                 window.mozRequestAnimationFrame ||
                 window.oRequestAnimationFrame ||
                 window.msRequestAnimationFrame ||
-                ((callback) => window.setTimeout(callback, 16.6666667)))();
+                ((callback: FrameRequestCallback) =>
+                    window.setTimeout(callback, 16.6666667)))();
             let canvas = id("confetti-canvas");
             if (canvas === null) {
                 canvas = document.createElement("canvas");
@@ -4390,15 +4468,13 @@ function modInit() {
             }
         }
 
-        function drawParticles(context) {
-            let particle;
-            let x;
+        function drawParticles(context: any) {
             for (let i = 0; i < particles.length; i++) {
-                particle = particles[i];
+                const particle = particles[i];
                 context.beginPath();
                 context.lineWidth = particle.diameter;
                 context.strokeStyle = particle.color;
-                x = particle.x + particle.tilt;
+                const x = particle.x + particle.tilt;
                 context.moveTo(x + particle.diameter / 2, particle.y);
                 context.lineTo(
                     x,
@@ -4411,10 +4487,9 @@ function modInit() {
         function updateParticles() {
             const width = window.innerWidth;
             const height = window.innerHeight;
-            let particle;
             waveAngle += 0.01;
             for (let i = 0; i < particles.length; i++) {
-                particle = particles[i];
+                const particle = particles[i];
                 if (!streamingConfetti && particle.y < -15) {
                     particle.y = height + 100;
                 } else {
@@ -4570,8 +4645,8 @@ function modInit() {
         }
         tn("sl-root", 0).removeAttribute("inert");
         async function download() {
-            const items = [];
-            let number;
+            const items: any[] = [];
+            let number: any;
             let totalWidth = 36 * 2 + 600;
             // Get information from grade overview
             if (cijferoverzicht) {
@@ -4599,7 +4674,7 @@ function modInit() {
                     }
                     i += count;
                 }
-                let category;
+                let category: any;
                 // Then, get some intel about the columns
                 const columns = cn(
                     "vak-gemiddelde-header",
@@ -4769,7 +4844,7 @@ function modInit() {
                     ">
                         <h3 style="${h3Style}">Vakken</h3>
                     </div>`;
-                let category;
+                let category: any;
                 for (const item of items) {
                     const width = item.gemiddelde ? "150px" : "120px";
 
@@ -5178,7 +5253,7 @@ function modInit() {
     }
 
     // Add graphs to the subject grade page
-    function gradeGraphs(recapData) {
+    function gradeGraphs(recapData: any) {
         if (!n(recapData)) {
             let recapChart = Chart.getChart("recap-chart");
             if (recapChart) {
@@ -5227,7 +5302,11 @@ function modInit() {
                             max: 11,
                             ticks: {
                                 autoSkip: true,
-                                callback: (value, index, values) =>
+                                callback: (
+                                    value: any,
+                                    index: any,
+                                    values: any,
+                                ) =>
                                     index == values.length - 1
                                         ? undefined
                                         : value,
@@ -5312,7 +5391,7 @@ function modInit() {
                         .children[0].innerHTML.replace(",", "."),
                 );
 
-                let dateObject;
+                let dateObject: any;
                 const dateString = n(
                     element.getElementsByClassName("subtitel")[0],
                 )
@@ -5479,7 +5558,7 @@ function modInit() {
                         max: 11,
                         ticks: {
                             autoSkip: true,
-                            callback: (value, index, values) =>
+                            callback: (value: any, index: any, values: any) =>
                                 index == values.length - 1 ? undefined : value,
                         },
                     },
@@ -5537,7 +5616,7 @@ function modInit() {
                         max: 11,
                         ticks: {
                             autoSkip: true,
-                            callback: (value, index, values) =>
+                            callback: (value: any, index: any, values: any) =>
                                 index == values.length - 1 ? undefined : value,
                         },
                     },
@@ -5552,7 +5631,7 @@ function modInit() {
     }
 
     function showLetterbeoordelingenMessage(letter?: string) {
-        const list = {
+        const list: Record<string, any[]> = {
             U: ["Uitstekend", 10],
             ZG: ["Zeer goed", 9],
             G: ["Goed", 8],
@@ -5913,13 +5992,13 @@ function modInit() {
     }
 
     // Data object which will contain an array of the grades of every subject
-    let gradedata;
-    let gradingSystems;
-    let totalAverage;
+    let gradedata: any;
+    let gradingSystems: any;
+    let totalAverage: any;
     let totalGrades = 0;
     let totalWeight = 0;
-    let availablePages = [];
-    let music;
+    let availablePages: any[] = [];
+    let music: any;
     function somtodayRecap() {
         if (!ignoreRecapConditions) {
             if (get("bools").charAt(BOOL_INDEX.RECAP) == "0") {
@@ -6077,7 +6156,7 @@ function modInit() {
                 await new Promise((resolve) => setTimeout(resolve, 1000));
 
                 // After recap is opened, collect grade data
-                let i;
+                let i = 0;
 
                 // Prevent unnecessary page updates while collecting recap data
                 busy = true;
@@ -6185,7 +6264,7 @@ function modInit() {
                     const averageElements =
                         element.getElementsByClassName("cijfer gemiddelde");
                     if (averageElements.length >= 1) {
-                        let average;
+                        let average: any;
                         // First, try to take last available numeric and precise average
                         // "Rapport gem." (one to last average) is in format 0.00, "Rapportcijfer" (last average) in format "0"
                         for (const gemiddelde of averageElements) {
@@ -6366,8 +6445,8 @@ function modInit() {
         }
 
         function orderSubjects() {
-            const usedSubjects = [];
-            const subjects = [];
+            const usedSubjects: any[] = [];
+            const subjects: any[] = [];
             let html = "";
             for (let i = 0; i < 5 && i < gradedata.length; i++) {
                 let randomSubject =
@@ -6409,26 +6488,26 @@ function modInit() {
                 '</div><a id="recap-nextpage">Volgende</a>';
 
             const list = document.getElementById("mod-grade-average-sort-list");
-            let draggingEle;
-            let placeholder;
+            let draggingEle: any;
+            let placeholder: any;
             let isDraggingStarted = false;
             let x = 0;
             let y = 0;
-            const swap = (nodeA, nodeB) => {
+            const swap = (nodeA: any, nodeB: any) => {
                 const parentA = nodeA.parentNode;
                 const siblingA =
                     nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
                 nodeB.parentNode.insertBefore(nodeA, nodeB);
                 parentA.insertBefore(nodeB, siblingA);
             };
-            const isAbove = (nodeA, nodeB) => {
+            const isAbove = (nodeA: any, nodeB: any) => {
                 const rectA = nodeA.getBoundingClientRect();
                 const rectB = nodeB.getBoundingClientRect();
                 return (
                     rectA.top + rectA.height / 2 < rectB.top + rectB.height / 2
                 );
             };
-            const mouseDownHandler = (e) => {
+            const mouseDownHandler = (e: any) => {
                 if (e.target.classList.contains("mod-item")) {
                     draggingEle = e.target;
                 } else if (
@@ -6455,7 +6534,7 @@ function modInit() {
                 document.addEventListener("mouseup", mouseUpHandler);
                 document.addEventListener("touchend", mouseUpHandler);
             };
-            const mouseMoveHandler = (e) => {
+            const mouseMoveHandler = (e: any) => {
                 if (!isDraggingStarted) {
                     isDraggingStarted = true;
                     placeholder = document.createElement("div");
@@ -6508,7 +6587,7 @@ function modInit() {
                 });
 
             let clicked = false;
-            let answerInterval;
+            let answerInterval: any;
             let audioHasFired = false;
             id("recap-nextpage").addEventListener("click", () => {
                 if (clicked) {
@@ -6616,7 +6695,7 @@ function modInit() {
                 cn("recap-page", 0).classList.remove("recap-closing");
             }, 350);
             pages++;
-            let i;
+            let i: number;
             if (pages > 8) {
                 pages = 8;
             }
@@ -6696,11 +6775,11 @@ function modInit() {
         }
         function award() {
             let award = "none";
-            let description;
-            let icon;
+            let description: any;
+            let icon: any;
             let times = 0;
             while (award == "none" && times < 50) {
-                let min, max;
+                let min: any, max: any;
                 const randomAwardTry = Math.round(Math.random() * (13 - 1) + 1);
                 switch (randomAwardTry) {
                     case 1:
@@ -6997,9 +7076,9 @@ function modInit() {
         }
         function subjectsHigh() {
             let highest = Number.MIN_SAFE_INTEGER,
-                highestName,
-                secondHighest,
-                secondHighestName;
+                highestName: any,
+                secondHighest: any,
+                secondHighestName: any;
             for (const subject of gradedata) {
                 if (subject.systems.cijfers) {
                     for (const grade of subject.grades) {
@@ -7057,8 +7136,8 @@ function modInit() {
         }
         function subjectsLow() {
             let lowest = Number.MAX_SAFE_INTEGER,
-                lowestName,
-                lowestAverage;
+                lowestName: any,
+                lowestAverage: any;
             for (const subject of gradedata) {
                 if (subject.systems.cijfers) {
                     for (const grade of subject.grades) {
@@ -7109,7 +7188,7 @@ function modInit() {
             const averageSubject =
                 gradedata[Math.round(Math.random() * (gradedata.length - 1))];
             let average = averageSubject.average;
-            let replacementSubject,
+            let replacementSubject: any,
                 replacement = 0;
             if (n(average)) {
                 replacementSubject = averageSubject;
@@ -7128,7 +7207,7 @@ function modInit() {
             const amountSubject =
                 gradedata[Math.round(Math.random() * (gradedata.length - 1))];
             let amount = amountSubject.gradeCount;
-            let real;
+            let real: any;
             const random = Math.round(Math.random() * (3 - 1) + 1);
             switch (random) {
                 case 1:
@@ -7142,7 +7221,7 @@ function modInit() {
                     }
                     real = average;
                     if (Number.isNaN(parseFloat(average))) {
-                        let choices;
+                        let choices: any;
                         if (
                             average.indexOf("+") != -1 ||
                             average.indexOf("-") != -1
@@ -7158,7 +7237,9 @@ function modInit() {
                         } else {
                             choices = ["O", "V", "G"];
                         }
-                        choices = choices.filter((item) => item !== average);
+                        choices = (choices as any[]).filter(
+                            (item: any) => item !== average,
+                        );
                         average =
                             choices[
                                 Math.round(Math.random() * (choices.length - 1))
@@ -7210,7 +7291,7 @@ function modInit() {
                         }
                         grade = grade.toFixed(1);
                     } else {
-                        let choices;
+                        let choices: any;
                         if (gradeSubject.systems.plusmin) {
                             choices = ["+", "-", "-/+"];
                         } else if (gradeSubject.systems.voortgang) {
@@ -7219,8 +7300,8 @@ function modInit() {
                             choices = ["O", "V", "G"];
                         }
                         for (const gradeInList of gradeSubject.grades) {
-                            choices = choices.filter(
-                                (item) => item !== gradeInList.cijfer,
+                            choices = (choices as any[]).filter(
+                                (item: any) => item !== gradeInList.cijfer,
                             );
                         }
                         if (choices.length == 0) {
@@ -7276,72 +7357,78 @@ function modInit() {
                 amountSubject.name +
                 ' gehaald</p></label><a id="recap-nextpage">Controleren</a>';
             let clicked = false;
-            id("recap-nextpage").addEventListener("click", function () {
-                if (clicked) {
-                    closeRecapPage();
-                    return;
-                }
-                if (
-                    !id("recap-option-1").checked &&
-                    !id("recap-option-2").checked &&
-                    !id("recap-option-3").checked
-                ) {
-                    return;
-                }
-                id("recap-option-1").parentElement.style.pointerEvents = "none";
-                id("recap-option-2").parentElement.style.pointerEvents = "none";
-                id("recap-option-3").parentElement.style.pointerEvents = "none";
-                if (id(`recap-option-${random}`).checked) {
-                    clicked = true;
-                    id(`recap-option-${random}`).parentElement.classList.add(
-                        "right",
-                    );
-                    id(
-                        `recap-option-${random}`,
-                    ).parentElement.getElementsByClassName(
-                        "correction",
-                    )[0].innerHTML = ` ${real}`;
-                    this.innerHTML = "Volgende";
-                    try {
-                        new Audio(window.getAudioUrl("correct")).play();
-                    } catch (e) {
-                        console.warn(e);
+            id("recap-nextpage").addEventListener(
+                "click",
+                function (this: HTMLElement) {
+                    if (clicked) {
+                        closeRecapPage();
+                        return;
                     }
-                    startConfetti();
-                    setTimeout(stopConfetti, 750);
-                } else {
-                    try {
-                        new Audio(window.getAudioUrl("error")).play();
-                    } catch (e) {
-                        console.warn(e);
+                    if (
+                        !id("recap-option-1").checked &&
+                        !id("recap-option-2").checked &&
+                        !id("recap-option-3").checked
+                    ) {
+                        return;
                     }
-                    clicked = true;
-                    if (id("recap-option-1").checked) {
-                        id("recap-option-1").parentElement.classList.add(
-                            "wrong",
-                        );
+                    id("recap-option-1").parentElement.style.pointerEvents =
+                        "none";
+                    id("recap-option-2").parentElement.style.pointerEvents =
+                        "none";
+                    id("recap-option-3").parentElement.style.pointerEvents =
+                        "none";
+                    if (id(`recap-option-${random}`).checked) {
+                        clicked = true;
+                        id(
+                            `recap-option-${random}`,
+                        ).parentElement.classList.add("right");
+                        id(
+                            `recap-option-${random}`,
+                        ).parentElement.getElementsByClassName(
+                            "correction",
+                        )[0].innerHTML = ` ${real}`;
+                        this.innerHTML = "Volgende";
+                        try {
+                            new Audio(window.getAudioUrl("correct")).play();
+                        } catch (e) {
+                            console.warn(e);
+                        }
+                        startConfetti();
+                        setTimeout(stopConfetti, 750);
+                    } else {
+                        try {
+                            new Audio(window.getAudioUrl("error")).play();
+                        } catch (e) {
+                            console.warn(e);
+                        }
+                        clicked = true;
+                        if (id("recap-option-1").checked) {
+                            id("recap-option-1").parentElement.classList.add(
+                                "wrong",
+                            );
+                        }
+                        if (id("recap-option-2").checked) {
+                            id("recap-option-2").parentElement.classList.add(
+                                "wrong",
+                            );
+                        }
+                        if (id("recap-option-3").checked) {
+                            id("recap-option-3").parentElement.classList.add(
+                                "wrong",
+                            );
+                        }
+                        id(
+                            `recap-option-${random}`,
+                        ).parentElement.classList.add("right");
+                        id(
+                            `recap-option-${random}`,
+                        ).parentElement.getElementsByClassName(
+                            "correction",
+                        )[0].innerHTML = ` ${real}`;
+                        this.innerHTML = "Volgende";
                     }
-                    if (id("recap-option-2").checked) {
-                        id("recap-option-2").parentElement.classList.add(
-                            "wrong",
-                        );
-                    }
-                    if (id("recap-option-3").checked) {
-                        id("recap-option-3").parentElement.classList.add(
-                            "wrong",
-                        );
-                    }
-                    id(`recap-option-${random}`).parentElement.classList.add(
-                        "right",
-                    );
-                    id(
-                        `recap-option-${random}`,
-                    ).parentElement.getElementsByClassName(
-                        "correction",
-                    )[0].innerHTML = ` ${real}`;
-                    this.innerHTML = "Volgende";
-                }
-            });
+                },
+            );
             id("recap-option-1").addEventListener("change", () => {
                 id("recap-option-2").checked = false;
                 id("recap-option-3").checked = false;
@@ -7749,59 +7836,62 @@ function modInit() {
                     break;
             }
             let clicked = false;
-            id("recap-nextpage").addEventListener("click", function () {
-                if (clicked) {
-                    closeRecapPage();
-                    return;
-                }
-                if (
-                    !id("recap-option-1").checked &&
-                    !id("recap-option-2").checked &&
-                    !id("recap-option-3").checked
-                ) {
-                    return;
-                }
-                if (id(`recap-option-${random}`).checked) {
-                    clicked = true;
-                    id(`recap-option-${random}`).parentElement.classList.add(
-                        "right",
-                    );
-                    this.innerHTML = "Volgende";
-                    try {
-                        new Audio(window.getAudioUrl("correct")).play();
-                    } catch (e) {
-                        console.warn(e);
+            id("recap-nextpage").addEventListener(
+                "click",
+                function (this: HTMLElement) {
+                    if (clicked) {
+                        closeRecapPage();
+                        return;
                     }
-                    startConfetti();
-                    setTimeout(stopConfetti, 750);
-                } else {
-                    try {
-                        new Audio(window.getAudioUrl("error")).play();
-                    } catch (e) {
-                        console.warn(e);
+                    if (
+                        !id("recap-option-1").checked &&
+                        !id("recap-option-2").checked &&
+                        !id("recap-option-3").checked
+                    ) {
+                        return;
                     }
-                    clicked = true;
-                    if (id("recap-option-1").checked) {
-                        id("recap-option-1").parentElement.classList.add(
-                            "wrong",
-                        );
+                    if (id(`recap-option-${random}`).checked) {
+                        clicked = true;
+                        id(
+                            `recap-option-${random}`,
+                        ).parentElement.classList.add("right");
+                        this.innerHTML = "Volgende";
+                        try {
+                            new Audio(window.getAudioUrl("correct")).play();
+                        } catch (e) {
+                            console.warn(e);
+                        }
+                        startConfetti();
+                        setTimeout(stopConfetti, 750);
+                    } else {
+                        try {
+                            new Audio(window.getAudioUrl("error")).play();
+                        } catch (e) {
+                            console.warn(e);
+                        }
+                        clicked = true;
+                        if (id("recap-option-1").checked) {
+                            id("recap-option-1").parentElement.classList.add(
+                                "wrong",
+                            );
+                        }
+                        if (id("recap-option-2").checked) {
+                            id("recap-option-2").parentElement.classList.add(
+                                "wrong",
+                            );
+                        }
+                        if (id("recap-option-3").checked) {
+                            id("recap-option-3").parentElement.classList.add(
+                                "wrong",
+                            );
+                        }
+                        id(
+                            `recap-option-${random}`,
+                        ).parentElement.classList.add("right");
+                        this.innerHTML = "Volgende";
                     }
-                    if (id("recap-option-2").checked) {
-                        id("recap-option-2").parentElement.classList.add(
-                            "wrong",
-                        );
-                    }
-                    if (id("recap-option-3").checked) {
-                        id("recap-option-3").parentElement.classList.add(
-                            "wrong",
-                        );
-                    }
-                    id(`recap-option-${random}`).parentElement.classList.add(
-                        "right",
-                    );
-                    this.innerHTML = "Volgende";
-                }
-            });
+                },
+            );
             id("recap-option-1").addEventListener("change", () => {
                 id("recap-option-2").checked = false;
                 id("recap-option-3").checked = false;
@@ -8023,7 +8113,7 @@ function modInit() {
             }
 
             // Replace keys in replacement with real content
-            const replacements = {
+            const replacements: Record<string, string> = {
                 "{{icon_floppy_disk}}": window.getIcon(
                     "floppy-disk",
                     "mod-save-shake",
@@ -8626,84 +8716,97 @@ function modInit() {
 
             // Upload your own custom font file, like Wingdings
             if (id("mod-font-file")) {
-                id("mod-font-file").addEventListener("input", function () {
-                    if (this.files.length != 0) {
-                        tryRemove(id("mod-font-preview"));
-                        this.parentElement.getElementsByTagName(
-                            "label",
-                        )[0].children[1].innerText =
-                            this.files[0].name.toLowerCase();
-                        this.parentElement
-                            .getElementsByTagName("label")[0]
-                            .classList.add("mod-active");
-                        const reader = new FileReader();
-                        reader.readAsDataURL(id("mod-font-file").files[0]);
-                        reader.onload = () => {
-                            setTimeout(() => {
-                                tn("head", 0).insertAdjacentHTML(
-                                    "beforeend",
-                                    '<style id="mod-font-preview">@font-face{font-family:modCustomFontPreview;src:url("' +
-                                        reader.result +
-                                        '");}</style>',
-                                );
-                                (
-                                    document.getElementById("font-box")
-                                        .children[0] as HTMLElement
-                                ).style.setProperty(
-                                    "font-family",
-                                    "modCustomFontPreview, sans-serif",
-                                    "important",
-                                );
-                                (
-                                    document.getElementById("font-box")
-                                        .children[1] as HTMLElement
-                                ).style.setProperty(
-                                    "font-family",
-                                    "modCustomFontPreview, sans-serif",
-                                    "important",
-                                );
-                            }, 100);
-                        };
-                    } else {
-                        this.parentElement.getElementsByTagName(
-                            "label",
-                        )[0].children[1].innerText = "Of upload lettertype";
-                        this.parentElement
-                            .getElementsByTagName("label")[0]
-                            .classList.remove("mod-active");
-                        this.value = null;
-                    }
-                });
+                id("mod-font-file").addEventListener(
+                    "input",
+                    function (this: HTMLInputElement) {
+                        if (this.files.length != 0) {
+                            tryRemove(id("mod-font-preview"));
+                            (
+                                this.parentElement.getElementsByTagName(
+                                    "label",
+                                )[0].children[1] as HTMLElement
+                            ).innerText = this.files[0].name.toLowerCase();
+                            this.parentElement
+                                .getElementsByTagName("label")[0]
+                                .classList.add("mod-active");
+                            const reader = new FileReader();
+                            reader.readAsDataURL(id("mod-font-file").files[0]);
+                            reader.onload = () => {
+                                setTimeout(() => {
+                                    tn("head", 0).insertAdjacentHTML(
+                                        "beforeend",
+                                        '<style id="mod-font-preview">@font-face{font-family:modCustomFontPreview;src:url("' +
+                                            reader.result +
+                                            '");}</style>',
+                                    );
+                                    (
+                                        document.getElementById("font-box")
+                                            .children[0] as HTMLElement
+                                    ).style.setProperty(
+                                        "font-family",
+                                        "modCustomFontPreview, sans-serif",
+                                        "important",
+                                    );
+                                    (
+                                        document.getElementById("font-box")
+                                            .children[1] as HTMLElement
+                                    ).style.setProperty(
+                                        "font-family",
+                                        "modCustomFontPreview, sans-serif",
+                                        "important",
+                                    );
+                                }, 100);
+                            };
+                        } else {
+                            (
+                                this.parentElement.getElementsByTagName(
+                                    "label",
+                                )[0].children[1] as HTMLElement
+                            ).innerText = "Of upload lettertype";
+                            this.parentElement
+                                .getElementsByTagName("label")[0]
+                                .classList.remove("mod-active");
+                            this.value = null;
+                        }
+                    },
+                );
             }
             if (id("customcss")) {
                 // Insert tab instead of moving to the next element
-                id("customcss").addEventListener("keydown", (e) => {
-                    if (e.key === "Tab") {
-                        e.preventDefault();
-                        e.preventDefault();
+                id("customcss").addEventListener(
+                    "keydown",
+                    (e: KeyboardEvent) => {
+                        if (e.key === "Tab") {
+                            e.preventDefault();
+                            e.preventDefault();
 
-                        // execCommand doesn't mess with Ctrl Z history
-                        if (
-                            !document.execCommand("insertText", false, "    ")
-                        ) {
-                            // Fallback, execCommand is technically deprecated and could be removed sooner or later
-                            const start = id("customcss").selectionStart;
-                            const end = id("customcss").selectionEnd;
+                            // execCommand doesn't mess with Ctrl Z history
+                            if (
+                                !document.execCommand(
+                                    "insertText",
+                                    false,
+                                    "    ",
+                                )
+                            ) {
+                                // Fallback, execCommand is technically deprecated and could be removed sooner or later
+                                const start = id("customcss").selectionStart;
+                                const end = id("customcss").selectionEnd;
 
-                            id("customcss").value =
-                                id("customcss").value.substring(0, start) +
-                                "    " +
-                                id("customcss").value.substring(end);
+                                id("customcss").value =
+                                    id("customcss").value.substring(0, start) +
+                                    "    " +
+                                    id("customcss").value.substring(end);
 
-                            id("customcss").selectionStart = id(
-                                "customcss",
-                            ).selectionEnd = start + 4;
+                                id("customcss").selectionStart = id(
+                                    "customcss",
+                                ).selectionEnd = start + 4;
+                            }
                         }
-                    }
-                });
+                    },
+                );
 
                 // Live input checking
-                id("customcss").addEventListener("input", (e) => {
+                id("customcss").addEventListener("input", (e: any) => {
                     const content = e.target.value;
 
                     // Angular hash check
@@ -8785,7 +8888,10 @@ function modInit() {
             }
 
             // Add slideshow image asynchronous
-            async function addImage(url, element = null) {
+            async function addImage(
+                url: string,
+                element: Element | null = null,
+            ) {
                 return new Promise<void>((resolve, reject) => {
                     if (n(slideshowLabel)) {
                         resolve();
@@ -8794,7 +8900,7 @@ function modInit() {
                     const img = document.createElement("img");
                     img.onload = () => resolve();
                     img.onerror = reject;
-                    img.addEventListener("click", function () {
+                    img.addEventListener("click", function (this: HTMLElement) {
                         id("mod-background-wrapper").classList.add(
                             "mod-modified",
                         );
@@ -8812,7 +8918,7 @@ function modInit() {
 
             // Replace all placeholder <div> elements with their corresponding <img> elements
             addSlide(0);
-            async function addSlide(i) {
+            async function addSlide(i: number) {
                 const div = slideshowWrapper.getElementsByTagName("div")[0];
                 const background = get(`background${i}`);
 
@@ -8827,7 +8933,7 @@ function modInit() {
                 addSlide(i + 1);
             }
             const notLoaded = slideshowWrapper.querySelectorAll("div");
-            notLoaded.forEach((el) => {
+            notLoaded.forEach((el: Element) => {
                 el.remove();
             });
 
@@ -8853,50 +8959,56 @@ function modInit() {
                     isbackgroundvideo ? "block" : "none";
             }
             if (id("addbackground")) {
-                id("addbackground").addEventListener("input", function () {
-                    const files = this.files;
-                    for (let i = 0; i < files.length; i++) {
-                        if (
-                            this.accept != "image/*" ||
-                            files[i].type.indexOf("image") != -1
-                        ) {
-                            const reader = new FileReader();
-                            reader.readAsDataURL(this.files[i]);
-                            reader.onload = () => {
-                                id("mod-background-wrapper").classList.add(
-                                    "mod-modified",
-                                );
-                                addImage(reader.result);
-                            };
+                id("addbackground").addEventListener(
+                    "input",
+                    function (this: HTMLInputElement) {
+                        const files = this.files;
+                        for (let i = 0; i < files.length; i++) {
+                            if (
+                                this.accept != "image/*" ||
+                                files[i].type.indexOf("image") != -1
+                            ) {
+                                const reader = new FileReader();
+                                reader.readAsDataURL(this.files[i]);
+                                reader.onload = () => {
+                                    id("mod-background-wrapper").classList.add(
+                                        "mod-modified",
+                                    );
+                                    addImage(reader.result as string);
+                                };
+                            }
                         }
-                    }
-                });
+                    },
+                );
             }
             if (id("background")) {
-                id("background").addEventListener("input", function () {
-                    if (this.files[0] != null) {
-                        const isVideo =
-                            this.files[0].type.indexOf("video") != -1;
-                        const reader = new FileReader();
-                        reader.readAsDataURL(this.files[0]);
-                        id("mod-background-preview-image").style.display =
-                            !isVideo ? "block" : "none";
-                        id("mod-background-preview-video").style.display =
-                            isVideo ? "block" : "none";
-                        id("mod-filters").style.display = "block";
-                        reader.onload = () => {
-                            if (isVideo) {
-                                id("mod-background-preview-video").src =
-                                    reader.result;
-                            } else {
-                                id("mod-background-preview-image").src =
-                                    reader.result;
-                            }
-                        };
-                    } else {
-                        id("mod-filters").style.display = "none";
-                    }
-                });
+                id("background").addEventListener(
+                    "input",
+                    function (this: HTMLInputElement) {
+                        if (this.files[0] != null) {
+                            const isVideo =
+                                this.files[0].type.indexOf("video") != -1;
+                            const reader = new FileReader();
+                            reader.readAsDataURL(this.files[0]);
+                            id("mod-background-preview-image").style.display =
+                                !isVideo ? "block" : "none";
+                            id("mod-background-preview-video").style.display =
+                                isVideo ? "block" : "none";
+                            id("mod-filters").style.display = "block";
+                            reader.onload = () => {
+                                if (isVideo) {
+                                    id("mod-background-preview-video").src =
+                                        reader.result;
+                                } else {
+                                    id("mod-background-preview-image").src =
+                                        reader.result;
+                                }
+                            };
+                        } else {
+                            id("mod-filters").style.display = "none";
+                        }
+                    },
+                );
             }
             if (id("mod-reset-filters")) {
                 id("mod-reset-filters").addEventListener("click", () => {
@@ -8934,57 +9046,72 @@ function modInit() {
                 id("type-color") &&
                 id("type-live")
             ) {
-                id("type-image").addEventListener("click", function () {
-                    this.parentElement
-                        .getElementsByClassName("active")[0]
-                        .classList.remove("active");
-                    this.classList.add("active");
-                    show(id("mod-bg-image"));
-                    hide(id("mod-bg-slideshow"));
-                    hide(id("mod-bg-color"));
-                    hide(id("mod-bg-live"));
-                });
-                id("type-slideshow").addEventListener("click", function () {
-                    this.parentElement
-                        .getElementsByClassName("active")[0]
-                        .classList.remove("active");
-                    this.classList.add("active");
-                    hide(id("mod-bg-image"));
-                    show(id("mod-bg-slideshow"));
-                    hide(id("mod-bg-color"));
-                    hide(id("mod-bg-live"));
-                });
-                id("type-color").addEventListener("click", function () {
-                    this.parentElement
-                        .getElementsByClassName("active")[0]
-                        .classList.remove("active");
-                    this.classList.add("active");
-                    hide(id("mod-bg-image"));
-                    hide(id("mod-bg-slideshow"));
-                    show(id("mod-bg-color"));
-                    hide(id("mod-bg-live"));
-                });
-                id("type-live").addEventListener("click", function () {
-                    this.parentElement
-                        .getElementsByClassName("active")[0]
-                        .classList.remove("active");
-                    this.classList.add("active");
-                    hide(id("mod-bg-image"));
-                    hide(id("mod-bg-slideshow"));
-                    hide(id("mod-bg-color"));
-                    show(id("mod-bg-live"));
-                });
+                id("type-image").addEventListener(
+                    "click",
+                    function (this: HTMLElement) {
+                        this.parentElement
+                            .getElementsByClassName("active")[0]
+                            .classList.remove("active");
+                        this.classList.add("active");
+                        show(id("mod-bg-image"));
+                        hide(id("mod-bg-slideshow"));
+                        hide(id("mod-bg-color"));
+                        hide(id("mod-bg-live"));
+                    },
+                );
+                id("type-slideshow").addEventListener(
+                    "click",
+                    function (this: HTMLElement) {
+                        this.parentElement
+                            .getElementsByClassName("active")[0]
+                            .classList.remove("active");
+                        this.classList.add("active");
+                        hide(id("mod-bg-image"));
+                        show(id("mod-bg-slideshow"));
+                        hide(id("mod-bg-color"));
+                        hide(id("mod-bg-live"));
+                    },
+                );
+                id("type-color").addEventListener(
+                    "click",
+                    function (this: HTMLElement) {
+                        this.parentElement
+                            .getElementsByClassName("active")[0]
+                            .classList.remove("active");
+                        this.classList.add("active");
+                        hide(id("mod-bg-image"));
+                        hide(id("mod-bg-slideshow"));
+                        show(id("mod-bg-color"));
+                        hide(id("mod-bg-live"));
+                    },
+                );
+                id("type-live").addEventListener(
+                    "click",
+                    function (this: HTMLElement) {
+                        this.parentElement
+                            .getElementsByClassName("active")[0]
+                            .classList.remove("active");
+                        this.classList.add("active");
+                        hide(id("mod-bg-image"));
+                        hide(id("mod-bg-slideshow"));
+                        hide(id("mod-bg-color"));
+                        show(id("mod-bg-live"));
+                    },
+                );
             }
 
             // Multiple choice select
             for (const element of cn("mod-multi-choice")) {
                 for (const child of element.children) {
-                    child.addEventListener("click", function () {
-                        this.parentElement
-                            .getElementsByClassName("active")[0]
-                            .classList.remove("active");
-                        this.classList.add("active");
-                    });
+                    child.addEventListener(
+                        "click",
+                        function (this: HTMLElement) {
+                            this.parentElement
+                                .getElementsByClassName("active")[0]
+                                .classList.remove("active");
+                            this.classList.add("active");
+                        },
+                    );
                 }
             }
             // Filter sliders
@@ -8994,23 +9121,30 @@ function modInit() {
                 }
                 element
                     .getElementsByTagName("input")[0]
-                    .addEventListener("input", function () {
-                        this.classList.add("mod-modified");
-                        this.parentElement.children[2].innerHTML =
-                            this.value + this.dataset.unit;
-                        id("mod-background-preview-image").style.setProperty(
-                            "filter",
-                            getBackgroundFilters(false),
-                        );
-                        id("mod-background-preview-video").style.setProperty(
-                            "filter",
-                            getBackgroundFilters(false),
-                        );
-                    });
+                    .addEventListener(
+                        "input",
+                        function (this: HTMLInputElement) {
+                            this.classList.add("mod-modified");
+                            this.parentElement.children[2].innerHTML =
+                                this.value + this.dataset.unit;
+                            id(
+                                "mod-background-preview-image",
+                            ).style.setProperty(
+                                "filter",
+                                getBackgroundFilters(false),
+                            );
+                            id(
+                                "mod-background-preview-video",
+                            ).style.setProperty(
+                                "filter",
+                                getBackgroundFilters(false),
+                            );
+                        },
+                    );
             }
             // Drag and drop on file inputs
             for (const element of cn("mod-file-label")) {
-                element.addEventListener("drop", (event) => {
+                element.addEventListener("drop", (event: DragEvent) => {
                     // Prevent default behavior (Prevent file from being opened)
                     event.preventDefault();
 
@@ -9048,7 +9182,7 @@ function modInit() {
                         inputEvent,
                     );
                 });
-                element.addEventListener("dragover", (event) => {
+                element.addEventListener("dragover", (event: DragEvent) => {
                     event.preventDefault();
                     element.classList.add("mod-drag-and-drop");
                     element.children[1].innerHTML = "Drop een afbeelding";
@@ -9088,7 +9222,7 @@ function modInit() {
             for (const element of cn("mod-setting-button")) {
                 element.addEventListener(
                     "keyup",
-                    (event) => {
+                    (event: KeyboardEvent) => {
                         if (event.keyCode === 13) {
                             element.click();
                         }
@@ -9127,7 +9261,7 @@ function modInit() {
                 });
                 element.addEventListener(
                     "keyup",
-                    (event) => {
+                    (event: KeyboardEvent) => {
                         if (event.keyCode === 13) {
                             element.click();
                         }
@@ -9242,7 +9376,7 @@ function modInit() {
 
             // Live wallpaper
             if (id("mod-live-random")) {
-                let liveType, col1, col2, col3;
+                let liveType: any, col1: any, col2: any, col3: any;
 
                 id("primarycolor").addEventListener("change", () => {
                     if (liveType == "primary") {
@@ -9256,39 +9390,48 @@ function modInit() {
                     }
                 });
 
-                id("livecolor1").addEventListener("input", function () {
-                    const rgb = hexToRgb(this.value);
-                    if (
-                        col1[0] != rgb[0] ||
-                        col1[1] != rgb[1] ||
-                        col1[2] != rgb[2]
-                    ) {
-                        col1 = rgb;
-                        resetLiveButtons();
-                    }
-                });
-                id("livecolor2").addEventListener("input", function () {
-                    const rgb = hexToRgb(this.value);
-                    if (
-                        col2[0] != rgb[0] ||
-                        col2[1] != rgb[1] ||
-                        col2[2] != rgb[2]
-                    ) {
-                        col2 = rgb;
-                        resetLiveButtons();
-                    }
-                });
-                id("livecolor3").addEventListener("input", function () {
-                    const rgb = hexToRgb(this.value);
-                    if (
-                        col3[0] != rgb[0] ||
-                        col3[1] != rgb[1] ||
-                        col3[2] != rgb[2]
-                    ) {
-                        col3 = rgb;
-                        resetLiveButtons();
-                    }
-                });
+                id("livecolor1").addEventListener(
+                    "input",
+                    function (this: HTMLInputElement) {
+                        const rgb = hexToRgb(this.value);
+                        if (
+                            col1[0] != rgb[0] ||
+                            col1[1] != rgb[1] ||
+                            col1[2] != rgb[2]
+                        ) {
+                            col1 = rgb;
+                            resetLiveButtons();
+                        }
+                    },
+                );
+                id("livecolor2").addEventListener(
+                    "input",
+                    function (this: HTMLInputElement) {
+                        const rgb = hexToRgb(this.value);
+                        if (
+                            col2[0] != rgb[0] ||
+                            col2[1] != rgb[1] ||
+                            col2[2] != rgb[2]
+                        ) {
+                            col2 = rgb;
+                            resetLiveButtons();
+                        }
+                    },
+                );
+                id("livecolor3").addEventListener(
+                    "input",
+                    function (this: HTMLInputElement) {
+                        const rgb = hexToRgb(this.value);
+                        if (
+                            col3[0] != rgb[0] ||
+                            col3[1] != rgb[1] ||
+                            col3[2] != rgb[2]
+                        ) {
+                            col3 = rgb;
+                            resetLiveButtons();
+                        }
+                    },
+                );
 
                 function resetLiveButtons(e?: any) {
                     if (e) return;
@@ -9390,7 +9533,7 @@ function modInit() {
     }
 
     // Close modsettings
-    function closeSettings(element) {
+    function closeSettings(element: any) {
         id("mod-setting-button").classList.remove("active");
         tryRemove(id("mod-setting-panel"));
         if (tn("sl-account-modal", 0)) {
@@ -9441,7 +9584,7 @@ function modInit() {
     }
 
     // Save all new slideshow backgrounds
-    function saveSlideshowBackground(element, i) {
+    function saveSlideshowBackground(element: any, i: number) {
         set(`background${i}`, element.src);
         return new Promise((resolve) => {
             setTimeout(resolve, 0);
@@ -9647,7 +9790,7 @@ function modInit() {
             }
             set("preset", selectedtheme.dataset.name);
             if (selectedtheme.id != "Standaard" && selectedtheme.dataset.url) {
-                toDataURL(selectedtheme.dataset.url, (dataUrl) => {
+                toDataURL(selectedtheme.dataset.url, (dataUrl: string) => {
                     set("background", dataUrl);
                     set("backgroundtype", "image");
                     filesProcessed++;
@@ -9665,10 +9808,13 @@ function modInit() {
         }
         if (id("mod-random-background")) {
             if (id("mod-random-background").classList.contains("mod-active")) {
-                toDataURL("https://picsum.photos/1600/800", (dataUrl) => {
-                    set("background", dataUrl);
-                    filesProcessed++;
-                });
+                toDataURL(
+                    "https://picsum.photos/1600/800",
+                    (dataUrl: string) => {
+                        set("background", dataUrl);
+                        filesProcessed++;
+                    },
+                );
             } else {
                 filesProcessed++;
             }
@@ -9859,16 +10005,26 @@ function modInit() {
                     execute([openSettings]);
                 }
             });
-            id("mod-welcome-logo").addEventListener("click", function () {
-                this.style.transform = "scale(1.3)";
-                setTimeout(() => {
-                    id("mod-welcome-logo").style.transform = "scale(1)";
-                }, 300);
-            });
+            id("mod-welcome-logo").addEventListener(
+                "click",
+                function (this: HTMLElement) {
+                    this.style.transform = "scale(1.3)";
+                    setTimeout(() => {
+                        id("mod-welcome-logo").style.transform = "scale(1)";
+                    }, 300);
+                },
+            );
         }
     }
 
-    function addSlider(name, property, min, max, unit, defaultValue) {
+    function addSlider(
+        name: string,
+        property: string,
+        min: any,
+        max: any,
+        unit: any,
+        defaultValue: any,
+    ) {
         let value = get(property);
         if (
             get(property) == null ||
@@ -10135,7 +10291,12 @@ function modInit() {
     }
 
     // Add a theme to the modsettings. Can only be called at the modsettings page.
-    function addTheme(name, url, primaryColor, secondaryColor) {
+    function addTheme(
+        name: string,
+        url: string,
+        primaryColor: string,
+        secondaryColor: string,
+    ) {
         if (n(id("theme-wrapper"))) {
             return;
         }
@@ -10144,7 +10305,7 @@ function modInit() {
         // URL can be a URL to an image, but also a Pexels ID.
         let smallimg = url;
         let bigimg = url;
-        let preview;
+        let preview: any;
         if (!Number.isNaN(parseInt(url, 10))) {
             smallimg =
                 "https://images.pexels.com/photos/" +
@@ -10402,7 +10563,7 @@ function modInit() {
     // SERVER REQUESTS
 
     // Convert an image URL to a base64 image
-    function toDataURL(url, callback) {
+    function toDataURL(url: string, callback: (result: any) => void) {
         const xhr = new XMLHttpRequest();
         xhr.onload = () => {
             const reader = new FileReader();
