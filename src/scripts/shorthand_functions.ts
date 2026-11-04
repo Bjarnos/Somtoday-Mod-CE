@@ -1,18 +1,14 @@
 // SHORTHAND FUNCTIONS
 
-interface String {
-    replaceAt(index: number, replacement: string): string;
-}
-
 // document.getElementById(...) --> id(...)
-function id(elementId: string, ..._args: unknown[]): any {
+export function id(elementId: string, ..._args: unknown[]): any {
     return document.getElementById(elementId);
 }
 
 // document.getElementsByClassName(...)[i] --> cn(..., i)
-function cn(cl: string): HTMLCollectionOf<any>;
-function cn(cl: string, index: number): any;
-function cn(cl: string, index?: number): any {
+export function cn(cl: string): HTMLCollectionOf<any>;
+export function cn(cl: string, index: number): any;
+export function cn(cl: string, index?: number): any {
     if (index == null) {
         return document.getElementsByClassName(
             cl,
@@ -24,9 +20,9 @@ function cn(cl: string, index?: number): any {
 }
 
 // document.getElementsByTagName(...)[i] --> tn(..., i)
-function tn(tagName: string): HTMLCollectionOf<any>;
-function tn(tagName: string, index: number): any;
-function tn(tagName: string, index?: number): any {
+export function tn(tagName: string): HTMLCollectionOf<any>;
+export function tn(tagName: string, index: number): any;
+export function tn(tagName: string, index?: number): any {
     if (index == null) {
         return document.getElementsByTagName(
             tagName,
@@ -38,21 +34,21 @@ function tn(tagName: string, index?: number): any {
 }
 
 // element.style.display = 'none' --> hide(element)
-function hide(element: HTMLElement | null): void {
+export function hide(element: HTMLElement | null): void {
     if (element != null) {
         element.style.display = "none";
     }
 }
 
 // element.style.display = 'block' --> show(element)
-function show(element: HTMLElement | null): void {
+export function show(element: HTMLElement | null): void {
     if (element != null) {
         element.style.display = "block";
     }
 }
 
 // object == '' || object == null || object == '0' --> n(object)
-function n(object: unknown): boolean {
+export function n(object: unknown): boolean {
     if (object instanceof Element) {
         return object == null;
     }
@@ -63,14 +59,14 @@ function n(object: unknown): boolean {
 }
 
 // if (element != null) { element.innerHTML = html } --> setHTML(element, html)
-function setHTML(element: Element | null, html: string): void {
+export function setHTML(element: Element | null, html: string): void {
     if (element != null) {
         element.innerHTML = html;
     }
 }
 
 // if (element != null) { element.remove() } --> tryRemove(element)
-function tryRemove(element: Element | null): void {
+export function tryRemove(element: Element | null): void {
     if (element != null) {
         element.remove();
     }
@@ -78,7 +74,9 @@ function tryRemove(element: Element | null): void {
 
 // try { function() } catch (e) { ... } --> execute([function])
 let rateLimitDate: number | undefined;
-function execute(functionarray: Array<(...args: never[]) => unknown>): void {
+export function execute(
+    functionarray: Array<(...args: never[]) => unknown>,
+): void {
     for (const element of functionarray) {
         try {
             element();
@@ -93,7 +91,7 @@ function execute(functionarray: Array<(...args: never[]) => unknown>): void {
                 return;
             }
             rateLimitDate = Date.now();
-            const getFn = typeof get === "function" ? get : (window as any).get;
+            const getFn = window.get;
             const boolsVal = getFn ? getFn("bools") : null;
             if (
                 boolsVal == null ||
@@ -103,7 +101,7 @@ function execute(functionarray: Array<(...args: never[]) => unknown>): void {
             ) {
                 // TODO: replace with our own Somtoday Mod CE server
                 fetch(
-                    `https://jonazwetsloot.nl/reporterror?product=${encodeURIComponent(`Somtoday Mod ${platform}`)}&function=${encodeURIComponent(element.name)}&cause=${encodeURIComponent(String(e))}&page=${encodeURIComponent(window.location.href.split("/").pop()?.split("?")[0] || "")}&productversion=${version}&settings=${boolsVal}`,
+                    `https://jonazwetsloot.nl/reporterror?product=${encodeURIComponent(`Somtoday Mod ${(window as any).platform || "Chromium"}`)}&function=${encodeURIComponent(element.name)}&cause=${encodeURIComponent(String(e))}&page=${encodeURIComponent(window.location.href.split("/").pop()?.split("?")[0] || "")}&productversion=${(window as any).version || ""}&settings=${boolsVal}`,
                 );
             }
             setTimeout(console.error.bind(console, e));
@@ -124,7 +122,7 @@ String.prototype.replaceAt = function (
     );
 };
 
-function sanitizeString(str: string | null | undefined): string {
+export function sanitizeString(str: string | null | undefined): string {
     if (str == null) {
         return "";
     }
@@ -136,7 +134,7 @@ function sanitizeString(str: string | null | undefined): string {
         .replaceAll("'", "&#x27;");
 }
 
-function waitForElement(
+export function waitForElement(
     selector: string,
     timeout = 30000,
 ): Promise<Element | null> {
@@ -149,7 +147,6 @@ function waitForElement(
             const el = document.querySelector(selector);
             if (el) {
                 resolve(el);
-                observer.disconnect();
             }
         });
         const target = document.body || document.documentElement || document;
@@ -164,7 +161,7 @@ function waitForElement(
     });
 }
 
-const BOOL_INDEX = {
+export const BOOL_INDEX = {
     MENU_ALWAYS_SHOW: 0,
     MENU_PAGE_NAME: 1,
     HIDE_MESSAGE_COUNT: 2,
@@ -208,7 +205,7 @@ window.getResource = (file: string): string => {
 
     // biome-ignore lint/style/useConst: fileMap is reassigned during userscript build step
     let fileMap: Record<string, string> | null = null;
-    // [GENERATION] DEFINE_FILEMAP
+    //! [GENERATION] DEFINE_FILEMAP
 
     // Browser extension uses extension storage to load files
     if (fileMap == null) {
@@ -268,7 +265,10 @@ window.getResourceAsBase64 = async (file: string): Promise<string> => {
 window.getAudioUrl = (file: string): string => {
     // The browser extension ships with audio, the userscript uses external hosted audio
     // Audio is too heavy to include as base64 URI
-    if (isExtension) {
+    if (
+        (window as any).isExtension ??
+        (window as any).platform !== "Userscript"
+    ) {
         return chrome.runtime.getURL(`sounds/${file}.opus`);
     } else {
         // TODO: Replace with our own Somtoday Mod CE server

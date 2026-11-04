@@ -38,5 +38,9 @@
         "esbuild": "^0.28.2",
         "husky": "^9.1.7",
         "typescript": "^7.0.2"
+    },
+    "dependencies": {
+        "chart.js": "^4.6.1",
+        "fireworks-js": "^2.10.8"
     }
 }

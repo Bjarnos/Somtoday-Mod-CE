@@ -1,5 +1,24 @@
 // EXECUTE MOD AFTER PAGE LOAD
 // This script is executed after the page is loaded
+
+import { modInit } from "./main_functions";
+import {
+    data,
+    get,
+    hasSettingsHash,
+    isExtension,
+    set,
+    storageMethod,
+} from "./save_version_management";
+import {
+    BOOL_INDEX,
+    cn,
+    execute,
+    id,
+    n,
+    waitForElement,
+} from "./shorthand_functions";
+
 async function autoLogin(): Promise<void> {
     if (n(get("loginschool")) || get("logincredentialsincorrect") === "1") {
         return;
@@ -168,8 +187,7 @@ async function waitForPageLoad(): Promise<void> {
         return;
     }
 
-    const initFn =
-        typeof modInit === "function" ? modInit : (window as any).modInit;
+    const initFn = modInit;
     if (initFn) {
         execute([initFn]);
     }

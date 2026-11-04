@@ -13,19 +13,21 @@ try {
     versionJson = {};
 }
 
-const version: string = versionJson.version || "";
-const platform: string = versionJson.platform || "Chromium";
-const minified: boolean = versionJson.minified || false;
-const version_name: string = versionJson.version_name || versionJson.version;
-const contributors: Record<string, unknown> = versionJson.contributors || {};
+export const version: string = versionJson.version || "";
+export const platform: string = versionJson.platform || "Chromium";
+export const minified: boolean = versionJson.minified || false;
+export const version_name: string =
+    versionJson.version_name || versionJson.version;
+export const contributors: Record<string, unknown> =
+    versionJson.contributors || {};
 
-let data: Record<string, unknown> | null | undefined;
-const isExtension = platform !== "Userscript";
-const hasSettingsHash = window.location.hash === "#mod-settings";
-let storageMethod: string;
+export let data: Record<string, unknown> | null | undefined;
+export const isExtension = platform !== "Userscript";
+export const hasSettingsHash = window.location.hash === "#mod-settings";
+export let storageMethod: string;
 
-let get: (key: string) => any;
-let set: (key: string, value: any) => void;
+export let get: (key: string) => any;
+export let set: (key: string, value: any) => void;
 
 const storage =
     typeof chrome !== "undefined" && chrome.storage && chrome.storage.local
@@ -281,3 +283,6 @@ if (hasSettingsHash) {
 (window as any).set = set;
 (window as any).data = data;
 (window as any).storageMethod = storageMethod;
+(window as any).version = version;
+(window as any).platform = platform;
+(window as any).isExtension = isExtension;

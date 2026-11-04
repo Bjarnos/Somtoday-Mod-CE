@@ -126,12 +126,20 @@ async function build() {
         "manifest.chromium.json",
         "manifest.firefox.json",
         "types",
+        "scripts",
     ];
 
     // --- BUILD CHROMIUM EXTENSION ---
     console.log("1. Building Chromium extension...");
     const chromiumDir = path.join(DIST_DIR, "chromium");
     copyDirRecursive(SRC_DIR, chromiumDir, ignoredInCopy);
+    await esbuild.build({
+        entryPoints: [path.join(SRC_DIR, "scripts", "content.ts")],
+        outfile: path.join(chromiumDir, "scripts", "content.js"),
+        bundle: true,
+        target: "es2022",
+        format: "iife",
+    });
     chromiumManifest.version = version;
     fs.writeFileSync(
         path.join(chromiumDir, "manifest.json"),
@@ -169,6 +177,13 @@ async function build() {
     console.log("2. Building Firefox extension...");
     const firefoxDir = path.join(DIST_DIR, "firefox");
     copyDirRecursive(SRC_DIR, firefoxDir, ignoredInCopy);
+    await esbuild.build({
+        entryPoints: [path.join(SRC_DIR, "scripts", "content.ts")],
+        outfile: path.join(firefoxDir, "scripts", "content.js"),
+        bundle: true,
+        target: "es2022",
+        format: "iife",
+    });
     firefoxManifest.version = version;
     fs.writeFileSync(
         path.join(firefoxDir, "manifest.json"),
@@ -209,28 +224,15 @@ async function build() {
 
     // --- BUILD USERSCRIPT ---
     console.log("4. Generating Userscript...");
-    const contentScripts =
-        chromiumManifest.content_scripts.find((c) => c.js)?.js || [];
-    let userscriptBody = "";
-    for (const scriptFile of contentScripts) {
-        const jsPath = path.join(SRC_DIR, scriptFile);
-        let scriptContent;
-        if (fs.existsSync(jsPath)) {
-            scriptContent = fs.readFileSync(jsPath, "utf8");
-        } else {
-            const tsPath = jsPath.replace(/\.js$/, ".ts");
-            if (fs.existsSync(tsPath)) {
-                const tsContent = fs.readFileSync(tsPath, "utf8");
-                scriptContent = esbuild.transformSync(tsContent, {
-                    loader: "ts",
-                    target: "es2022",
-                }).code;
-            } else {
-                throw new Error(`Content script not found: ${scriptFile}`);
-            }
-        }
-        userscriptBody += `${scriptContent}\n`;
-    }
+    const bundledUserscript = await esbuild.build({
+        entryPoints: [path.join(SRC_DIR, "scripts", "content.ts")],
+        bundle: true,
+        write: false,
+        target: "es2022",
+        format: "iife",
+        legalComments: "inline",
+    });
+    let userscriptBody = bundledUserscript.outputFiles[0].text;
 
     // Insert CSS
     const cssFiles =
@@ -246,7 +248,7 @@ async function build() {
         .replace(/\s+/g, " ");
 
     userscriptBody = userscriptBody.replace(
-        "// [GENERATION] APPLY_STYLES",
+        "//! [GENERATION] APPLY_STYLES",
         `tn('head', 0).insertAdjacentHTML('beforeend', '<style>${preparedCss}</style>');`,
     );
 
@@ -288,7 +290,7 @@ async function build() {
         `data:application/json;base64,${Buffer.from(JSON.stringify(userscriptVersionInfo)).toString("base64")}`;
 
     const userscriptWithFileMap = userscriptBody.replace(
-        "// [GENERATION] DEFINE_FILEMAP",
+        "//! [GENERATION] DEFINE_FILEMAP",
         `fileMap = ${JSON.stringify(fileMap, null, 2)};`,
     );
 
@@ -344,7 +346,7 @@ ${matches}
         `data:application/json;base64,${Buffer.from(JSON.stringify(minifiedVersionInfo)).toString("base64")}`;
 
     const userscriptWithMinifiedFileMap = userscriptBody.replace(
-        "// [GENERATION] DEFINE_FILEMAP",
+        "//! [GENERATION] DEFINE_FILEMAP",
         `fileMap = ${JSON.stringify(minifiedFileMap)};`,
     );
 

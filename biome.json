@@ -10,8 +10,6 @@
             "**",
             "!!**/dist",
             "!!**/node_modules",
-            "!!src/scripts/chart.js",
-            "!!src/scripts/fireworks.js",
             "!!src/images",
             "!!src/fonts",
             "!!src/sounds",

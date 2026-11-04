@@ -1,8 +1,9 @@
 // MINIGAME
 // Platformer minigame
-declare function startTheEscape(): void;
+import { id, tn } from "./shorthand_functions";
+import { startTheEscape } from "./the_escape";
 
-function errorPage(): void {
+export function errorPage(): void {
     const button = tn("hmy-button", 0) as HTMLElement | null;
     if (button) {
         button.insertAdjacentHTML(

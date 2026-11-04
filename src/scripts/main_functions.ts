@@ -1,6 +1,40 @@
 // MAIN FUNCTIONS
+import { Chart } from "chart.js/auto";
+import { Fireworks } from "fireworks-js";
+import {
+    adjust,
+    getRelativeLuminance,
+    hexToRgb,
+    rgbToHex,
+    toBrightnessValue,
+} from "./colors";
+import { errorPage } from "./minigame";
+import {
+    contributors,
+    get,
+    hasSettingsHash,
+    isExtension,
+    platform,
+    set,
+    version,
+    version_name,
+} from "./save_version_management";
+import {
+    BOOL_INDEX,
+    cn,
+    execute,
+    hide,
+    id,
+    n,
+    sanitizeString,
+    setHTML,
+    show,
+    tn,
+    tryRemove,
+} from "./shorthand_functions";
+import { startTheEscape } from "./the_escape";
 
-function modInit() {
+export function modInit() {
     // Make sure to have only one instance of the mod active at a time
     if (id("somtoday-mod-active")) {
         setTimeout(
@@ -16,7 +50,7 @@ function modInit() {
         return;
     }
 
-    // [GENERATION] APPLY_STYLES
+    //! [GENERATION] APPLY_STYLES
 
     const mathQuestions = [
         "compose the formula of f'x() where f(x) = 2 * sin(9x + 3)",
@@ -2038,13 +2072,10 @@ function modInit() {
                     "beforebegin",
                     parent,
                 );
-                const fireworks = new Fireworks.default(
-                    id("mod-new-year-fireworks"),
-                    {
-                        intensity: 12,
-                        traceSpeed: 7,
-                    },
-                );
+                const fireworks = new Fireworks(id("mod-new-year-fireworks"), {
+                    intensity: 12,
+                    traceSpeed: 7,
+                });
                 fireworks.start();
                 window.addEventListener("visibilitychange", () => {
                     if (document.visibilityState === "hidden") {
@@ -2141,9 +2172,7 @@ function modInit() {
                             "beforebegin",
                             fireworkElement,
                         );
-                        const fireworks = new Fireworks.default(
-                            fireworkElement,
-                        );
+                        const fireworks = new Fireworks(fireworkElement);
                         fireworks.start();
                         startConfetti();
                         window.addEventListener("visibilitychange", () => {

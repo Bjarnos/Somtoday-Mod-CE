@@ -1,7 +1,10 @@
 // COLORS
 
+import { get, set } from "./save_version_management";
+import { cn, id } from "./shorthand_functions";
+
 // Adjust color with specified amount (make color brighter or darker)
-const adjust = (col: string, amt: number): string => {
+export const adjust = (col: string, amt: number): string => {
     let normalized = col.replace(/^#/, "");
     if (normalized.length === 3) {
         normalized =
@@ -32,7 +35,7 @@ const adjust = (col: string, amt: number): string => {
 };
 
 // Convert hex to rgb
-const hexToRgb = (hex: string): [number, number, number] => {
+export const hexToRgb = (hex: string): [number, number, number] => {
     const normalized = hex
         .replace(
             /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
@@ -48,7 +51,9 @@ const hexToRgb = (hex: string): [number, number, number] => {
 };
 
 // Convert rgb to hex
-const rgbToHex = ([r, g, b]: [number, number, number] | number[]): string =>
+export const rgbToHex = ([r, g, b]:
+    | [number, number, number]
+    | number[]): string =>
     "#" +
     [r, g, b]
         .map((x) => {
@@ -58,12 +63,12 @@ const rgbToHex = ([r, g, b]: [number, number, number] | number[]): string =>
         .join("");
 
 // Get brightness of color
-const getRelativeLuminance = (
+export const getRelativeLuminance = (
     rgb: [number, number, number] | number[],
 ): number => Math.round(0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]);
 
 // Change specific color channel
-function adjustColorChannel(
+export function adjustColorChannel(
     channel: 0 | 1 | 2,
     hex: string,
     value: number,
@@ -74,7 +79,10 @@ function adjustColorChannel(
 }
 
 // Change color brightness level
-function toBrightnessValue(color: string, target: number | string): string {
+export function toBrightnessValue(
+    color: string,
+    target: number | string,
+): string {
     let resultColor = color;
     const startColor = color;
     const targetNum = typeof target === "number" ? target : parseFloat(target);
