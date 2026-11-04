@@ -179,7 +179,7 @@ Somtoday Mod CE compiles into both browser extensions and a standalone Tampermon
 - **Do not modify or delete `//! [GENERATION]` comments**: The build script (`scripts/build.js`) relies on these comments to inline stylesheets and assets for the userscript.
 - **Adding new CSS files**: If you create a new CSS file in `src/css/`, remember to add it to both `manifest.chromium.json` and `manifest.firefox.json` under `content_scripts[0].css`.
 - **Static assets**: Put new images or fonts into `src/images/` or `src/fonts/`. Always use `window.getResource("images/your-image.png")` instead of referencing chrome-specific URLs directly.
-- **Avoid external dependencies**: Keep features lightweight and vanilla TypeScript / JavaScript whenever possible.
+- **Avoid unneeded external dependencies**: Keep features lightweight and vanilla TypeScript / JavaScript whenever possible. Useful dependencies are still allowed.
 
 ---
 

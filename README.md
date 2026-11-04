@@ -60,10 +60,9 @@ Userscript:
 </details>
 
 <!---------------------------------------------------------------------------->
-<!-- TODO: Replace with our own Somtoday Mod CE hosted icons -->
-[Button Chrome]: https://jonazwetsloot.nl/images/chrome-webstore.svg
+[Button Chrome]: assets/chrome-webstore.svg
 [ChromeLink]: https://chromewebstore.google.com/detail/somtoday-mod-ce/ihfpaeafponejgdhegkdfhcffpcdhbel 'Install in the Chrome Webstore.'
-[Button Edge]: https://jonazwetsloot.nl/images/edge-addons.svg
+[Button Edge]: assets/edge-addons.svg
 [EdgeLink]: https://microsoftedge.microsoft.com/addons/detail/somtoday-mod-ce/cijmmhcnhlgcljcjpbodolpgaplofkgk 'Install in the Edge Addons Store.'
-[Button Firefox]: https://jonazwetsloot.nl/images/firefox-addons.svg
+[Button Firefox]: assets/firefox-addons.svg
 [FirefoxLink]: https://addons.mozilla.org/en-US/firefox/addon/somtoday-mod-ce/ 'Install in the Firefox Addons Store.'
