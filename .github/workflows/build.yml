@@ -162,8 +162,8 @@ jobs:
           keys: |
             {
               "firefox": {
-                "issuer": "${{ secrets.FIREFOX_JWT_ISSUER }}",
-                "secret": "${{ secrets.FIREFOX_JWT_SECRET }}",
+                "apiKey": "${{ secrets.FIREFOX_JWT_ISSUER }}",
+                "apiSecret": "${{ secrets.FIREFOX_JWT_SECRET }}",
                 "extId": "${{ vars.FIREFOX_EXTENSION_ID || 'somtoday-mod-ce@bjarnos.dev' }}",
                 "zip": "dist/firefox.zip"
               }
