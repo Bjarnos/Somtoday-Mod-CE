@@ -483,3 +483,18 @@ export function parseJSON(str: string): any {
     }
     return json;
 }
+
+// Convert an image URL to a base64 image
+export function toDataURL(url: string, callback: (result: any) => void) {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            callback(reader.result);
+        };
+        reader.readAsDataURL(xhr.response);
+    };
+    xhr.open("GET", url);
+    xhr.responseType = "blob";
+    xhr.send();
+}
