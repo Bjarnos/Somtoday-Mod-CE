@@ -473,3 +473,13 @@ window.getIcon = (
         '"/></svg>'
     );
 };
+
+export function parseJSON(str: string): any {
+    let json: any;
+    try {
+        json = JSON.parse(str);
+    } catch {
+        return null;
+    }
+    return json;
+}
