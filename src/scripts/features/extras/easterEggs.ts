@@ -1,4 +1,3 @@
-import { get } from "../../save_version_management";
 import { cn, id, n, tn } from "../../shorthand_functions";
 import { toggleConfetti } from "./confetti";
 import { newYearCountdown } from "./countdown";
@@ -13,21 +12,19 @@ export function registerRecapTrigger(callback: TriggerCallback): void {
 
 export function easterEggs() {
     if (n(id("mod-easter-eggs"))) {
-        if (get("layout") == 1 || get("layout") == 4) {
-            tn("head", 0).insertAdjacentHTML(
-                "beforeend",
-                `
-            <style id="mod-easter-eggs">
-                @media (max-width:767px) {
-                    #mod-logo-inserted,
-                    #mod-logo-hat {
-                        display: none;
-                    }
+        tn("head", 0).insertAdjacentHTML(
+            "beforeend",
+            `
+        <style id="mod-easter-eggs">
+            @media (max-width:767px) {
+                #mod-logo-inserted,
+                #mod-logo-hat {
+                    display: none;
                 }
-            </style>
-            `,
-            );
-        }
+            }
+        </style>
+        `,
+        );
         let i = 0;
         let j = 0;
         let k = 0;
