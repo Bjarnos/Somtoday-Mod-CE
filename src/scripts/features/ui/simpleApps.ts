@@ -219,6 +219,12 @@ function updateGrid() {
     if (!grid) {
         return;
     }
+    const oldRects = new Map<string, DOMRect>();
+    grid.querySelectorAll<HTMLElement>(".mod-app-tile").forEach((tile) => {
+        if (tile.dataset.appId) {
+            oldRects.set(tile.dataset.appId, tile.getBoundingClientRect());
+        }
+    });
     grid.replaceChildren();
     const add = button("+", "mod-app-add", () => openEditor());
     add.append(element("span", "", "App toevoegen"));
@@ -231,6 +237,7 @@ function updateGrid() {
     for (const app of filtered) {
         const tile = element("div", "mod-app-tile");
         tile.draggable = true;
+        tile.dataset.appId = app.id;
         const link = element("a", "mod-app-link");
         link.href = app.url;
         link.target = "_blank";
@@ -285,6 +292,24 @@ function updateGrid() {
         });
         grid.append(tile);
     }
+    for (const tile of grid.querySelectorAll<HTMLElement>(".mod-app-tile")) {
+        const before = oldRects.get(tile.dataset.appId ?? "");
+        if (!before) {
+            continue;
+        }
+        const after = tile.getBoundingClientRect();
+        const dx = before.left - after.left;
+        const dy = before.top - after.top;
+        if (dx || dy) {
+            tile.animate(
+                [
+                    { transform: `translate(${dx}px, ${dy}px)` },
+                    { transform: "translate(0, 0)" },
+                ],
+                { duration: 280, easing: "cubic-bezier(.2,.8,.2,1)" },
+            );
+        }
+    }
 }
 
 function showApps(tab: HTMLElement) {
@@ -299,12 +324,7 @@ function showApps(tab: HTMLElement) {
         const bar = tab.closest("header, nav, sl-tab-bar") ?? tab.parentElement;
         const bottom = bar?.getBoundingClientRect().bottom ?? 80;
         document.documentElement.style.setProperty("--mod-app-header-height", `${Math.max(0, Math.round(bottom))}px`);
-        const navigation = tab.closest<HTMLElement>("header, nav, sl-tab-bar");
-        const topbar = navigation ?? tab.parentElement?.parentElement;
-        if (topbar instanceof HTMLElement) {
-            topbar.style.position = "relative";
-            topbar.style.zIndex = "10002";
-        }
+        document.documentElement.classList.add("mod-apps-open");
         page.hidden = false;
     }
     renderApps();
@@ -368,6 +388,7 @@ export function simpleApps() {
         hideApps();
         document.getElementById("mod-simple-apps-launcher")?.remove();
         document.getElementById("mod-app-page")?.remove();
+        document.getElementById("mod-app-editor")?.remove();
         return;
     }
     if (!document.getElementById("mod-app-styles")) {
@@ -376,10 +397,20 @@ export function simpleApps() {
         styles.textContent = `
 #mod-simple-apps-launcher {
     cursor: pointer;
-    display: flex;
-    align-items: center;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
     justify-content: center;
-    gap: 7px;
+    gap: 8px;
+}
+
+#mod-simple-apps-launcher .mod-app-nav-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+}
+
+#mod-simple-apps-launcher .mod-app-nav-icon + span {
+    display: inline-block;
 }
 
 #mod-simple-apps-launcher .mod-app-nav-icon {
@@ -416,6 +447,15 @@ export function simpleApps() {
 
 #mod-app-page[hidden] {
     display: none;
+}
+
+html.mod-apps-open sl-root,
+html.mod-apps-open sl-header,
+html.mod-apps-open sl-topbar,
+html.mod-apps-open header:has(sl-tab-item),
+html.mod-apps-open nav:has(sl-tab-item) {
+    position: relative;
+    z-index: 10000;
 }
 
 html.mod-apps-open,
@@ -855,6 +895,10 @@ html.mod-apps-open body {
             tabUpdatePending = true;
             requestAnimationFrame(() => {
                 tabUpdatePending = false;
+                if (get("appsEnabled") === false || get("appsEnabled") === "false") {
+                    simpleApps();
+                    return;
+                }
                 insertTab();
             });
         });
