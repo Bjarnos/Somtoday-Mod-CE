@@ -449,7 +449,6 @@ export function simpleApps() {
     display: none;
 }
 
-html.mod-apps-open sl-root,
 html.mod-apps-open sl-header,
 html.mod-apps-open sl-topbar,
 html.mod-apps-open header:has(sl-tab-item),
@@ -909,6 +908,7 @@ html.mod-apps-open body {
     }
 
     if (!document.documentElement.dataset.modAppsListener) {
+        window.addEventListener("somtoday-mod-apps-setting-changed", () => simpleApps());
         document.documentElement.dataset.modAppsListener = "true";
         document.addEventListener("click", (event) => {
             const target = event.target as HTMLElement;
