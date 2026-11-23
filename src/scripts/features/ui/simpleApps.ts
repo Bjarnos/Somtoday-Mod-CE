@@ -335,12 +335,22 @@ function updateGrid() {
 }
 
 function updatePageOffset(tab: HTMLElement) {
-    const root = tab.closest("sl-tab-bar, nav, header");
-    const bottom = root?.getBoundingClientRect().bottom ?? tab.getBoundingClientRect().bottom;
-    document.documentElement.style.setProperty(
-        "--mod-app-header-height",
-        `${Math.max(0, Math.round(bottom))}px`,
-    );
+    const tabRect = tab.getBoundingClientRect();
+    const navigation = tab.closest<HTMLElement>("header, nav, sl-tab-bar");
+    const navRect = navigation?.getBoundingClientRect();
+    const bottom = Math.max(tabRect.bottom, navRect?.bottom ?? 0);
+
+    if (bottom > 0 && bottom < window.innerHeight) {
+        document.documentElement.style.setProperty(
+            "--mod-app-header-height",
+            `${Math.ceil(bottom)}px`,
+        );
+    }
+
+    const page = document.getElementById("mod-app-page");
+    if (page && page.parentElement !== document.body) {
+        document.body.append(page);
+    }
 }
 
 function showApps(tab: HTMLElement) {
@@ -471,7 +481,7 @@ export function simpleApps() {
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 10;
+    z-index: 5;
     isolation: isolate;
     pointer-events: auto;
     overflow-y: auto;
@@ -490,6 +500,11 @@ html.mod-apps-open sl-topbar,
 html.mod-apps-open header:has(sl-tab-item),
 html.mod-apps-open nav:has(sl-tab-item),
 html.mod-apps-open #mod-top-menu {
+    z-index: 30;
+}
+
+html.mod-apps-open sl-tab-bar,
+html.mod-apps-open sl-tab-item {
     position: relative;
     z-index: 30;
 }
@@ -502,9 +517,8 @@ html.mod-apps-open [role="listbox"] {
     z-index: 40;
 }
 
-html.mod-apps-open,
 html.mod-apps-open body {
-    overflow: hidden !important;
+    overscroll-behavior: none;
 }
 
 @keyframes mod-app-page-enter {
@@ -981,6 +995,15 @@ html.mod-apps-open body {
 
     if (!document.documentElement.dataset.modAppsListener) {
         window.addEventListener("somtoday-mod-apps-setting-changed", () => simpleApps());
+        window.addEventListener("resize", () => {
+            if (!active) {
+                return;
+            }
+            const tab = document.getElementById("mod-simple-apps-launcher");
+            if (tab) {
+                updatePageOffset(tab);
+            }
+        });
         document.documentElement.dataset.modAppsListener = "true";
         document.addEventListener("click", (event) => {
             const target = event.target as HTMLElement;
