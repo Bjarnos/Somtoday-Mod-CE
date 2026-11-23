@@ -1,0 +1,295 @@
+type SavedApp = {
+    id: string;
+    name: string;
+    url: string;
+    pinned: boolean;
+};
+const STORAGE_KEY = "somtoday-mod-simple-apps";
+let appsPanelOpen = false;
+let draggedId: string | null = null;
+
+function readApps(): SavedApp[] {
+    try {
+        const data: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        if (!Array.isArray(data)) {
+            return [];
+        }
+        return data.filter((app): app is SavedApp =>
+            typeof app?.id === "string" &&
+            typeof app?.name === "string" &&
+            typeof app?.url === "string" &&
+            typeof app?.pinned === "boolean"
+        );
+    } catch {
+        return [];
+    }
+}
+function saveApps(apps: SavedApp[]) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
+}
+function createButton(label: string, title: string, action: () => void): HTMLButtonElement {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.title = title;
+    button.addEventListener("click", action);
+    return button;
+}
+function renderApps() {
+    const panel = document.getElementById("mod-simple-apps-panel");
+    if (!panel) {
+        return;
+    }
+    panel.replaceChildren();
+    const header = document.createElement("header");
+    const heading = document.createElement("h2");
+    heading.textContent = "Apps";
+    header.append(heading, createButton("✕", "Sluiten", () => {
+        appsPanelOpen = false;
+        renderApps();
+    }));
+    panel.append(header);
+    if (!appsPanelOpen) {
+        panel.hidden = true;
+        return;
+    }
+    panel.hidden = false;
+    const form = document.createElement("form");
+    form.className = "mod-app-form";
+    const name = document.createElement("input");
+    name.placeholder = "Naam van de app";
+    name.maxLength = 60;
+    name.required = true;
+    name.setAttribute("aria-label", "Appnaam");
+    const url = document.createElement("input");
+    url.placeholder = "https://voorbeeld.nl";
+    url.type = "url";
+    url.required = true;
+    url.setAttribute("aria-label", "Websiteadres");
+    const submit = document.createElement("button");
+    submit.textContent = "＋ Toevoegen";
+    submit.type = "submit";
+    form.append(name, url, submit);
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        let parsed: URL;
+        try {
+            parsed = new URL(url.value.trim());
+        } catch {
+            url.setCustomValidity("Vul een geldig adres in.");
+            url.reportValidity();
+            return;
+        }
+        if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+            url.setCustomValidity("Alleen http- en https-websites zijn toegestaan.");
+            url.reportValidity();
+            return;
+        }
+        url.setCustomValidity("");
+        const apps = readApps();
+        apps.push({ id: crypto.randomUUID(), name: name.value.trim(), url: parsed.href, pinned: false });
+        saveApps(apps);
+        renderApps();
+    });
+    panel.append(form);
+    const grid = document.createElement("div");
+    grid.className = "mod-app-grid";
+    const apps = readApps().sort((a, b) => Number(b.pinned) - Number(a.pinned));
+    for (const app of apps) {
+        const tile = document.createElement("div");
+        tile.className = "mod-app-tile";
+        tile.draggable = true;
+        tile.addEventListener("dragstart", (event) => {
+            draggedId = app.id;
+            event.dataTransfer?.setData("text/plain", app.id);
+        });
+        tile.addEventListener("dragover", (event) => event.preventDefault());
+        tile.addEventListener("drop", (event) => {
+            event.preventDefault();
+            const source = draggedId;
+            draggedId = null;
+            if (!source || source === app.id) {
+                return;
+            }
+            const items = readApps();
+            const from = items.findIndex((item) => item.id === source);
+            const to = items.findIndex((item) => item.id === app.id);
+            if (from < 0 || to < 0) {
+                return;
+            }
+            const moved = items.splice(from, 1)[0];
+            moved.pinned = app.pinned;
+            items.splice(to, 0, moved);
+            saveApps(items);
+            renderApps();
+        });
+        const link = document.createElement("a");
+        link.href = app.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        const favicon = document.createElement("span");
+        favicon.textContent = "🌐";
+        favicon.className = "mod-app-icon";
+        const text = document.createElement("span");
+        text.textContent = app.name;
+        link.append(favicon, text);
+        const actions = document.createElement("div");
+        actions.className = "mod-app-actions";
+        actions.append(
+            createButton(app.pinned ? "📌" : "📍", app.pinned ? "Losmaken" : "Vastzetten", () => {
+                saveApps(readApps().map((item) => item.id === app.id ? { ...item, pinned: !item.pinned } : item));
+                renderApps();
+            }),
+            createButton("✕", "Verwijderen", () => {
+                saveApps(readApps().filter((item) => item.id !== app.id));
+                renderApps();
+            })
+        );
+        tile.append(link, actions);
+        grid.append(tile);
+    }
+    if (!apps.length) {
+        const empty = document.createElement("p");
+        empty.textContent = "Nog geen apps. Voeg hierboven je eerste website toe.";
+        grid.append(empty);
+    }
+    panel.append(grid);
+}
+
+export function simpleApps() {
+    if (document.getElementById("mod-simple-apps-launcher")) {
+        return;
+    }
+    const style = document.createElement("style");
+    style.id = "mod-simple-apps-style";
+    style.textContent = `
+#mod-simple-apps-launcher {
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:10000;
+    border:0;
+    border-radius:14px;
+    padding:12px 18px;
+    cursor:pointer;
+    background:var(--bg-primary-normal,#2674ce);
+    color:white;
+    box-shadow:0 4px 16px #0003;
+    font:inherit
+}
+
+#mod-simple-apps-panel {
+    position:fixed;
+    inset:8% max(16px,calc((100vw - 900px)/2));
+    z-index:10001;
+    overflow:auto;
+    border-radius:18px;
+    padding:24px;
+    background:var(--bg-default-normal,#fff);
+    color:var(--fg-primary-normal,#222);
+    box-shadow:0 15px 65px #0005
+}
+
+#mod-simple-apps-panel[hidden] {
+    display:none
+}
+
+#mod-simple-apps-panel header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:20px
+}
+
+#mod-simple-apps-panel h2 {
+    margin:0
+}
+
+#mod-simple-apps-panel button {
+    cursor:pointer;
+    border:0;
+    border-radius:9px;
+    padding:9px;
+    background:var(--bg-secondary-normal,#e8edf3);
+    color:inherit
+}
+
+#mod-simple-apps-panel .mod-app-form {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:24px
+}
+
+#mod-simple-apps-panel input {
+    flex:1;
+    min-width:170px;
+    padding:10px;
+    border:1px solid #9996;
+    border-radius:9px;
+    background:transparent;
+    color:inherit;
+    font:inherit
+}
+
+#mod-simple-apps-panel .mod-app-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+    gap:14px
+}
+
+#mod-simple-apps-panel .mod-app-tile {
+    border:1px solid #9995;
+    border-radius:14px;
+    padding:12px;
+    background:var(--bg-secondary-normal,#f5f7fa);
+    cursor:grab
+}
+
+#mod-simple-apps-panel .mod-app-tile a {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    min-height:90px;
+    text-align:center;
+    text-decoration:none;
+    color:inherit;
+    overflow-wrap:anywhere
+}
+
+#mod-simple-apps-panel .mod-app-icon {
+    font-size:32px
+}
+
+#mod-simple-apps-panel .mod-app-actions {
+    display:flex;
+    justify-content:space-between;
+    margin-top:10px
+}
+
+@media(max-width:600px) {
+    #mod-simple-apps-panel {
+    inset:10px;
+    padding:16px
+}
+#mod-simple-apps-launcher {
+    bottom:12px;
+    right:12px
+}
+
+}
+
+`;
+    document.head.append(style);
+    const launcher = createButton("▦ Apps", "Apps openen", () => {
+        appsPanelOpen = !appsPanelOpen;
+        renderApps();
+    });
+    launcher.id = "mod-simple-apps-launcher";
+    const panel = document.createElement("section");
+    panel.id = "mod-simple-apps-panel";
+    panel.hidden = true;
+    panel.setAttribute("aria-label", "Mijn apps");
+    document.body.append(launcher, panel);
+}
