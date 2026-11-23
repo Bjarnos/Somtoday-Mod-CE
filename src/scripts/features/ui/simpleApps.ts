@@ -444,7 +444,7 @@ export function simpleApps() {
 #mod-simple-apps-launcher.active,
 #mod-simple-apps-launcher.active .mod-app-nav-label,
 #mod-simple-apps-launcher.active .mod-app-nav-icon {
-    color: var(--fg-primary-normal, #006bc9) !important;
+    color: var(--action-primary-normal, #006bc9) !important;
 }
 
 #mod-simple-apps-launcher.active::after {
@@ -454,7 +454,7 @@ export function simpleApps() {
     left: 0;
     right: 0;
     height: 3px;
-    background: #f59b21;
+    background: var(--action-accent-normal, var(--orange-50, #f59b21));
     pointer-events: none;
 }
 
@@ -475,6 +475,31 @@ export function simpleApps() {
     white-space: nowrap;
 }
 
+#mod-app-page,
+#mod-app-editor {
+    --mod-app-surface: var(--bg-neutral-none, #fff);
+    --mod-app-text: var(--text-strong, #263442);
+    --mod-app-muted: var(--text-weak, #66758a);
+    --mod-app-border: var(--thinnest-solid-neutral-normal, 1px solid #dce3eb);
+    --mod-app-hover: var(--bg-neutral-weakest, #edf3f8);
+    --mod-app-primary: var(--action-primary-normal, #006bc9);
+    --mod-app-soft: var(--bg-primary-weakest, #e6f2ff);
+    color: var(--mod-app-text);
+    color-scheme: light;
+}
+
+:root.dark #mod-app-page,
+:root.night #mod-app-page,
+:root.dark #mod-app-editor,
+:root.night #mod-app-editor {
+    --mod-app-surface: var(--bg-neutral-none, #20252b);
+    --mod-app-text: var(--text-strong, #f0f3f7);
+    --mod-app-muted: var(--text-weak, #b7c0cb);
+    --mod-app-hover: var(--bg-neutral-weakest, #303841);
+    --mod-app-soft: var(--bg-primary-weakest, #1a344d);
+    color-scheme: dark;
+}
+
 #mod-app-page {
     position: fixed;
     top: var(--mod-app-header-height, 80px);
@@ -486,9 +511,9 @@ export function simpleApps() {
     pointer-events: auto;
     overflow-y: auto;
     overscroll-behavior: contain;
-    background: var(--bg-default-normal, #fff);
+    background: var(--mod-app-surface);
     animation: mod-app-page-enter .22s ease-out both;
-    color: var(--fg-primary-normal, #263442);
+    color: var(--mod-app-text);
 }
 
 #mod-app-page[hidden] {
@@ -551,7 +576,7 @@ html.mod-apps-open body {
 
 .mod-app-heading p {
     margin: 0;
-    color: var(--fg-secondary-normal, #66758a);
+    color: var(--mod-app-muted);
     font-size: 15px;
 }
 
@@ -567,9 +592,9 @@ html.mod-apps-open body {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
-    border: 1px solid var(--border-default-normal, #d3dce6);
+    border: 1px solid var(--border-neutral-normal, #dce3eb);
     border-radius: 8px;
-    background: var(--bg-default-normal, #fff);
+    background: var(--mod-app-surface);
     color: inherit;
     font: inherit;
     outline: none;
@@ -582,14 +607,14 @@ html.mod-apps-open body {
 
 .mod-app-search:focus,
 .mod-app-editor-form input:focus {
-    border-color: #006bc9;
-    box-shadow: 0 0 0 3px #006bc91a;
+    border-color: var(--mod-app-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mod-app-primary) 18%, transparent);
 }
 
 .mod-app-primary {
     border: 0;
     border-radius: 8px;
-    background: var(--bg-primary-normal, #006bc9);
+    background: var(--mod-app-primary);
     color: #fff;
     font: inherit;
     font-weight: 600;
@@ -611,9 +636,9 @@ html.mod-apps-open body {
 .mod-app-tile,
 .mod-app-add {
     min-height: 170px;
-    border: 1px solid var(--border-default-normal, #dce3eb);
+    border: 1px solid var(--border-neutral-normal, #dce3eb);
     border-radius: 12px;
-    background: var(--bg-default-normal, #fff);
+    background: var(--mod-app-surface);
     color: inherit;
     transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
@@ -627,8 +652,8 @@ html.mod-apps-open body {
 }
 
 .mod-app-tile.mod-app-pinned {
-    border-color: #7cb4ee;
-    background: linear-gradient(180deg, #eaf4ff 0%, var(--bg-default-normal, #fff) 55%);
+    border-color: var(--mod-app-primary);
+    background: linear-gradient(180deg, var(--mod-app-soft) 0%, var(--mod-app-surface) 65%);
 }
 
 .mod-app-pinned-label {
@@ -640,8 +665,8 @@ html.mod-apps-open body {
     gap: 4px;
     padding: 4px 8px;
     border-radius: 6px;
-    background: #d9ebff;
-    color: #075ca8;
+    background: var(--mod-app-soft);
+    color: var(--mod-app-primary);
     font-size: 11px;
     font-weight: 700;
     pointer-events: none;
@@ -649,7 +674,7 @@ html.mod-apps-open body {
 
 .mod-app-tile:hover,
 .mod-app-add:hover {
-    border-color: #92b9e4;
+    border-color: var(--mod-app-primary);
     box-shadow: 0 5px 18px #17334b13;
     transform: translateY(-2px);
 }
@@ -679,8 +704,8 @@ html.mod-apps-open body {
     width: 56px;
     height: 56px;
     border-radius: 14px;
-    background: #e6f2ff;
-    color: #006bc9;
+    background: var(--mod-app-soft);
+    color: var(--mod-app-primary);
     font-size: 28px;
     font-weight: 700;
     overflow: hidden;
@@ -707,14 +732,14 @@ html.mod-apps-open body {
     border: 0;
     border-radius: 8px;
     background: transparent;
-    color: var(--fg-secondary-normal, #697789);
+    color: var(--mod-app-muted);
     font-size: 22px;
     cursor: pointer;
 }
 
 .mod-app-menu-button:hover,
 .mod-app-menu.open .mod-app-menu-button {
-    background: var(--bg-secondary-normal, #edf3f8);
+    background: var(--mod-app-hover);
 }
 
 .mod-app-menu-options {
@@ -724,9 +749,9 @@ html.mod-apps-open body {
     right: 0;
     width: 142px;
     padding: 5px;
-    border: 1px solid var(--border-default-normal, #dce3eb);
+    border: 1px solid var(--border-neutral-normal, #dce3eb);
     border-radius: 9px;
-    background: var(--bg-default-normal, #fff);
+    background: var(--mod-app-surface);
     box-shadow: 0 8px 24px #101d2b20;
 }
 
@@ -749,7 +774,7 @@ html.mod-apps-open body {
 }
 
 .mod-app-menu-options button:hover {
-    background: var(--bg-secondary-normal, #edf3f8);
+    background: var(--mod-app-hover);
 }
 
 .mod-app-menu-options .mod-app-danger {
@@ -762,7 +787,7 @@ html.mod-apps-open body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    color: #006bc9;
+    color: var(--mod-app-primary);
     cursor: pointer;
     font-size: 30px;
 }
@@ -788,11 +813,11 @@ html.mod-apps-open body {
     width: min(100%, 500px);
     max-height: min(90vh, 760px);
     overflow-y: auto;
-    border: 1px solid var(--border-default-normal, #e1e6ec);
+    border: 1px solid var(--border-neutral-normal, #dce3eb);
     border-radius: 16px;
     padding: 28px;
-    background: var(--bg-default-normal, #fff);
-    color: var(--fg-primary-normal, #263442);
+    background: var(--mod-app-surface);
+    color: var(--mod-app-text);
     box-shadow: 0 20px 70px #101d2b30;
     animation: mod-app-modal-enter .2s ease-out both;
 }
@@ -889,7 +914,7 @@ html.mod-apps-open body {
 }
 
 .mod-app-switch input:checked + .mod-app-switch-track {
-    background: #006bc9;
+    background: var(--mod-app-primary);
 }
 
 .mod-app-switch input:checked + .mod-app-switch-track::after {
@@ -906,11 +931,11 @@ html.mod-apps-open body {
     justify-content: flex-end;
     gap: 10px;
     padding-top: 10px;
-    border-top: 1px solid var(--border-default-normal, #e4eaf0);
+    border-top: 1px solid var(--border-neutral-normal, #dce3eb);
 }
 
 .mod-app-secondary {
-    border: 1px solid var(--border-default-normal, #d3dce6);
+    border: 1px solid var(--border-neutral-normal, #dce3eb);
     border-radius: 8px;
     background: transparent;
     color: inherit;
