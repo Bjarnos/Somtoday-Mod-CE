@@ -31,6 +31,7 @@ import {
     modLogo,
     profilePicture,
     rosterSimplify,
+    simpleApps,
     teacherNicknames,
     topMenu,
     userName,
@@ -217,6 +218,7 @@ export function modInit() {
         initTheme,
         consoleMessage,
         pageUpdate,
+        simpleApps,
     ]);
 
     // Allow transitions after 0.4s
