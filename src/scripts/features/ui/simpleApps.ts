@@ -1,3 +1,5 @@
+import { get } from "../../save_version_management";
+
 type SavedApp = {
     id: string;
     name: string;
@@ -7,7 +9,6 @@ type SavedApp = {
 const STORAGE_KEY = "somtoday-mod-simple-apps";
 let appsPanelOpen = false;
 let draggedId: string | null = null;
-let previousTab: HTMLElement | null = null;
 
 function readApps(): SavedApp[] {
     try {
@@ -169,7 +170,7 @@ export function simpleApps() {
     if (document.getElementById("mod-simple-apps-launcher")) {
         return;
     }
-    if (localStorage.getItem("somtoday-mod-apps-enabled") === "false") {
+    if (get("appsEnabled") === false || get("appsEnabled") === "false") {
         document.getElementById("mod-simple-apps-launcher")?.remove();
         document.getElementById("mod-simple-apps-panel")?.remove();
         return;
