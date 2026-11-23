@@ -6,9 +6,15 @@ type App = {
     url: string;
     icon: string;
     pinned: boolean;
+    folderId?: string;
 };
 
+type AppFolder = { id: string; name: string; color: string; pinned: boolean };
+
 const appsKey = "simpleApps";
+const foldersKey = "simpleAppFolders";
+let folders: AppFolder[] = [];
+let openFolderId: string | null = null;
 let currentApps: App[] = [];
 let active = false;
 let searchText = "";
@@ -33,6 +39,7 @@ function loadApps(): App[] {
             url: item.url,
             icon: typeof item.icon === "string" ? item.icon : "",
             pinned: Boolean(item.pinned),
+            folderId: typeof item.folderId === "string" ? item.folderId : undefined,
         }));
     } catch {
         return [];
@@ -41,6 +48,28 @@ function loadApps(): App[] {
 
 function saveApps() {
     set(appsKey, JSON.stringify(currentApps));
+    set(foldersKey, JSON.stringify(folders));
+}
+
+function loadFolders(): AppFolder[] {
+    try {
+        const value = get(foldersKey);
+        const items = typeof value === "string" ? JSON.parse(value || "[]") : value;
+        if (!Array.isArray(items)) return [];
+        return items.filter((item) => typeof item.id === "string" && typeof item.name === "string")
+            .map((item) => ({ id: item.id, name: item.name, color: typeof item.color === "string" ? item.color : "#377bd1", pinned: Boolean(item.pinned) }));
+    } catch {
+        return [];
+    }
+}
+
+function websiteIcon(url: string): string {
+    try {
+        const host = new URL(url).hostname;
+        return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128`;
+    } catch {
+        return "";
+    }
 }
 
 function element<K extends keyof HTMLElementTagNameMap>(
@@ -87,12 +116,12 @@ function validUrl(input: string): string | null {
 
 function appIcon(app: App) {
     const icon = element("div", "mod-app-icon", app.name.charAt(0).toUpperCase());
-    const source = validUrl(app.icon);
+    const source = validUrl(app.icon) || websiteIcon(app.url);
     if (source) {
         const image = document.createElement("img");
         image.src = source;
         image.alt = "";
-        image.onerror = () => image.remove();
+        image.onerror = () => { image.remove(); icon.textContent = app.name.charAt(0).toUpperCase(); };
         icon.replaceChildren(image);
     }
     return icon;
@@ -136,6 +165,8 @@ function openEditor(existing?: App) {
     icon.placeholder = "https://voorbeeld.nl/logo.png";
     icon.value = existing?.icon ?? "";
     iconLabel.append(icon);
+    const iconHint = element("small", "mod-app-hint", "Leeg laten om automatisch het website-icoon te gebruiken.");
+    iconLabel.append(iconHint);
 
     const pinnedLabel = element("label", "mod-app-pin-label");
     const pinText = element("span", "", "Vastzetten");
@@ -196,6 +227,118 @@ function openEditor(existing?: App) {
     name.focus();
 }
 
+function openFolderEditor(existing?: AppFolder) {
+    document.getElementById("mod-app-editor")?.remove();
+    const backdrop = element("div", "mod-app-backdrop");
+    backdrop.id = "mod-app-editor";
+    const modal = element("div", "mod-app-modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-label", existing ? "Map bewerken" : "Map aanmaken");
+    const heading = element("div", "mod-app-modal-header");
+    heading.append(element("h2", "", existing ? "Map bewerken" : "Map aanmaken"), button("×", "mod-app-close", () => backdrop.remove()));
+    const form = element("form", "mod-app-editor-form");
+    const nameLabel = element("label", "", "Mapnaam");
+    const name = element("input");
+    name.required = true;
+    name.maxLength = 40;
+    name.value = existing?.name ?? "";
+    nameLabel.append(name);
+    const colorLabel = element("label", "", "Kleur");
+    const color = element("input");
+    color.type = "color";
+    color.value = existing?.color ?? "#377bd1";
+    colorLabel.append(color);
+    const actions = element("div", "mod-app-modal-actions");
+    actions.append(button("Annuleren", "mod-app-secondary", () => backdrop.remove()));
+    const save = element("button", "mod-app-primary", "Opslaan");
+    save.type = "submit";
+    actions.append(save);
+    form.append(nameLabel, colorLabel, actions);
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!name.value.trim()) return;
+        if (existing) {
+            existing.name = name.value.trim();
+            existing.color = color.value;
+        } else {
+            folders.push({ id: crypto.randomUUID(), name: name.value.trim(), color: color.value, pinned: false });
+        }
+        saveApps();
+        backdrop.remove();
+        renderApps();
+    });
+    modal.append(heading, form);
+    backdrop.append(modal);
+    backdrop.addEventListener("click", (event) => { if (event.target === backdrop) backdrop.remove(); });
+    document.body.append(backdrop);
+    name.focus();
+}
+
+function openMoveDialog(app: App) {
+    document.getElementById("mod-app-editor")?.remove();
+    const backdrop = element("div", "mod-app-backdrop");
+    backdrop.id = "mod-app-editor";
+    const modal = element("div", "mod-app-modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-label", "Toevoegen aan groep");
+    const heading = element("div", "mod-app-modal-header");
+    heading.append(element("h2", "", "Toevoegen aan groep"), button("×", "mod-app-close", () => backdrop.remove()));
+    const form = element("form", "mod-app-editor-form");
+    const label = element("label", "", "Selecteer een map");
+    const select = element("select", "mod-app-folder-select");
+    const none = element("option", "", "Geen map");
+    none.value = "";
+    select.append(none);
+    for (const folder of folders) {
+        const option = element("option", "", folder.name);
+        option.value = folder.id;
+        select.append(option);
+    }
+    select.value = app.folderId ?? "";
+    label.append(select);
+    const actions = element("div", "mod-app-modal-actions");
+    actions.append(button("Annuleren", "mod-app-secondary", () => backdrop.remove()));
+    const save = element("button", "mod-app-primary", "Opslaan");
+    save.type = "submit";
+    actions.append(save);
+    form.append(label, actions);
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        app.folderId = select.value || undefined;
+        saveApps();
+        backdrop.remove();
+        renderApps();
+    });
+    modal.append(heading, form);
+    backdrop.append(modal);
+    backdrop.addEventListener("click", (event) => { if (event.target === backdrop) backdrop.remove(); });
+    document.body.append(backdrop);
+}
+
+function folderMenu(folder: AppFolder) {
+    const menu = element("div", "mod-app-menu");
+    const trigger = button("⋮", "mod-app-menu-button", () => menu.classList.toggle("open"));
+    trigger.setAttribute("aria-label", "Map-opties");
+    const options = element("div", "mod-app-menu-options");
+    options.append(
+        button(folder.pinned ? "Losmaken" : "Vastzetten", "", () => {
+            folder.pinned = !folder.pinned; saveApps(); renderApps();
+        }),
+        button("Map bewerken", "", () => openFolderEditor(folder)),
+        button("Map verwijderen", "mod-app-danger", () => {
+            if (!window.confirm(`Map "${folder.name}" verwijderen? De apps blijven behouden.`)) return;
+            currentApps.forEach((app) => { if (app.folderId === folder.id) app.folderId = undefined; });
+            folders = folders.filter((item) => item.id !== folder.id);
+            openFolderId = null;
+            saveApps(); renderApps();
+        }),
+    );
+    menu.append(trigger, options);
+    return menu;
+}
+
 function renderApps() {
     const page = document.getElementById("mod-app-page");
     if (!page) {
@@ -219,10 +362,15 @@ function renderApps() {
         searchText = search.value;
         updateGrid();
     });
-    toolbar.append(
-        search,
-        button("+ App toevoegen", "mod-app-primary", () => openEditor()),
-    );
+    const create = element("div", "mod-app-create-actions");
+    const dropdown = element("div", "mod-app-create-dropdown");
+    const arrow = button("▾", "mod-app-primary mod-app-create-arrow", () => dropdown.classList.toggle("open"));
+    arrow.setAttribute("aria-label", "Meer toevoegen");
+    const choices = element("div", "mod-app-create-options");
+    choices.append(button("Map aanmaken", "", () => { dropdown.classList.remove("open"); openFolderEditor(); }));
+    dropdown.append(arrow, choices);
+    create.append(button("+ App toevoegen", "mod-app-primary", () => openEditor()), dropdown);
+    toolbar.append(search, create);
     const grid = element("div", "mod-app-grid");
     grid.id = "mod-app-grid";
     content.append(title, toolbar, grid);
@@ -242,12 +390,46 @@ function updateGrid() {
         }
     });
     grid.replaceChildren();
+    const selectedFolder = folders.find((folder) => folder.id === openFolderId);
+    if (openFolderId && !selectedFolder) openFolderId = null;
+    if (selectedFolder) {
+        grid.classList.add("mod-app-folder-grid");
+        const heading = element("div", "mod-app-folder-heading");
+        heading.append(
+            button("← Alle apps", "mod-app-secondary", () => { openFolderId = null; renderApps(); }),
+            element("h2", "", selectedFolder.name),
+            folderMenu(selectedFolder),
+        );
+        heading.style.setProperty("--mod-folder-color", selectedFolder.color);
+        grid.append(heading);
+    } else {
+        grid.classList.remove("mod-app-folder-grid");
+        for (const folder of [...folders].sort((a, b) => Number(b.pinned) - Number(a.pinned))) {
+            const members = currentApps.filter((app) => app.folderId === folder.id);
+            if (searchText && !folder.name.toLowerCase().includes(searchText.toLowerCase()) &&
+                !members.some((app) => app.name.toLowerCase().includes(searchText.toLowerCase()))) continue;
+            const tile = element("div", "mod-app-tile mod-app-folder-tile");
+            tile.style.setProperty("--mod-folder-color", folder.color);
+            const opener = button("", "mod-app-folder-open", () => { openFolderId = folder.id; renderApps(); });
+            const preview = element("div", "mod-app-folder-preview");
+            for (const app of members.slice(0, 4)) preview.append(appIcon(app));
+            if (!members.length) preview.append(element("span", "", "📁"));
+            opener.append(preview, element("span", "mod-app-name", folder.name));
+            tile.append(opener, folderMenu(folder));
+            tile.addEventListener("contextmenu", (event) => {
+                event.preventDefault();
+                tile.querySelector(".mod-app-menu")?.classList.add("open");
+            });
+            grid.append(tile);
+        }
+    }
     const add = button("+", "mod-app-add", () => openEditor());
     add.append(element("span", "", "App toevoegen"));
-    grid.append(add);
+    if (!selectedFolder) grid.append(add);
 
     const apps = [...currentApps].sort((a, b) => Number(b.pinned) - Number(a.pinned));
     const filtered = apps.filter((app) =>
+        (selectedFolder ? app.folderId === selectedFolder.id : !app.folderId || !folders.some((folder) => folder.id === app.folderId)) &&
         app.name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())
     );
     for (const app of filtered) {
@@ -282,6 +464,7 @@ function updateGrid() {
                 updateGrid();
             }),
             button("Bewerken", "", () => openEditor(app)),
+            button(app.folderId ? "Verplaatsen / uit map halen" : "Toevoegen aan groep", "", () => openMoveDialog(app)),
             button("Verwijderen", "mod-app-danger", () => {
                 currentApps = currentApps.filter((item) => item.id !== app.id);
                 saveApps();
@@ -290,6 +473,14 @@ function updateGrid() {
         );
         menu.append(menuButton, options);
         tile.append(link, menu);
+        tile.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+            grid.querySelectorAll(".mod-app-menu.open").forEach((item) => {
+                if (item !== menu) item.classList.remove("open");
+            });
+            menu.classList.add("open");
+            menuButton.setAttribute("aria-expanded", "true");
+        });
         tile.addEventListener("dragstart", (event) => {
             dragging = app.id;
             event.dataTransfer?.setData("text/plain", app.id);
@@ -954,6 +1145,26 @@ html.mod-apps-open body {
     display: none;
 }
 
+ 
+.mod-app-create-actions { display:flex; gap:4px; align-items:stretch; }
+.mod-app-create-dropdown { position:relative; }
+.mod-app-create-arrow { height:100%; min-width:40px; }
+.mod-app-create-options { display:none; position:absolute; top:calc(100% + 5px); right:0; z-index:50; min-width:175px; padding:5px; border:1px solid var(--border-neutral-normal, #aaa); border-radius:8px; background:var(--mod-app-surface); box-shadow:0 8px 24px #0003; }
+.mod-app-create-dropdown.open .mod-app-create-options { display:block; }
+.mod-app-create-options button { width:100%; border:0; background:transparent; color:var(--mod-app-text); text-align:left; padding:10px; cursor:pointer; }
+.mod-app-create-options button:hover { background:var(--mod-app-hover); }
+.mod-app-tile { position:relative; }
+.mod-app-folder-tile { border-color:var(--mod-folder-color); }
+.mod-app-folder-open { border:0; background:transparent; color:var(--mod-app-text); cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:100%; height:100%; padding:18px; }
+.mod-app-folder-preview { display:grid; grid-template-columns:repeat(2, 36px); grid-template-rows:repeat(2, 36px); gap:3px; padding:10px; border-radius:12px; background:color-mix(in srgb, var(--mod-folder-color) 22%, var(--mod-app-surface)); min-height:72px; }
+.mod-app-folder-preview .mod-app-icon { width:36px; height:36px; font-size:14px; }
+.mod-app-folder-heading { grid-column:1/-1; display:flex; align-items:center; justify-content:center; gap:16px; position:relative; padding:12px; border-bottom:2px solid var(--mod-folder-color); }
+.mod-app-folder-heading h2 { margin:0; color:var(--mod-app-text); }
+.mod-app-folder-grid { max-width:780px; margin-inline:auto; }
+.mod-app-folder-select { padding:12px; border:1px solid var(--border-neutral-normal, #aaa); border-radius:8px; background:var(--mod-app-surface); color:var(--mod-app-text); width:100%; }
+.mod-app-hint { display:block; font-weight:400; color:var(--mod-app-muted); }
+.mod-app-editor-form input[type="color"] { width:64px; height:42px; padding:2px; border:1px solid var(--border-neutral-normal, #aaa); background:transparent; border-radius:8px; }
+
 @media (max-width: 600px) {
     #mod-app-page {
         top: var(--mod-app-header-height, 72px);
@@ -988,6 +1199,7 @@ html.mod-apps-open body {
     }
     if (!active) {
         currentApps = loadApps();
+        folders = loadFolders();
     }
     insertTab();
 
