@@ -45,13 +45,16 @@ function renderApps() {
     panel.replaceChildren();
     const search = document.createElement("input");
     search.type = "search";
-    search.placeholder = "Apps zoeken...";
+    search.placeholder = "Zoek apps op naam...";
     search.className = "mod-app-search";
     const header = document.createElement("header");
     const heading = document.createElement("h2");
     heading.textContent = "Apps";
     header.append(heading);
     panel.append(header);
+    const subtitle = document.createElement("p");
+    subtitle.textContent = "Voeg je eigen links toe.";
+    panel.append(subtitle);
     if (!appsPanelOpen) {
         panel.hidden = true;
         return;
@@ -70,7 +73,7 @@ function renderApps() {
     url.required = true;
     url.setAttribute("aria-label", "Websiteadres");
     const submit = document.createElement("button");
-    submit.textContent = "＋ Toevoegen";
+    submit.textContent = "＋ Ontdek apps";
     submit.type = "submit";
     form.append(name, url, submit);
     form.addEventListener("submit", (event) => {
@@ -94,7 +97,7 @@ function renderApps() {
         saveApps(apps);
         renderApps();
     });
-    panel.append(form, search);
+    panel.append(search, form);
     const grid = document.createElement("div");
     grid.className = "mod-app-grid";
     const apps = readApps().sort((a, b) => Number(b.pinned) - Number(a.pinned));
@@ -179,18 +182,7 @@ export function simpleApps() {
     style.id = "mod-simple-apps-style";
     style.textContent = `
 #mod-simple-apps-launcher {
-    position:fixed;
-    right:20px;
-    bottom:20px;
-    z-index:10000;
-    border:0;
-    border-radius:14px;
-    padding:12px 18px;
-    cursor:pointer;
-    background:var(--bg-primary-normal,#2674ce);
-    color:white;
-    box-shadow:0 4px 16px #0003;
-    font:inherit
+    cursor: pointer;
 }
 
 #mod-simple-apps-panel {
@@ -200,13 +192,18 @@ export function simpleApps() {
     right:0;
     bottom:0;
     width:100%;
-    z-index:10001;
+    z-index: 20;
     overflow:auto;
     border-radius:0;
-    padding:40px max(24px, calc((100vw - 950px) / 2));
+    padding: 40px max(24px, calc((100vw - 950px) / 2));
     background:var(--bg-default-normal,#fff);
     color:var(--fg-primary-normal,#222);
-    box-shadow:0 15px 65px #0005
+    box-shadow: none;
+}
+
+#mod-simple-apps-launcher .mod-apps-nav-icon {
+    font-size: 20px;
+    margin-right: 7px;
 }
 
 #mod-simple-apps-panel[hidden] {
@@ -302,35 +299,59 @@ export function simpleApps() {
 
 `;
     document.head.append(style);
-    const launcher = createButton("▦ Apps", "Apps openen", () => {
+    const openApps = () => {
         appsPanelOpen = true;
         document.querySelectorAll("sl-tab-item.active").forEach((tab) => {
             tab.classList.remove("active");
         });
-        launcher.classList.add("active");
+        document.getElementById("mod-simple-apps-launcher")?.classList.add("active");
         renderApps();
-    });
-    launcher.id = "mod-simple-apps-launcher";
+    };
     const panel = document.createElement("section");
     panel.id = "mod-simple-apps-panel";
     panel.hidden = true;
-    panel.setAttribute("aria-label", "Mijn apps");
+    panel.setAttribute("aria-label", "Apps");
     const tabs = document.querySelector("sl-tab-item");
     const tabContainer = tabs?.parentElement;
-    if (tabs && tabContainer) {
-        launcher.className = tabs.className;
-        launcher.classList.remove("active");
-        launcher.style.cssText = "display:inline-flex;align-items:center;gap:8px;cursor:pointer;";
-        tabContainer.append(launcher);
-    } else {
-        launcher.classList.add("mod-app-fallback");
-        document.body.append(launcher);
+    if (!tabs || !tabContainer) {
+        panel.remove();
+        style.remove();
+        return;
     }
+
+    const launcher = tabs.cloneNode(true) as HTMLElement;
+    launcher.id = "mod-simple-apps-launcher";
+    launcher.classList.remove("active");
+    launcher.removeAttribute("aria-selected");
+
+    const label = launcher.querySelector("span");
+    if (label) {
+        label.textContent = "Apps";
+    } else {
+        launcher.textContent = "Apps";
+    }
+
+    const icon = launcher.querySelector("svg, i");
+    if (icon) {
+        icon.remove();
+    }
+
+    launcher.insertAdjacentHTML(
+        "afterbegin",
+        '<span class="mod-apps-nav-icon" aria-hidden="true">▦</span>',
+    );
+    launcher.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openApps();
+    });
+
+    tabContainer.append(launcher);
     document.body.append(panel);
 
     document.addEventListener("click", (event) => {
         const target = event.target as HTMLElement;
-        if (target.closest("sl-tab-item") && !target.closest("#mod-simple-apps-launcher")) {
+        if (target.closest("sl-tab-item:not(#mod-simple-apps-launcher)")) {
             appsPanelOpen = false;
             launcher.classList.remove("active");
             renderApps();
