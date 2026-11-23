@@ -313,18 +313,36 @@ function openMoveDialog(app: App) {
     heading.append(element("h2", "", "Toevoegen aan groep"), button("×", "mod-app-close", () => backdrop.remove()));
     const form = element("form", "mod-app-editor-form");
     const label = element("label", "", "Selecteer een map");
-    const select = element("select", "mod-app-folder-select");
-    select.setAttribute("aria-label", "Selecteer een map");
-    const none = element("option", "", "Geen map");
-    none.value = "";
-    select.append(none);
-    for (const folder of folders) {
-        const option = element("option", "", folder.name);
-        option.value = folder.id;
-        select.append(option);
+    let selectedFolderId = app.folderId ?? "";
+    const picker = element("div", "mod-app-folder-picker");
+    const trigger = button("", "mod-app-folder-picker-trigger", () => {
+        const expanded = picker.classList.toggle("open");
+        trigger.setAttribute("aria-expanded", String(expanded));
+    });
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+    const chosen = element("span", "", folders.find((folder) => folder.id === selectedFolderId)?.name ?? "Geen map");
+    trigger.append(chosen, element("span", "mod-app-folder-chevron", "⌄"));
+    const choices = element("div", "mod-app-folder-picker-options");
+    choices.setAttribute("role", "listbox");
+    for (const folder of [{ id: "", name: "Geen map" }, ...folders]) {
+        const option = button(folder.name, "mod-app-folder-picker-option", () => {
+            selectedFolderId = folder.id;
+            chosen.textContent = folder.name;
+            picker.classList.remove("open");
+            trigger.setAttribute("aria-expanded", "false");
+        });
+        option.setAttribute("role", "option");
+        choices.append(option);
     }
-    select.value = app.folderId ?? "";
-    label.append(select);
+    picker.append(trigger, choices);
+    label.append(picker);
+    backdrop.addEventListener("pointerdown", (event) => {
+        if (event.target instanceof Node && !picker.contains(event.target)) {
+            picker.classList.remove("open");
+            trigger.setAttribute("aria-expanded", "false");
+        }
+    });
     const actions = element("div", "mod-app-modal-actions");
     actions.append(button("Annuleren", "mod-app-secondary", () => backdrop.remove()));
     const save = element("button", "mod-app-primary", "Opslaan");
@@ -333,7 +351,7 @@ function openMoveDialog(app: App) {
     form.append(label, actions);
     form.addEventListener("submit", (event) => {
         event.preventDefault();
-        app.folderId = select.value || undefined;
+        app.folderId = selectedFolderId || undefined;
         saveApps();
         backdrop.remove();
         renderApps();
@@ -1177,6 +1195,14 @@ html.mod-apps-open body {
 .mod-app-color-preview { width:30px; height:30px; border-radius:7px; border:1px solid #8886; pointer-events:none; }
 .mod-app-color-value { color:var(--mod-app-text); font:inherit; font-weight:600; pointer-events:none; }
 .mod-app-editor-form .mod-app-color-picker input[type="color"] { position:absolute; inset:0; width:100% !important; height:100% !important; opacity:0.01; cursor:pointer; padding:0; }
+.mod-app-folder-picker { position:relative; width:100%; }
+.mod-app-folder-picker-trigger { width:100%; display:flex; align-items:center; justify-content:space-between; padding:13px 16px; border:1px solid var(--border-neutral-normal, #aaa); border-radius:9px; background:var(--mod-app-surface); color:var(--mod-app-text); font:inherit; cursor:pointer; text-align:left; }
+.mod-app-folder-picker-trigger:focus-visible { outline:2px solid var(--mod-app-primary); outline-offset:2px; }
+.mod-app-folder-chevron { font-size:20px; }
+.mod-app-folder-picker-options { display:none; position:absolute; top:calc(100% + 5px); left:0; right:0; max-height:240px; overflow-y:auto; padding:5px; border:1px solid var(--border-neutral-normal, #aaa); border-radius:9px; background:var(--mod-app-surface); box-shadow:0 10px 25px #0003; z-index:100; }
+.mod-app-folder-picker.open .mod-app-folder-picker-options { display:flex; flex-direction:column; }
+.mod-app-folder-picker-option { display:block; width:100%; padding:11px 12px; text-align:left; border:0; border-radius:6px; background:transparent; color:var(--mod-app-text); font:inherit; cursor:pointer; }
+.mod-app-folder-picker-option:hover, .mod-app-folder-picker-option:focus-visible { background:var(--mod-app-hover); }
 .mod-app-create-actions { display:flex; gap:4px; align-items:stretch; }
 .mod-app-create-dropdown { position:relative; }
 .mod-app-create-arrow { height:100%; min-width:40px; }
