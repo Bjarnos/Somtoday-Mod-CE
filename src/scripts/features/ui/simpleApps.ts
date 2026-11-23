@@ -237,21 +237,30 @@ function updateGrid() {
         link.rel = "noopener noreferrer";
         link.append(appIcon(app), element("span", "mod-app-name", app.name));
 
-        const actions = element("div", "mod-app-tile-actions");
-        actions.append(
-            button(app.pinned ? "★" : "☆", "mod-app-pin", () => {
+        const menu = element("div", "mod-app-menu");
+        const menuButton = button("⋮", "mod-app-menu-button", () => {
+            const expanded = menu.classList.toggle("open");
+            menuButton.setAttribute("aria-expanded", String(expanded));
+        });
+        menuButton.setAttribute("aria-label", "App-opties");
+        menuButton.setAttribute("aria-expanded", "false");
+
+        const options = element("div", "mod-app-menu-options");
+        options.append(
+            button(app.pinned ? "Losmaken" : "Vastzetten", "", () => {
                 app.pinned = !app.pinned;
                 saveApps();
                 updateGrid();
             }),
-            button("✎", "mod-app-edit", () => openEditor(app)),
-            button("×", "mod-app-delete", () => {
+            button("Bewerken", "", () => openEditor(app)),
+            button("Verwijderen", "mod-app-danger", () => {
                 currentApps = currentApps.filter((item) => item.id !== app.id);
                 saveApps();
                 updateGrid();
             }),
         );
-        tile.append(link, actions);
+        menu.append(menuButton, options);
+        tile.append(link, menu);
         tile.addEventListener("dragstart", (event) => {
             dragging = app.id;
             event.dataTransfer?.setData("text/plain", app.id);
@@ -290,6 +299,11 @@ function showApps(tab: HTMLElement) {
         const bar = tab.closest("header, nav, sl-tab-bar") ?? tab.parentElement;
         const bottom = bar?.getBoundingClientRect().bottom ?? 80;
         document.documentElement.style.setProperty("--mod-app-header-height", `${Math.max(0, Math.round(bottom))}px`);
+        const header = document.querySelector<HTMLElement>("sl-tab-bar") ?? tab.parentElement;
+        if (header) {
+            header.style.position = "relative";
+            header.style.zIndex = "10002";
+        }
         page.hidden = false;
     }
     renderApps();
@@ -333,6 +347,7 @@ function insertTab() {
     const icon = element("span", "mod-app-nav-icon");
     icon.innerHTML = "<svg viewBox='0 0 24 24' width='20' height='20' fill='currentColor' aria-hidden='true'><rect x='2' y='2' width='8' height='8' rx='1'/><rect x='14' y='2' width='8' height='8' rx='1'/><rect x='2' y='14' width='8' height='8' rx='1'/><rect x='14' y='14' width='8' height='8' rx='1'/></svg>";
     tab.prepend(icon);
+    tab.classList.add("mod-app-nav-tab");
     tab.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -360,13 +375,21 @@ export function simpleApps() {
         styles.textContent = `
 #mod-simple-apps-launcher {
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+#mod-simple-apps-launcher .mod-app-nav-icon {
+    margin-right: 0 !important;
 }
 
 #mod-simple-apps-launcher .mod-app-nav-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-right: 8px;
+    margin-right: 0;
     color: inherit;
 }
 
@@ -401,6 +424,11 @@ html.mod-apps-open body {
 
 @keyframes mod-app-page-enter {
     from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mod-app-card-in {
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -494,8 +522,9 @@ html.mod-apps-open body {
 .mod-app-tile {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
     cursor: grab;
+    animation: mod-app-card-in .24s ease-out both;
 }
 
 .mod-app-tile:hover,
@@ -543,25 +572,68 @@ html.mod-apps-open body {
     object-fit: contain;
 }
 
-.mod-app-tile-actions {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    padding: 4px 8px 12px;
+.mod-app-menu {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
 }
 
-.mod-app-tile-actions button {
+.mod-app-menu-button {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--fg-secondary-normal, #697789);
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.mod-app-menu-button:hover,
+.mod-app-menu.open .mod-app-menu-button {
+    background: var(--bg-secondary-normal, #edf3f8);
+}
+
+.mod-app-menu-options {
+    display: none;
+    position: absolute;
+    top: 34px;
+    right: 0;
+    width: 142px;
+    padding: 5px;
+    border: 1px solid var(--border-default-normal, #dce3eb);
+    border-radius: 9px;
+    background: var(--bg-default-normal, #fff);
+    box-shadow: 0 8px 24px #101d2b20;
+}
+
+.mod-app-menu.open .mod-app-menu-options {
+    display: flex;
+    flex-direction: column;
+    animation: mod-app-modal-enter .15s ease-out;
+}
+
+.mod-app-menu-options button {
     border: 0;
     border-radius: 6px;
     background: transparent;
-    color: var(--fg-secondary-normal, #697789);
+    color: inherit;
+    padding: 9px 10px;
+    text-align: left;
+    font: inherit;
+    font-size: 13px;
     cursor: pointer;
-    padding: 5px 9px;
-    font-size: 17px;
 }
 
-.mod-app-tile-actions button:hover {
+.mod-app-menu-options button:hover {
     background: var(--bg-secondary-normal, #edf3f8);
+}
+
+.mod-app-menu-options .mod-app-danger {
+    color: #bf3333;
 }
 
 .mod-app-add {
