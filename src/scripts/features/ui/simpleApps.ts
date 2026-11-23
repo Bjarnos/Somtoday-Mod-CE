@@ -227,6 +227,22 @@ function openEditor(existing?: App) {
     name.focus();
 }
 
+function closeAppMenus(except?: HTMLElement) {
+    document.querySelectorAll<HTMLElement>(".mod-app-menu.open, .mod-app-create-dropdown.open").forEach((menu) => {
+        if (menu !== except) {
+            menu.classList.remove("open");
+            menu.querySelector("button[aria-expanded]")?.setAttribute("aria-expanded", "false");
+        }
+    });
+}
+
+function toggleAppMenu(menu: HTMLElement) {
+    const wasOpen = menu.classList.contains("open");
+    closeAppMenus();
+    if (!wasOpen) menu.classList.add("open");
+    menu.querySelector("button[aria-expanded]")?.setAttribute("aria-expanded", String(!wasOpen));
+}
+
 function openFolderEditor(existing?: AppFolder) {
     document.getElementById("mod-app-editor")?.remove();
     const backdrop = element("div", "mod-app-backdrop");
@@ -248,7 +264,17 @@ function openFolderEditor(existing?: AppFolder) {
     const color = element("input");
     color.type = "color";
     color.value = existing?.color ?? "#377bd1";
-    colorLabel.append(color);
+    color.setAttribute("aria-label", "Mapkleur kiezen");
+    const colorPreview = element("span", "mod-app-color-preview");
+    colorPreview.style.backgroundColor = color.value;
+    const colorValue = element("span", "mod-app-color-value", color.value.toUpperCase());
+    color.addEventListener("input", () => {
+        colorPreview.style.backgroundColor = color.value;
+        colorValue.textContent = color.value.toUpperCase();
+    });
+    const colorPicker = element("div", "mod-app-color-picker");
+    colorPicker.append(colorPreview, colorValue, color);
+    colorLabel.append(colorPicker);
     const actions = element("div", "mod-app-modal-actions");
     actions.append(button("Annuleren", "mod-app-secondary", () => backdrop.remove()));
     const save = element("button", "mod-app-primary", "Opslaan");
@@ -288,6 +314,7 @@ function openMoveDialog(app: App) {
     const form = element("form", "mod-app-editor-form");
     const label = element("label", "", "Selecteer een map");
     const select = element("select", "mod-app-folder-select");
+    select.setAttribute("aria-label", "Selecteer een map");
     const none = element("option", "", "Geen map");
     none.value = "";
     select.append(none);
@@ -319,7 +346,8 @@ function openMoveDialog(app: App) {
 
 function folderMenu(folder: AppFolder) {
     const menu = element("div", "mod-app-menu");
-    const trigger = button("⋮", "mod-app-menu-button", () => menu.classList.toggle("open"));
+    const trigger = button("⋮", "mod-app-menu-button", () => toggleAppMenu(menu));
+    trigger.setAttribute("aria-expanded", "false");
     trigger.setAttribute("aria-label", "Map-opties");
     const options = element("div", "mod-app-menu-options");
     options.append(
@@ -364,7 +392,8 @@ function renderApps() {
     });
     const create = element("div", "mod-app-create-actions");
     const dropdown = element("div", "mod-app-create-dropdown");
-    const arrow = button("▾", "mod-app-primary mod-app-create-arrow", () => dropdown.classList.toggle("open"));
+    const arrow = button("▾", "mod-app-primary mod-app-create-arrow", () => toggleAppMenu(dropdown));
+    arrow.setAttribute("aria-expanded", "false");
     arrow.setAttribute("aria-label", "Meer toevoegen");
     const choices = element("div", "mod-app-create-options");
     choices.append(button("Map aanmaken", "", () => { dropdown.classList.remove("open"); openFolderEditor(); }));
@@ -418,7 +447,8 @@ function updateGrid() {
             tile.append(opener, folderMenu(folder));
             tile.addEventListener("contextmenu", (event) => {
                 event.preventDefault();
-                tile.querySelector(".mod-app-menu")?.classList.add("open");
+                const menu = tile.querySelector<HTMLElement>(".mod-app-menu");
+                if (menu) { closeAppMenus(); menu.classList.add("open"); }
             });
             grid.append(tile);
         }
@@ -450,8 +480,7 @@ function updateGrid() {
 
         const menu = element("div", "mod-app-menu");
         const menuButton = button("⋮", "mod-app-menu-button", () => {
-            const expanded = menu.classList.toggle("open");
-            menuButton.setAttribute("aria-expanded", String(expanded));
+            toggleAppMenu(menu);
         });
         menuButton.setAttribute("aria-label", "App-opties");
         menuButton.setAttribute("aria-expanded", "false");
@@ -475,9 +504,7 @@ function updateGrid() {
         tile.append(link, menu);
         tile.addEventListener("contextmenu", (event) => {
             event.preventDefault();
-            grid.querySelectorAll(".mod-app-menu.open").forEach((item) => {
-                if (item !== menu) item.classList.remove("open");
-            });
+            closeAppMenus();
             menu.classList.add("open");
             menuButton.setAttribute("aria-expanded", "true");
         });
@@ -938,7 +965,7 @@ html.mod-apps-open body {
     position: absolute;
     top: 34px;
     right: 0;
-    width: 142px;
+    width: 210px;
     padding: 5px;
     border: 1px solid var(--border-neutral-normal, #dce3eb);
     border-radius: 9px;
@@ -1146,6 +1173,10 @@ html.mod-apps-open body {
 }
 
  
+.mod-app-color-picker { position:relative; display:flex; align-items:center; gap:12px; width:max-content; min-height:48px; padding:6px 12px; border:1px solid var(--border-neutral-normal, #aaa); border-radius:10px; background:var(--mod-app-hover); cursor:pointer; }
+.mod-app-color-preview { width:30px; height:30px; border-radius:7px; border:1px solid #8886; pointer-events:none; }
+.mod-app-color-value { color:var(--mod-app-text); font:inherit; font-weight:600; pointer-events:none; }
+.mod-app-editor-form .mod-app-color-picker input[type="color"] { position:absolute; inset:0; width:100% !important; height:100% !important; opacity:0.01; cursor:pointer; padding:0; }
 .mod-app-create-actions { display:flex; gap:4px; align-items:stretch; }
 .mod-app-create-dropdown { position:relative; }
 .mod-app-create-arrow { height:100%; min-width:40px; }
@@ -1161,6 +1192,7 @@ html.mod-apps-open body {
 .mod-app-folder-heading { grid-column:1/-1; display:flex; align-items:center; justify-content:center; gap:16px; position:relative; padding:12px; border-bottom:2px solid var(--mod-folder-color); }
 .mod-app-folder-heading h2 { margin:0; color:var(--mod-app-text); }
 .mod-app-folder-grid { max-width:780px; margin-inline:auto; }
+.mod-app-editor-form select.mod-app-folder-select { appearance:auto !important; -webkit-appearance:menulist !important; display:block !important; opacity:1 !important; visibility:visible !important; cursor:pointer; min-height:46px; }
 .mod-app-folder-select { padding:12px; border:1px solid var(--border-neutral-normal, #aaa); border-radius:8px; background:var(--mod-app-surface); color:var(--mod-app-text); width:100%; }
 .mod-app-hint { display:block; font-weight:400; color:var(--mod-app-muted); }
 .mod-app-editor-form input[type="color"] { width:64px; height:42px; padding:2px; border:1px solid var(--border-neutral-normal, #aaa); background:transparent; border-radius:8px; }
@@ -1242,6 +1274,15 @@ html.mod-apps-open body {
             }
         });
         document.documentElement.dataset.modAppsListener = "true";
+        document.addEventListener("pointerdown", (event) => {
+            const target = event.target;
+            if (target instanceof Element && !target.closest(".mod-app-menu, .mod-app-create-dropdown")) {
+                closeAppMenus();
+            }
+        }, true);
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") closeAppMenus();
+        });
         document.addEventListener("click", (event) => {
             const target = event.target as HTMLElement;
             if (target.closest("sl-tab-item:not(#mod-simple-apps-launcher)")) {
