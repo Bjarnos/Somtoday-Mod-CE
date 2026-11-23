@@ -13,6 +13,8 @@ let currentApps: App[] = [];
 let active = false;
 let searchText = "";
 let dragging: string | null = null;
+let tabObserver: MutationObserver | null = null;
+let tabUpdatePending = false;
 
 function loadApps(): App[] {
     const stored = get(appsKey);
@@ -278,12 +280,16 @@ function updateGrid() {
 
 function showApps(tab: HTMLElement) {
     active = true;
+    document.documentElement.classList.add("mod-apps-open");
     document.querySelectorAll("sl-tab-item.active").forEach((item) => {
         item.classList.remove("active");
     });
     tab.classList.add("active");
     const page = document.getElementById("mod-app-page");
     if (page) {
+        const bar = tab.closest("header, nav, sl-tab-bar") ?? tab.parentElement;
+        const bottom = bar?.getBoundingClientRect().bottom ?? 80;
+        document.documentElement.style.setProperty("--mod-app-header-height", `${Math.max(0, Math.round(bottom))}px`);
         page.hidden = false;
     }
     renderApps();
@@ -294,18 +300,21 @@ function hideApps() {
         return;
     }
     active = false;
+    document.documentElement.classList.remove("mod-apps-open");
     document.getElementById("mod-app-page")?.setAttribute("hidden", "");
     document.getElementById("mod-simple-apps-launcher")?.classList.remove("active");
     document.getElementById("mod-app-editor")?.remove();
 }
 
 function insertTab() {
-    if (document.getElementById("mod-simple-apps-launcher")) {
-        return;
-    }
     const existing = Array.from(document.querySelectorAll("sl-tab-item"))
         .find((tab) => tab.textContent?.trim().includes("Berichten"));
     const reference = existing ?? document.querySelector("sl-tab-item:last-of-type");
+    const currentTab = document.getElementById("mod-simple-apps-launcher");
+    if (currentTab && currentTab.parentElement === reference?.parentElement) {
+        return;
+    }
+    currentTab?.remove();
     if (!reference?.parentElement) {
         return;
     }
@@ -330,11 +339,16 @@ function insertTab() {
         showApps(tab);
     });
     reference.insertAdjacentElement("afterend", tab);
+    if (active) {
+        tab.classList.add("active");
+    }
 }
 
 export function simpleApps() {
     const enabled = get("appsEnabled");
     if (enabled === false || enabled === "false") {
+        tabObserver?.disconnect();
+        tabObserver = null;
         hideApps();
         document.getElementById("mod-simple-apps-launcher")?.remove();
         document.getElementById("mod-app-page")?.remove();
@@ -362,15 +376,37 @@ export function simpleApps() {
 
 #mod-app-page {
     position: fixed;
-    inset: 80px 0 0;
-    z-index: 50;
+    top: var(--mod-app-header-height, 80px);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 9990;
+    isolation: isolate;
+    pointer-events: auto;
     overflow-y: auto;
+    overscroll-behavior: contain;
     background: var(--bg-default-normal, #fff);
+    animation: mod-app-page-enter .22s ease-out both;
     color: var(--fg-primary-normal, #263442);
 }
 
 #mod-app-page[hidden] {
     display: none;
+}
+
+html.mod-apps-open,
+html.mod-apps-open body {
+    overflow: hidden !important;
+}
+
+@keyframes mod-app-page-enter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mod-app-modal-enter {
+    from { opacity: 0; transform: translateY(12px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .mod-app-content {
@@ -452,7 +488,7 @@ export function simpleApps() {
     border-radius: 12px;
     background: var(--bg-default-normal, #fff);
     color: inherit;
-    transition: border-color .15s, box-shadow .15s, transform .15s;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
 
 .mod-app-tile {
@@ -566,6 +602,7 @@ export function simpleApps() {
     background: var(--bg-default-normal, #fff);
     color: var(--fg-primary-normal, #263442);
     box-shadow: 0 20px 70px #101d2b30;
+    animation: mod-app-modal-enter .2s ease-out both;
 }
 
 .mod-app-modal-header {
@@ -702,7 +739,7 @@ export function simpleApps() {
 
 @media (max-width: 600px) {
     #mod-app-page {
-        top: 72px;
+        top: var(--mod-app-header-height, 72px);
     }
 
     .mod-app-content {
@@ -736,6 +773,23 @@ export function simpleApps() {
         currentApps = loadApps();
     }
     insertTab();
+
+    if (!tabObserver) {
+        tabObserver = new MutationObserver(() => {
+            if (tabUpdatePending) {
+                return;
+            }
+            tabUpdatePending = true;
+            requestAnimationFrame(() => {
+                tabUpdatePending = false;
+                insertTab();
+            });
+        });
+        tabObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
 
     if (!document.documentElement.dataset.modAppsListener) {
         document.documentElement.dataset.modAppsListener = "true";
