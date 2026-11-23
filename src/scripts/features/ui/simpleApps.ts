@@ -62,9 +62,21 @@ function button(text: string, className: string, callback: () => void) {
 }
 
 function validUrl(input: string): string | null {
+    const value = input.trim();
+    if (!value || /\\s/.test(value)) {
+        return null;
+    }
+
+    const address = /^[a-z][a-z\\d+.-]*:\/\//i.test(value)
+        ? value
+        : `https://${value}`;
+
     try {
-        const url = new URL(input.trim());
-        if (url.protocol === "https:" || url.protocol === "http:") {
+        const url = new URL(address);
+        if (
+            (url.protocol === "https:" || url.protocol === "http:") &&
+            url.hostname.includes(".")
+        ) {
             return url.href;
         }
     } catch {
@@ -112,8 +124,9 @@ function openEditor(existing?: App) {
     const urlLabel = element("label", "", "Website");
     const url = element("input");
     url.required = true;
-    url.type = "url";
-    url.placeholder = "https://voorbeeld.nl";
+    url.type = "text";
+    url.inputMode = "url";
+    url.placeholder = "www.voorbeeld.nl";
     url.value = existing?.url ?? "";
     urlLabel.append(url);
 
@@ -146,6 +159,9 @@ function openEditor(existing?: App) {
     form.addEventListener("submit", (event) => {
         event.preventDefault();
         const address = validUrl(url.value);
+        if (address) {
+            url.value = address;
+        }
         const image = icon.value.trim() ? validUrl(icon.value) : "";
         if (!address || image === null) {
             error.textContent = "Controleer de website en de afbeelding-URL.";
