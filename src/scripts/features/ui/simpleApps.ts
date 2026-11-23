@@ -328,6 +328,7 @@ function showApps(tab: HTMLElement) {
         item.classList.remove("active");
     });
     tab.classList.add("active");
+    tab.setAttribute("aria-selected", "true");
     const page = document.getElementById("mod-app-page");
     if (page) {
         updatePageOffset(tab);
@@ -343,7 +344,9 @@ function hideApps() {
     active = false;
     document.documentElement.classList.remove("mod-apps-open");
     document.getElementById("mod-app-page")?.setAttribute("hidden", "");
-    document.getElementById("mod-simple-apps-launcher")?.classList.remove("active");
+    const appsTab = document.getElementById("mod-simple-apps-launcher");
+    appsTab?.classList.remove("active");
+    appsTab?.setAttribute("aria-selected", "false");
     document.getElementById("mod-app-editor")?.remove();
 }
 
@@ -377,6 +380,7 @@ function insertTab() {
     reference.insertAdjacentElement("afterend", tab);
     if (active) {
         tab.classList.add("active");
+        tab.setAttribute("aria-selected", "true");
     }
 }
 
@@ -402,6 +406,24 @@ export function simpleApps() {
     justify-content: center;
     gap: 8px;
     cursor: pointer;
+    position: relative;
+}
+
+#mod-simple-apps-launcher.active,
+#mod-simple-apps-launcher.active .mod-app-nav-label,
+#mod-simple-apps-launcher.active .mod-app-nav-icon {
+    color: var(--fg-primary-normal, #006bc9) !important;
+}
+
+#mod-simple-apps-launcher.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #f59b21;
+    pointer-events: none;
 }
 
 #mod-simple-apps-launcher .mod-app-nav-icon {
@@ -427,7 +449,7 @@ export function simpleApps() {
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 9990;
+    z-index: 10;
     isolation: isolate;
     pointer-events: auto;
     overflow-y: auto;
@@ -444,8 +466,18 @@ export function simpleApps() {
 html.mod-apps-open sl-header,
 html.mod-apps-open sl-topbar,
 html.mod-apps-open header:has(sl-tab-item),
-html.mod-apps-open nav:has(sl-tab-item) {
-    z-index: 10000;
+html.mod-apps-open nav:has(sl-tab-item),
+html.mod-apps-open #mod-top-menu {
+    position: relative;
+    z-index: 30;
+}
+
+html.mod-apps-open .menu-avatar,
+html.mod-apps-open .selector-options,
+html.mod-apps-open .selector-option,
+html.mod-apps-open [role="menu"],
+html.mod-apps-open [role="listbox"] {
+    z-index: 40;
 }
 
 html.mod-apps-open,
