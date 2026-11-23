@@ -474,6 +474,13 @@ export function openSettings() {
                     true,
                 ) +
                 addSetting(
+                    "Apps-pagina",
+                    "Toon Apps in het hoofdmenu.",
+                    "appsEnabled",
+                    "checkbox",
+                    true,
+                ) +
+                addSetting(
                     "Verberg bericht teller",
                     "Verberg het tellertje dat het aantal ongelezen berichten aangeeft.",
                     "bools02",
@@ -1705,7 +1712,9 @@ async function save() {
         set("fontname", id("mod-font-select").value);
     }
     for (const element of cn("mod-custom-setting")) {
-        if (element.type == "checkbox" && element.id.indexOf("bools") != -1) {
+        if (element.id === "appsEnabled") {
+            set("appsEnabled", element.checked);
+        } else if (element.type == "checkbox" && element.id.indexOf("bools") != -1) {
             set(
                 "bools",
                 get("bools").replaceAt(
