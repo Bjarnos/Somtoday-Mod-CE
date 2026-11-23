@@ -7,6 +7,7 @@ type SavedApp = {
 const STORAGE_KEY = "somtoday-mod-simple-apps";
 let appsPanelOpen = false;
 let draggedId: string | null = null;
+let previousTab: HTMLElement | null = null;
 
 function readApps(): SavedApp[] {
     try {
@@ -41,13 +42,14 @@ function renderApps() {
         return;
     }
     panel.replaceChildren();
+    const search = document.createElement("input");
+    search.type = "search";
+    search.placeholder = "Apps zoeken...";
+    search.className = "mod-app-search";
     const header = document.createElement("header");
     const heading = document.createElement("h2");
     heading.textContent = "Apps";
-    header.append(heading, createButton("✕", "Sluiten", () => {
-        appsPanelOpen = false;
-        renderApps();
-    }));
+    header.append(heading);
     panel.append(header);
     if (!appsPanelOpen) {
         panel.hidden = true;
@@ -91,13 +93,14 @@ function renderApps() {
         saveApps(apps);
         renderApps();
     });
-    panel.append(form);
+    panel.append(form, search);
     const grid = document.createElement("div");
     grid.className = "mod-app-grid";
     const apps = readApps().sort((a, b) => Number(b.pinned) - Number(a.pinned));
     for (const app of apps) {
         const tile = document.createElement("div");
         tile.className = "mod-app-tile";
+        tile.dataset.name = app.name.toLocaleLowerCase();
         tile.draggable = true;
         tile.addEventListener("dragstart", (event) => {
             draggedId = app.id;
@@ -154,10 +157,21 @@ function renderApps() {
         grid.append(empty);
     }
     panel.append(grid);
+    search.addEventListener("input", () => {
+        const query = search.value.toLocaleLowerCase();
+        for (const tile of grid.querySelectorAll<HTMLElement>(".mod-app-tile")) {
+            tile.hidden = !tile.dataset.name?.includes(query);
+        }
+    });
 }
 
 export function simpleApps() {
     if (document.getElementById("mod-simple-apps-launcher")) {
+        return;
+    }
+    if (localStorage.getItem("somtoday-mod-apps-enabled") === "false") {
+        document.getElementById("mod-simple-apps-launcher")?.remove();
+        document.getElementById("mod-simple-apps-panel")?.remove();
         return;
     }
     const style = document.createElement("style");
@@ -180,11 +194,15 @@ export function simpleApps() {
 
 #mod-simple-apps-panel {
     position:fixed;
-    inset:8% max(16px,calc((100vw - 900px)/2));
+    top:88px;
+    left:0;
+    right:0;
+    bottom:0;
+    width:100%;
     z-index:10001;
     overflow:auto;
-    border-radius:18px;
-    padding:24px;
+    border-radius:0;
+    padding:40px max(24px, calc((100vw - 950px) / 2));
     background:var(--bg-default-normal,#fff);
     color:var(--fg-primary-normal,#222);
     box-shadow:0 15px 65px #0005
@@ -270,7 +288,8 @@ export function simpleApps() {
 
 @media(max-width:600px) {
     #mod-simple-apps-panel {
-    inset:10px;
+    inset:88px 0 0;
+    padding:16px;
     padding:16px
 }
 #mod-simple-apps-launcher {
@@ -283,7 +302,11 @@ export function simpleApps() {
 `;
     document.head.append(style);
     const launcher = createButton("▦ Apps", "Apps openen", () => {
-        appsPanelOpen = !appsPanelOpen;
+        appsPanelOpen = true;
+        document.querySelectorAll("sl-tab-item.active").forEach((tab) => {
+            tab.classList.remove("active");
+        });
+        launcher.classList.add("active");
         renderApps();
     });
     launcher.id = "mod-simple-apps-launcher";
@@ -291,5 +314,25 @@ export function simpleApps() {
     panel.id = "mod-simple-apps-panel";
     panel.hidden = true;
     panel.setAttribute("aria-label", "Mijn apps");
-    document.body.append(launcher, panel);
+    const tabs = document.querySelector("sl-tab-item");
+    const tabContainer = tabs?.parentElement;
+    if (tabs && tabContainer) {
+        launcher.className = tabs.className;
+        launcher.classList.remove("active");
+        launcher.style.cssText = "display:inline-flex;align-items:center;gap:8px;cursor:pointer;";
+        tabContainer.append(launcher);
+    } else {
+        launcher.classList.add("mod-app-fallback");
+        document.body.append(launcher);
+    }
+    document.body.append(panel);
+
+    document.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest("sl-tab-item") && !target.closest("#mod-simple-apps-launcher")) {
+            appsPanelOpen = false;
+            launcher.classList.remove("active");
+            renderApps();
+        }
+    });
 }
