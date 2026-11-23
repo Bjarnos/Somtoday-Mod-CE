@@ -396,37 +396,29 @@ export function simpleApps() {
         styles.id = "mod-app-styles";
         styles.textContent = `
 #mod-simple-apps-launcher {
-    cursor: pointer;
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
     justify-content: center;
     gap: 8px;
-}
-
-#mod-simple-apps-launcher .mod-app-nav-icon {
-    display: inline-flex;
-    flex: 0 0 auto;
-}
-
-#mod-simple-apps-launcher .mod-app-nav-icon + span {
-    display: inline-block;
-}
-
-#mod-simple-apps-launcher .mod-app-nav-icon {
-    margin-right: 0 !important;
+    cursor: pointer;
 }
 
 #mod-simple-apps-launcher .mod-app-nav-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-right: 0;
+    flex: 0 0 auto;
     color: inherit;
 }
 
 #mod-simple-apps-launcher .mod-app-nav-icon svg {
     display: block;
+}
+
+#mod-simple-apps-launcher .mod-app-nav-label {
+    display: inline-block;
+    white-space: nowrap;
 }
 
 #mod-app-page {
