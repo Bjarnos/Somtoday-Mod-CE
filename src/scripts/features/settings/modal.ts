@@ -474,8 +474,8 @@ export function openSettings() {
                     true,
                 ) +
                 addSetting(
-                    "Apps-pagina",
-                    "Toon Apps in het hoofdmenu.",
+                    "Apps",
+                    "Toon de Apps-pagina in de bovenste menubalk.",
                     "appsEnabled",
                     "checkbox",
                     true,
