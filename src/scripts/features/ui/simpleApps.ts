@@ -312,6 +312,15 @@ function updateGrid() {
     }
 }
 
+function updatePageOffset(tab: HTMLElement) {
+    const root = tab.closest("sl-tab-bar, nav, header");
+    const bottom = root?.getBoundingClientRect().bottom ?? tab.getBoundingClientRect().bottom;
+    document.documentElement.style.setProperty(
+        "--mod-app-header-height",
+        `${Math.max(0, Math.round(bottom))}px`,
+    );
+}
+
 function showApps(tab: HTMLElement) {
     active = true;
     document.documentElement.classList.add("mod-apps-open");
@@ -321,10 +330,7 @@ function showApps(tab: HTMLElement) {
     tab.classList.add("active");
     const page = document.getElementById("mod-app-page");
     if (page) {
-        const bar = tab.closest("header, nav, sl-tab-bar") ?? tab.parentElement;
-        const bottom = bar?.getBoundingClientRect().bottom ?? 80;
-        document.documentElement.style.setProperty("--mod-app-header-height", `${Math.max(0, Math.round(bottom))}px`);
-        document.documentElement.classList.add("mod-apps-open");
+        updatePageOffset(tab);
         page.hidden = false;
     }
     renderApps();
@@ -346,7 +352,7 @@ function insertTab() {
         .find((tab) => tab.textContent?.trim().includes("Berichten"));
     const reference = existing ?? document.querySelector("sl-tab-item:last-of-type");
     const currentTab = document.getElementById("mod-simple-apps-launcher");
-    if (currentTab && currentTab.parentElement === reference?.parentElement) {
+    if (currentTab && currentTab.parentElement === reference?.parentElement && currentTab.previousElementSibling === reference) {
         return;
     }
     currentTab?.remove();
@@ -357,17 +363,11 @@ function insertTab() {
     tab.id = "mod-simple-apps-launcher";
     tab.classList.remove("active");
     tab.removeAttribute("aria-selected");
-    const label = tab.querySelector("span");
-    if (label) {
-        label.textContent = "Apps";
-    } else {
-        tab.textContent = "Apps";
-    }
-    const oldIcon = tab.querySelector("svg, i");
-    oldIcon?.remove();
+    tab.replaceChildren();
+    const label = element("span", "mod-app-nav-label", "Apps");
     const icon = element("span", "mod-app-nav-icon");
     icon.innerHTML = "<svg viewBox='0 0 24 24' width='20' height='20' fill='currentColor' aria-hidden='true'><rect x='2' y='2' width='8' height='8' rx='1'/><rect x='14' y='2' width='8' height='8' rx='1'/><rect x='2' y='14' width='8' height='8' rx='1'/><rect x='14' y='14' width='8' height='8' rx='1'/></svg>";
-    tab.prepend(icon);
+    tab.append(icon, label);
     tab.classList.add("mod-app-nav-tab");
     tab.addEventListener("click", (event) => {
         event.preventDefault();
@@ -453,7 +453,6 @@ html.mod-apps-open sl-header,
 html.mod-apps-open sl-topbar,
 html.mod-apps-open header:has(sl-tab-item),
 html.mod-apps-open nav:has(sl-tab-item) {
-    position: relative;
     z-index: 10000;
 }
 
@@ -463,8 +462,8 @@ html.mod-apps-open body {
 }
 
 @keyframes mod-app-page-enter {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @keyframes mod-app-card-in {
@@ -899,6 +898,12 @@ html.mod-apps-open body {
                     return;
                 }
                 insertTab();
+                if (active) {
+                    const tab = document.getElementById("mod-simple-apps-launcher");
+                    if (tab) {
+                        updatePageOffset(tab);
+                    }
+                }
             });
         });
         tabObserver.observe(document.body, {
