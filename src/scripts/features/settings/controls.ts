@@ -62,7 +62,7 @@ export function addSetting(
     param5?: any,
     param6?: any,
 ) {
-    if (get(key) == null && !key.startsWith("bools")) {
+    if ((get(key) == null || (key === "appsEnabled" && get(key) === "")) && !key.startsWith("bools")) {
         set(key, value);
     }
     let code =
