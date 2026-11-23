@@ -676,7 +676,7 @@ export function openSettings() {
                     "appsEnabled",
                     "checkbox",
                     true,
-                )  ,
+                ),
             "{{browser_settings}}":
                 addSetting(
                     "Titel",
