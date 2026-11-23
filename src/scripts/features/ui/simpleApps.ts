@@ -238,6 +238,12 @@ function updateGrid() {
         const tile = element("div", "mod-app-tile");
         tile.draggable = true;
         tile.dataset.appId = app.id;
+        if (app.pinned) {
+            tile.classList.add("mod-app-pinned");
+            const pin = element("span", "mod-app-pinned-label", "★ Vastgezet");
+            pin.title = "Deze app is vastgezet";
+            tile.append(pin);
+        }
         const link = element("a", "mod-app-link");
         link.href = app.url;
         link.target = "_blank";
@@ -588,6 +594,27 @@ html.mod-apps-open body {
     overflow: visible;
     cursor: grab;
     animation: mod-app-card-in .24s ease-out both;
+}
+
+.mod-app-tile.mod-app-pinned {
+    border-color: #7cb4ee;
+    background: linear-gradient(180deg, #eaf4ff 0%, var(--bg-default-normal, #fff) 55%);
+}
+
+.mod-app-pinned-label {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #d9ebff;
+    color: #075ca8;
+    font-size: 11px;
+    font-weight: 700;
+    pointer-events: none;
 }
 
 .mod-app-tile:hover,
