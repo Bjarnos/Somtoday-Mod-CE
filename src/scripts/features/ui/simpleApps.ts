@@ -122,11 +122,14 @@ function openEditor(existing?: App) {
     icon.value = existing?.icon ?? "";
     iconLabel.append(icon);
 
-    const pinnedLabel = element("label", "mod-app-pin-label", "Vastzetten");
+    const pinnedLabel = element("label", "mod-app-pin-label");
+    const pinText = element("span", "", "Vastzetten");
     const pinned = element("input");
     pinned.type = "checkbox";
     pinned.checked = existing?.pinned ?? false;
-    pinnedLabel.prepend(pinned);
+    const pinSwitch = element("span", "mod-app-switch");
+    pinSwitch.append(pinned, element("span", "mod-app-switch-track"));
+    pinnedLabel.append(pinText, pinSwitch);
 
     const error = element("p", "mod-app-error");
     const actions = element("div", "mod-app-modal-actions");
@@ -184,9 +187,8 @@ function renderApps() {
     const content = element("div", "mod-app-content");
     const title = element("div", "mod-app-heading");
     title.append(
-        element("div", "mod-app-eyebrow", "SOMTODAY MOD"),
         element("h1", "", "Apps"),
-        element("p", "", "Voeg je eigen links toe."),
+        element("p", "", "Al je favoriete websites op één plek."),
     );
 
     const toolbar = element("div", "mod-app-toolbar");
@@ -201,7 +203,7 @@ function renderApps() {
     });
     toolbar.append(
         search,
-        button("+ Ontdek apps", "mod-app-primary", () => openEditor()),
+        button("+ App toevoegen", "mod-app-primary", () => openEditor()),
     );
     const grid = element("div", "mod-app-grid");
     grid.id = "mod-app-grid";
@@ -319,7 +321,8 @@ function insertTab() {
     }
     const oldIcon = tab.querySelector("svg, i");
     oldIcon?.remove();
-    const icon = element("span", "mod-app-nav-icon", "▦");
+    const icon = element("span", "mod-app-nav-icon");
+    icon.innerHTML = "<svg viewBox='0 0 24 24' width='20' height='20' fill='currentColor' aria-hidden='true'><rect x='2' y='2' width='8' height='8' rx='1'/><rect x='14' y='2' width='8' height='8' rx='1'/><rect x='2' y='14' width='8' height='8' rx='1'/><rect x='14' y='14' width='8' height='8' rx='1'/></svg>";
     tab.prepend(icon);
     tab.addEventListener("click", (event) => {
         event.preventDefault();
@@ -332,6 +335,7 @@ function insertTab() {
 export function simpleApps() {
     const enabled = get("appsEnabled");
     if (enabled === false || enabled === "false") {
+        hideApps();
         document.getElementById("mod-simple-apps-launcher")?.remove();
         document.getElementById("mod-app-page")?.remove();
         return;
@@ -340,41 +344,384 @@ export function simpleApps() {
         const styles = element("style");
         styles.id = "mod-app-styles";
         styles.textContent = `
-#mod-simple-apps-launcher { cursor: pointer; }
-#mod-simple-apps-launcher .mod-app-nav-icon { font-size: 20px; margin-right: 8px; }
-#mod-app-page { position: fixed; inset: 88px 0 0; z-index: 50; overflow: auto; background: var(--bg-default-normal, #fff); color: var(--fg-primary-normal, #20242b); }
-#mod-app-page[hidden] { display: none; }
-.mod-app-content { max-width: 1020px; margin: 0 auto; padding: 42px 24px 80px; }
-.mod-app-eyebrow { color: #64748b; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
-.mod-app-heading h1 { font-size: 30px; margin: 6px 0; }
-.mod-app-heading p { margin: 0; color: #64748b; }
-.mod-app-toolbar { display: flex; gap: 12px; margin: 26px 0; }
-.mod-app-search { flex: 1; min-width: 0; border: 1px solid #d4dce5; border-radius: 8px; padding: 11px 14px; font: inherit; background: var(--bg-default-normal, #fff); color: inherit; }
-.mod-app-primary { background: #0069c7; color: white; border: 0; border-radius: 7px; padding: 11px 17px; cursor: pointer; font: inherit; }
-.mod-app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 14px; }
-.mod-app-tile, .mod-app-add { min-height: 150px; border: 1px solid #dbe1e8; border-radius: 10px; background: var(--bg-default-normal, #fff); color: inherit; }
-.mod-app-tile { position: relative; display: flex; flex-direction: column; cursor: grab; }
-.mod-app-link { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; padding: 14px; color: inherit; text-decoration: none; text-align: center; }
-.mod-app-name { font-size: 13px; overflow-wrap: anywhere; }
-.mod-app-icon { width: 48px; height: 48px; border-radius: 11px; display: grid; place-items: center; font-size: 25px; font-weight: 700; background: #e8f2ff; color: #0069c7; overflow: hidden; }
-.mod-app-icon img { width: 100%; height: 100%; object-fit: contain; }
-.mod-app-tile-actions { display: flex; justify-content: flex-end; gap: 3px; padding: 0 7px 7px; }
-.mod-app-tile-actions button { border: 0; background: transparent; color: #64748b; cursor: pointer; padding: 5px; }
-.mod-app-add { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; cursor: pointer; color: #0069c7; font-size: 26px; }
-.mod-app-add span { font-size: 12px; color: #475569; }
-.mod-app-backdrop { position: fixed; inset: 0; z-index: 10010; background: #17233488; display: grid; place-items: center; padding: 18px; }
-.mod-app-modal { width: min(100%, 460px); max-height: 90vh; overflow: auto; background: var(--bg-default-normal, #fff); color: var(--fg-primary-normal, #222); border-radius: 14px; padding: 24px; box-shadow: 0 18px 70px #0003; }
-.mod-app-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.mod-app-modal-header h2 { margin: 0; font-size: 22px; }
-.mod-app-close { background: transparent; border: 0; font-size: 26px; cursor: pointer; color: inherit; }
-.mod-app-editor-form { display: flex; flex-direction: column; gap: 16px; }
-.mod-app-editor-form label { display: flex; flex-direction: column; gap: 7px; font-size: 14px; }
-.mod-app-editor-form input:not([type=checkbox]) { border: 1px solid #d4dce5; border-radius: 7px; padding: 11px; font: inherit; background: transparent; color: inherit; }
-.mod-app-editor-form .mod-app-pin-label { flex-direction: row; align-items: center; }
-.mod-app-modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-.mod-app-secondary { border: 1px solid #d4dce5; border-radius: 7px; background: transparent; color: inherit; padding: 10px 16px; cursor: pointer; }
-.mod-app-error { color: #c92a2a; margin: 0; }
-@media (max-width: 600px) { #mod-app-page { top: 72px; } .mod-app-content { padding: 24px 16px; } .mod-app-toolbar { flex-direction: column; } .mod-app-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+#mod-simple-apps-launcher {
+    cursor: pointer;
+}
+
+#mod-simple-apps-launcher .mod-app-nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    color: inherit;
+}
+
+#mod-simple-apps-launcher .mod-app-nav-icon svg {
+    display: block;
+}
+
+#mod-app-page {
+    position: fixed;
+    inset: 80px 0 0;
+    z-index: 50;
+    overflow-y: auto;
+    background: var(--bg-default-normal, #fff);
+    color: var(--fg-primary-normal, #263442);
+}
+
+#mod-app-page[hidden] {
+    display: none;
+}
+
+.mod-app-content {
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 48px 28px 90px;
+}
+
+.mod-app-heading h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 650;
+    color: inherit;
+}
+
+.mod-app-heading p {
+    margin: 0;
+    color: var(--fg-secondary-normal, #66758a);
+    font-size: 15px;
+}
+
+.mod-app-toolbar {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    margin: 30px 0 25px;
+}
+
+.mod-app-search,
+.mod-app-editor-form input:not([type="checkbox"]) {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    border: 1px solid var(--border-default-normal, #d3dce6);
+    border-radius: 8px;
+    background: var(--bg-default-normal, #fff);
+    color: inherit;
+    font: inherit;
+    outline: none;
+    padding: 12px 14px;
+}
+
+.mod-app-search {
+    flex: 1;
+}
+
+.mod-app-search:focus,
+.mod-app-editor-form input:focus {
+    border-color: #006bc9;
+    box-shadow: 0 0 0 3px #006bc91a;
+}
+
+.mod-app-primary {
+    border: 0;
+    border-radius: 8px;
+    background: var(--bg-primary-normal, #006bc9);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 12px 20px;
+    white-space: nowrap;
+}
+
+.mod-app-primary:hover {
+    filter: brightness(1.08);
+}
+
+.mod-app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 18px;
+}
+
+.mod-app-tile,
+.mod-app-add {
+    min-height: 170px;
+    border: 1px solid var(--border-default-normal, #dce3eb);
+    border-radius: 12px;
+    background: var(--bg-default-normal, #fff);
+    color: inherit;
+    transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+
+.mod-app-tile {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: grab;
+}
+
+.mod-app-tile:hover,
+.mod-app-add:hover {
+    border-color: #92b9e4;
+    box-shadow: 0 5px 18px #17334b13;
+    transform: translateY(-2px);
+}
+
+.mod-app-link {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 18px 12px 8px;
+    color: inherit;
+    text-align: center;
+    text-decoration: none;
+}
+
+.mod-app-name {
+    font-size: 14px;
+    font-weight: 550;
+    overflow-wrap: anywhere;
+}
+
+.mod-app-icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: #e6f2ff;
+    color: #006bc9;
+    font-size: 28px;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.mod-app-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.mod-app-tile-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 4px 8px 12px;
+}
+
+.mod-app-tile-actions button {
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--fg-secondary-normal, #697789);
+    cursor: pointer;
+    padding: 5px 9px;
+    font-size: 17px;
+}
+
+.mod-app-tile-actions button:hover {
+    background: var(--bg-secondary-normal, #edf3f8);
+}
+
+.mod-app-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #006bc9;
+    cursor: pointer;
+    font-size: 30px;
+}
+
+.mod-app-add span {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.mod-app-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10010;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: #182b3c80;
+    backdrop-filter: blur(3px);
+}
+
+.mod-app-modal {
+    box-sizing: border-box;
+    width: min(100%, 500px);
+    max-height: min(90vh, 760px);
+    overflow-y: auto;
+    border: 1px solid var(--border-default-normal, #e1e6ec);
+    border-radius: 16px;
+    padding: 28px;
+    background: var(--bg-default-normal, #fff);
+    color: var(--fg-primary-normal, #263442);
+    box-shadow: 0 20px 70px #101d2b30;
+}
+
+.mod-app-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 26px;
+}
+
+.mod-app-modal-header h2 {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 650;
+}
+
+.mod-app-close {
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 25px;
+    padding: 2px 10px;
+}
+
+.mod-app-close:hover {
+    background: var(--bg-secondary-normal, #eef2f6);
+}
+
+.mod-app-editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mod-app-editor-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mod-app-editor-form input:not([type="checkbox"]) {
+    font-weight: 400;
+}
+
+.mod-app-editor-form .mod-app-pin-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+}
+
+.mod-app-switch {
+    position: relative;
+    display: inline-flex;
+    width: 52px;
+    height: 28px;
+}
+
+.mod-app-switch input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    margin: 0;
+    z-index: 1;
+}
+
+.mod-app-switch-track {
+    width: 52px;
+    height: 28px;
+    border-radius: 30px;
+    background: #b7c4d0;
+    transition: background .2s;
+}
+
+.mod-app-switch-track::after {
+    content: "";
+    display: block;
+    width: 22px;
+    height: 22px;
+    margin: 3px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px #0002;
+    transition: transform .2s;
+}
+
+.mod-app-switch input:checked + .mod-app-switch-track {
+    background: #006bc9;
+}
+
+.mod-app-switch input:checked + .mod-app-switch-track::after {
+    transform: translateX(24px);
+}
+
+.mod-app-switch input:focus-visible + .mod-app-switch-track {
+    outline: 3px solid #6ab1ff;
+    outline-offset: 2px;
+}
+
+.mod-app-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-default-normal, #e4eaf0);
+}
+
+.mod-app-secondary {
+    border: 1px solid var(--border-default-normal, #d3dce6);
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    padding: 11px 17px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.mod-app-error {
+    margin: 0;
+    color: #c92a2a;
+    font-size: 13px;
+}
+
+.mod-app-error:empty {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    #mod-app-page {
+        top: 72px;
+    }
+
+    .mod-app-content {
+        padding: 28px 16px 60px;
+    }
+
+    .mod-app-toolbar {
+        flex-direction: column;
+    }
+
+    .mod-app-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .mod-app-modal {
+        padding: 22px;
+    }
+}
 `;
         document.head.append(styles);
     }
