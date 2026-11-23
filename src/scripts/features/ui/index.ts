@@ -5,3 +5,4 @@ export * from "./roster";
 export * from "./teacherNicknames";
 export * from "./topMenu";
 export * from "./userName";
+export * from "./simpleApps";
