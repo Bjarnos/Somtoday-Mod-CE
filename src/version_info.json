@@ -1,10 +1,11 @@
 {
-    "version": "6.0.0",
-    "last_update": "04-11-2026",
+    "version": "6.1.0",
+    "last_update": "23-11-2026",
     "version_type": "release",
-    "version_name": "6.0.0",
+    "version_name": "6.1.0",
     "contributors": {
         "Bjarnos": "https://avatars.githubusercontent.com/u/137303555?s=64&v=4",
+        "Cozynxis": "https://avatars.githubusercontent.com/u/232578454?s=64&v=4",
         "Jona-Zwetsloot": "https://avatars.githubusercontent.com/u/170928581?s=64&v=4",
         "levkris": "https://avatars.githubusercontent.com/u/105733478?s=64&v=4",
         "compiledkernel-idk": "https://avatars.githubusercontent.com/u/220610112?s=64&v=4",
