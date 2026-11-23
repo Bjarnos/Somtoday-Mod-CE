@@ -474,13 +474,6 @@ export function openSettings() {
                     true,
                 ) +
                 addSetting(
-                    "Apps",
-                    "Toon de Apps-pagina in de bovenste menubalk.",
-                    "appsEnabled",
-                    "checkbox",
-                    true,
-                ) +
-                addSetting(
                     "Verberg bericht teller",
                     "Verberg het tellertje dat het aantal ongelezen berichten aangeeft.",
                     "bools02",
@@ -676,7 +669,14 @@ export function openSettings() {
                     "bools16",
                     "checkbox",
                     true,
-                ),
+                ) +
+                addSetting(
+                    "Apps",
+                    "Toon de Apps-pagina in de bovenste menubalk.",
+                    "appsEnabled",
+                    "checkbox",
+                    true,
+                )  ,
             "{{browser_settings}}":
                 addSetting(
                     "Titel",
