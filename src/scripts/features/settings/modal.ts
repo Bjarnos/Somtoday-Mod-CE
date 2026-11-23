@@ -1714,6 +1714,7 @@ async function save() {
     for (const element of cn("mod-custom-setting")) {
         if (element.id === "appsEnabled") {
             set("appsEnabled", element.checked);
+            window.dispatchEvent(new Event("somtoday-mod-apps-setting-changed"));
         } else if (element.type == "checkbox" && element.id.indexOf("bools") != -1) {
             set(
                 "bools",
