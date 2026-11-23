@@ -299,10 +299,11 @@ function showApps(tab: HTMLElement) {
         const bar = tab.closest("header, nav, sl-tab-bar") ?? tab.parentElement;
         const bottom = bar?.getBoundingClientRect().bottom ?? 80;
         document.documentElement.style.setProperty("--mod-app-header-height", `${Math.max(0, Math.round(bottom))}px`);
-        const header = document.querySelector<HTMLElement>("sl-tab-bar") ?? tab.parentElement;
-        if (header) {
-            header.style.position = "relative";
-            header.style.zIndex = "10002";
+        const navigation = tab.closest<HTMLElement>("header, nav, sl-tab-bar");
+        const topbar = navigation ?? tab.parentElement?.parentElement;
+        if (topbar instanceof HTMLElement) {
+            topbar.style.position = "relative";
+            topbar.style.zIndex = "10002";
         }
         page.hidden = false;
     }
