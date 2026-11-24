@@ -62,7 +62,10 @@ export function addSetting(
     param5?: any,
     param6?: any,
 ) {
-    if ((get(key) == null || (key === "appsEnabled" && get(key) === "")) && !key.startsWith("bools")) {
+    if (
+        (get(key) == null || (key === "appsEnabled" && get(key) === "")) &&
+        !key.startsWith("bools")
+    ) {
         set(key, value);
     }
     let code =
@@ -94,7 +97,11 @@ export function addSetting(
                 '"><input title="' +
                 name +
                 '" class="mod-custom-setting" type="checkbox" ' +
-                (get(key) === true || get(key) === "true" || (key === "appsEnabled" && (get(key) === "" || get(key) == null)) ? "checked" : "") +
+                (get(key) === true ||
+                get(key) === "true" ||
+                (key === "appsEnabled" && (get(key) === "" || get(key) == null))
+                    ? "checked"
+                    : "") +
                 ' oninput="this.classList.add(\'mod-modified\');" id="' +
                 key +
                 '"/><div class="slider round"></div></label>';
