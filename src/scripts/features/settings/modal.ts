@@ -1714,8 +1714,13 @@ async function save() {
     for (const element of cn("mod-custom-setting")) {
         if (element.id === "appsEnabled") {
             set("appsEnabled", element.checked);
-            window.dispatchEvent(new Event("somtoday-mod-apps-setting-changed"));
-        } else if (element.type == "checkbox" && element.id.indexOf("bools") != -1) {
+            window.dispatchEvent(
+                new Event("somtoday-mod-apps-setting-changed"),
+            );
+        } else if (
+            element.type == "checkbox" &&
+            element.id.indexOf("bools") != -1
+        ) {
             set(
                 "bools",
                 get("bools").replaceAt(
@@ -1767,6 +1772,7 @@ async function save() {
                         if (result.length > 100) {
                             set(element.id, result);
                             incrementFilesProcessed();
+                            saveReload(true);
                         }
                         // If result is empty data URI, fall back to non-compressed file
                         else {
@@ -1775,6 +1781,7 @@ async function save() {
                             reader.onload = () => {
                                 set(element.id, reader.result);
                                 incrementFilesProcessed();
+                                saveReload(true);
                             };
                         }
                     };
@@ -1793,6 +1800,7 @@ async function save() {
                         }
                         set(element.id, reader.result);
                         incrementFilesProcessed();
+                        saveReload(true);
                     };
                 }
             }
@@ -1855,6 +1863,7 @@ async function save() {
                 set("background", dataUrl);
                 set("backgroundtype", "image");
                 incrementFilesProcessed();
+                saveReload(true);
             });
         } else {
             set("background", "");
@@ -1872,6 +1881,7 @@ async function save() {
             toDataURL("https://picsum.photos/1600/800", (dataUrl: string) => {
                 set("background", dataUrl);
                 incrementFilesProcessed();
+                saveReload(true);
             });
         } else {
             incrementFilesProcessed();
@@ -1902,7 +1912,7 @@ async function save() {
     // Reload page to show changes
     // Only reload when all files are processed (required for Firefox, but also an extra check for the other browsers)
     if (reload) {
-        execute([saveReload]);
+        saveReload(true);
     }
     modMessage(
         "Opgeslagen!",

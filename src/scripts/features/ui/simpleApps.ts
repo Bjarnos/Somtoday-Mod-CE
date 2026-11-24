@@ -1,4 +1,5 @@
 import { get, set } from "../../save_version_management";
+import { n } from "../../shorthand_functions";
 
 type App = {
     id: string;
@@ -21,26 +22,34 @@ let searchText = "";
 let dragging: string | null = null;
 let tabObserver: MutationObserver | null = null;
 let tabUpdatePending = false;
+let lastActiveTab: HTMLElement | null = null;
 
 function loadApps(): App[] {
     const stored = get(appsKey);
     try {
-        const items = typeof stored === "string" ? JSON.parse(stored || "[]") : stored;
+        const items =
+            typeof stored === "string" ? JSON.parse(stored || "[]") : stored;
         if (!Array.isArray(items)) {
             return [];
         }
-        return items.filter((item) =>
-            typeof item.id === "string" &&
-            typeof item.name === "string" &&
-            typeof item.url === "string"
-        ).map((item) => ({
-            id: item.id,
-            name: item.name,
-            url: item.url,
-            icon: typeof item.icon === "string" ? item.icon : "",
-            pinned: Boolean(item.pinned),
-            folderId: typeof item.folderId === "string" ? item.folderId : undefined,
-        }));
+        return items
+            .filter(
+                (item) =>
+                    typeof item.id === "string" &&
+                    typeof item.name === "string" &&
+                    typeof item.url === "string",
+            )
+            .map((item) => ({
+                id: item.id,
+                name: item.name,
+                url: item.url,
+                icon: typeof item.icon === "string" ? item.icon : "",
+                pinned: Boolean(item.pinned),
+                folderId:
+                    typeof item.folderId === "string"
+                        ? item.folderId
+                        : undefined,
+            }));
     } catch {
         return [];
     }
@@ -51,13 +60,51 @@ function saveApps() {
     set(foldersKey, JSON.stringify(folders));
 }
 
+function getDefaultFolderColor(): string {
+    const color = get("primarycolor");
+    if (typeof color === "string" && /^#[0-9a-f]{6}$/i.test(color)) {
+        return color;
+    }
+    if (typeof color === "string" && /^#[0-9a-f]{3}$/i.test(color)) {
+        return `#${color[1]}${color[1]}${color[2]}${color[2]}${color[3]}${color[3]}`;
+    }
+    return "#0067c2";
+}
+
+function hasCustomBackground(): boolean {
+    return Boolean(
+        document.getElementById("mod-background") ||
+            document.getElementById("mod-backgroundslide") ||
+            document.getElementById("mod-backgroundcolor") ||
+            document.getElementById("mod-background-live") ||
+            (get("backgroundtype") === "image" && !n(get("background"))) ||
+            (get("backgroundtype") === "slideshow" && !n(get("background0"))) ||
+            (get("backgroundtype") === "color" && !n(get("backgroundcolor"))) ||
+            get("backgroundtype") === "live",
+    );
+}
+
 function loadFolders(): AppFolder[] {
     try {
         const value = get(foldersKey);
-        const items = typeof value === "string" ? JSON.parse(value || "[]") : value;
+        const items =
+            typeof value === "string" ? JSON.parse(value || "[]") : value;
         if (!Array.isArray(items)) return [];
-        return items.filter((item) => typeof item.id === "string" && typeof item.name === "string")
-            .map((item) => ({ id: item.id, name: item.name, color: typeof item.color === "string" ? item.color : "#377bd1", pinned: Boolean(item.pinned) }));
+        return items
+            .filter(
+                (item) =>
+                    typeof item.id === "string" &&
+                    typeof item.name === "string",
+            )
+            .map((item) => ({
+                id: item.id,
+                name: item.name,
+                color:
+                    typeof item.color === "string"
+                        ? item.color
+                        : getDefaultFolderColor(),
+                pinned: Boolean(item.pinned),
+            }));
     } catch {
         return [];
     }
@@ -92,11 +139,17 @@ function button(text: string, className: string, callback: () => void) {
 
 function validUrl(input: string): string | null {
     const value = input.trim();
-    if (!value || /\\s/.test(value)) {
+    if (!value) {
+        return null;
+    }
+    if (value.startsWith("data:image/")) {
+        return value;
+    }
+    if (/\s/.test(value)) {
         return null;
     }
 
-    const address = /^[a-z][a-z\\d+.-]*:\/\//i.test(value)
+    const address = /^[a-z][a-z\d+.-]*:\/\//i.test(value)
         ? value
         : `https://${value}`;
 
@@ -104,7 +157,7 @@ function validUrl(input: string): string | null {
         const url = new URL(address);
         if (
             (url.protocol === "https:" || url.protocol === "http:") &&
-            url.hostname.includes(".")
+            (url.hostname.includes(".") || url.hostname === "localhost")
         ) {
             return url.href;
         }
@@ -115,26 +168,36 @@ function validUrl(input: string): string | null {
 }
 
 function appIcon(app: App) {
-    const icon = element("div", "mod-app-icon", app.name.charAt(0).toUpperCase());
+    const icon = element(
+        "div",
+        "mod-app-icon",
+        app.name.charAt(0).toUpperCase(),
+    );
     const source = validUrl(app.icon) || websiteIcon(app.url);
     if (source) {
         const image = document.createElement("img");
         image.src = source;
         image.alt = "";
-        image.onerror = () => { image.remove(); icon.textContent = app.name.charAt(0).toUpperCase(); };
+        image.onerror = () => {
+            image.remove();
+            icon.textContent = app.name.charAt(0).toUpperCase();
+        };
         icon.replaceChildren(image);
     }
     return icon;
 }
 
-function openEditor(existing?: App) {
+function openEditor(existing?: App, defaultFolderId?: string) {
     document.getElementById("mod-app-editor")?.remove();
     const backdrop = element("div", "mod-app-backdrop");
     backdrop.id = "mod-app-editor";
     const modal = element("div", "mod-app-modal");
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
-    modal.setAttribute("aria-label", existing ? "App bewerken" : "App toevoegen");
+    modal.setAttribute(
+        "aria-label",
+        existing ? "App bewerken" : "App toevoegen",
+    );
 
     const header = element("div", "mod-app-modal-header");
     header.append(
@@ -161,12 +224,45 @@ function openEditor(existing?: App) {
 
     const iconLabel = element("label", "", "Afbeelding (optioneel)");
     const icon = element("input");
-    icon.type = "url";
+    icon.type = "text";
     icon.placeholder = "https://voorbeeld.nl/logo.png";
     icon.value = existing?.icon ?? "";
     iconLabel.append(icon);
-    const iconHint = element("small", "mod-app-hint", "Leeg laten om automatisch het website-icoon te gebruiken.");
-    iconLabel.append(iconHint);
+
+    let selectedFolderId =
+        existing?.folderId ?? defaultFolderId ?? openFolderId ?? "";
+    const folderLabel = element("label", "", "Map (optioneel)");
+    const picker = element("div", "mod-app-folder-picker");
+    const trigger = button("", "mod-app-folder-picker-trigger", () => {
+        const expanded = picker.classList.toggle("open");
+        trigger.setAttribute("aria-expanded", String(expanded));
+    });
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+    const chosen = element(
+        "span",
+        "",
+        folders.find((f) => f.id === selectedFolderId)?.name ?? "Geen map",
+    );
+    trigger.append(chosen, element("span", "mod-app-folder-chevron", "⌄"));
+    const choices = element("div", "mod-app-folder-picker-options");
+    choices.setAttribute("role", "listbox");
+    for (const folder of [{ id: "", name: "Geen map" }, ...folders]) {
+        const option = button(
+            folder.name,
+            "mod-app-folder-picker-option",
+            () => {
+                selectedFolderId = folder.id;
+                chosen.textContent = folder.name;
+                picker.classList.remove("open");
+                trigger.setAttribute("aria-expanded", "false");
+            },
+        );
+        option.setAttribute("role", "option");
+        choices.append(option);
+    }
+    picker.append(trigger, choices);
+    folderLabel.append(picker);
 
     const pinnedLabel = element("label", "mod-app-pin-label");
     const pinText = element("span", "", "Vastzetten");
@@ -185,7 +281,15 @@ function openEditor(existing?: App) {
     const save = element("button", "mod-app-primary", "Opslaan");
     save.type = "submit";
     actions.append(save);
-    form.append(nameLabel, urlLabel, iconLabel, pinnedLabel, error, actions);
+    form.append(
+        nameLabel,
+        urlLabel,
+        iconLabel,
+        folderLabel,
+        pinnedLabel,
+        error,
+        actions,
+    );
 
     form.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -199,17 +303,28 @@ function openEditor(existing?: App) {
             return;
         }
         if (existing) {
-            currentApps = currentApps.map((app) => app.id === existing.id
-                ? { ...app, name: name.value.trim(), url: address, icon: image, pinned: pinned.checked }
-                : app
+            currentApps = currentApps.map((app) =>
+                app.id === existing.id
+                    ? {
+                          ...app,
+                          name: name.value.trim(),
+                          url: address,
+                          icon: image,
+                          pinned: pinned.checked,
+                          folderId: selectedFolderId || undefined,
+                      }
+                    : app,
             );
         } else {
             currentApps.push({
-                id: crypto.randomUUID(),
+                id: crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : `app_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
                 name: name.value.trim(),
                 url: address,
                 icon: image,
                 pinned: pinned.checked,
+                folderId: selectedFolderId || undefined,
             });
         }
         saveApps();
@@ -228,19 +343,29 @@ function openEditor(existing?: App) {
 }
 
 function closeAppMenus(except?: HTMLElement) {
-    document.querySelectorAll<HTMLElement>(".mod-app-menu.open, .mod-app-create-dropdown.open").forEach((menu) => {
-        if (menu !== except) {
-            menu.classList.remove("open");
-            menu.querySelector("button[aria-expanded]")?.setAttribute("aria-expanded", "false");
-        }
-    });
+    document
+        .querySelectorAll<HTMLElement>(
+            ".mod-app-menu.open, .mod-app-create-dropdown.open, .mod-app-folder-picker.open",
+        )
+        .forEach((menu) => {
+            if (menu !== except) {
+                menu.classList.remove("open");
+                menu.querySelector("button[aria-expanded]")?.setAttribute(
+                    "aria-expanded",
+                    "false",
+                );
+            }
+        });
 }
 
 function toggleAppMenu(menu: HTMLElement) {
     const wasOpen = menu.classList.contains("open");
     closeAppMenus();
     if (!wasOpen) menu.classList.add("open");
-    menu.querySelector("button[aria-expanded]")?.setAttribute("aria-expanded", String(!wasOpen));
+    menu.querySelector("button[aria-expanded]")?.setAttribute(
+        "aria-expanded",
+        String(!wasOpen),
+    );
 }
 
 function openFolderEditor(existing?: AppFolder) {
@@ -250,9 +375,15 @@ function openFolderEditor(existing?: AppFolder) {
     const modal = element("div", "mod-app-modal");
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
-    modal.setAttribute("aria-label", existing ? "Map bewerken" : "Map aanmaken");
+    modal.setAttribute(
+        "aria-label",
+        existing ? "Map bewerken" : "Map aanmaken",
+    );
     const heading = element("div", "mod-app-modal-header");
-    heading.append(element("h2", "", existing ? "Map bewerken" : "Map aanmaken"), button("×", "mod-app-close", () => backdrop.remove()));
+    heading.append(
+        element("h2", "", existing ? "Map bewerken" : "Map aanmaken"),
+        button("×", "mod-app-close", () => backdrop.remove()),
+    );
     const form = element("form", "mod-app-editor-form");
     const nameLabel = element("label", "", "Mapnaam");
     const name = element("input");
@@ -260,14 +391,19 @@ function openFolderEditor(existing?: AppFolder) {
     name.maxLength = 40;
     name.value = existing?.name ?? "";
     nameLabel.append(name);
+    const defaultColor = getDefaultFolderColor();
     const colorLabel = element("label", "", "Kleur");
     const color = element("input");
     color.type = "color";
-    color.value = existing?.color ?? "#377bd1";
+    color.value = existing?.color ?? defaultColor;
     color.setAttribute("aria-label", "Mapkleur kiezen");
     const colorPreview = element("span", "mod-app-color-preview");
     colorPreview.style.backgroundColor = color.value;
-    const colorValue = element("span", "mod-app-color-value", color.value.toUpperCase());
+    const colorValue = element(
+        "span",
+        "mod-app-color-value",
+        color.value.toUpperCase(),
+    );
     color.addEventListener("input", () => {
         colorPreview.style.backgroundColor = color.value;
         colorValue.textContent = color.value.toUpperCase();
@@ -276,7 +412,9 @@ function openFolderEditor(existing?: AppFolder) {
     colorPicker.append(colorPreview, colorValue, color);
     colorLabel.append(colorPicker);
     const actions = element("div", "mod-app-modal-actions");
-    actions.append(button("Annuleren", "mod-app-secondary", () => backdrop.remove()));
+    actions.append(
+        button("Annuleren", "mod-app-secondary", () => backdrop.remove()),
+    );
     const save = element("button", "mod-app-primary", "Opslaan");
     save.type = "submit";
     actions.append(save);
@@ -288,7 +426,14 @@ function openFolderEditor(existing?: AppFolder) {
             existing.name = name.value.trim();
             existing.color = color.value;
         } else {
-            folders.push({ id: crypto.randomUUID(), name: name.value.trim(), color: color.value, pinned: false });
+            folders.push({
+                id: crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : `folder_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                name: name.value.trim(),
+                color: color.value,
+                pinned: false,
+            });
         }
         saveApps();
         backdrop.remove();
@@ -296,7 +441,9 @@ function openFolderEditor(existing?: AppFolder) {
     });
     modal.append(heading, form);
     backdrop.append(modal);
-    backdrop.addEventListener("click", (event) => { if (event.target === backdrop) backdrop.remove(); });
+    backdrop.addEventListener("click", (event) => {
+        if (event.target === backdrop) backdrop.remove();
+    });
     document.body.append(backdrop);
     name.focus();
 }
@@ -310,7 +457,10 @@ function openMoveDialog(app: App) {
     modal.setAttribute("aria-modal", "true");
     modal.setAttribute("aria-label", "Toevoegen aan groep");
     const heading = element("div", "mod-app-modal-header");
-    heading.append(element("h2", "", "Toevoegen aan groep"), button("×", "mod-app-close", () => backdrop.remove()));
+    heading.append(
+        element("h2", "", "Toevoegen aan groep"),
+        button("×", "mod-app-close", () => backdrop.remove()),
+    );
     const form = element("form", "mod-app-editor-form");
     const label = element("label", "", "Selecteer een map");
     let selectedFolderId = app.folderId ?? "";
@@ -321,30 +471,35 @@ function openMoveDialog(app: App) {
     });
     trigger.setAttribute("aria-haspopup", "listbox");
     trigger.setAttribute("aria-expanded", "false");
-    const chosen = element("span", "", folders.find((folder) => folder.id === selectedFolderId)?.name ?? "Geen map");
+    const chosen = element(
+        "span",
+        "",
+        folders.find((folder) => folder.id === selectedFolderId)?.name ??
+            "Geen map",
+    );
     trigger.append(chosen, element("span", "mod-app-folder-chevron", "⌄"));
     const choices = element("div", "mod-app-folder-picker-options");
     choices.setAttribute("role", "listbox");
     for (const folder of [{ id: "", name: "Geen map" }, ...folders]) {
-        const option = button(folder.name, "mod-app-folder-picker-option", () => {
-            selectedFolderId = folder.id;
-            chosen.textContent = folder.name;
-            picker.classList.remove("open");
-            trigger.setAttribute("aria-expanded", "false");
-        });
+        const option = button(
+            folder.name,
+            "mod-app-folder-picker-option",
+            () => {
+                selectedFolderId = folder.id;
+                chosen.textContent = folder.name;
+                picker.classList.remove("open");
+                trigger.setAttribute("aria-expanded", "false");
+            },
+        );
         option.setAttribute("role", "option");
         choices.append(option);
     }
     picker.append(trigger, choices);
     label.append(picker);
-    backdrop.addEventListener("pointerdown", (event) => {
-        if (event.target instanceof Node && !picker.contains(event.target)) {
-            picker.classList.remove("open");
-            trigger.setAttribute("aria-expanded", "false");
-        }
-    });
     const actions = element("div", "mod-app-modal-actions");
-    actions.append(button("Annuleren", "mod-app-secondary", () => backdrop.remove()));
+    actions.append(
+        button("Annuleren", "mod-app-secondary", () => backdrop.remove()),
+    );
     const save = element("button", "mod-app-primary", "Opslaan");
     save.type = "submit";
     actions.append(save);
@@ -358,27 +513,41 @@ function openMoveDialog(app: App) {
     });
     modal.append(heading, form);
     backdrop.append(modal);
-    backdrop.addEventListener("click", (event) => { if (event.target === backdrop) backdrop.remove(); });
+    backdrop.addEventListener("click", (event) => {
+        if (event.target === backdrop) backdrop.remove();
+    });
     document.body.append(backdrop);
 }
 
 function folderMenu(folder: AppFolder) {
     const menu = element("div", "mod-app-menu");
-    const trigger = button("⋮", "mod-app-menu-button", () => toggleAppMenu(menu));
+    const trigger = button("⋮", "mod-app-menu-button", () =>
+        toggleAppMenu(menu),
+    );
     trigger.setAttribute("aria-expanded", "false");
     trigger.setAttribute("aria-label", "Map-opties");
     const options = element("div", "mod-app-menu-options");
     options.append(
         button(folder.pinned ? "Losmaken" : "Vastzetten", "", () => {
-            folder.pinned = !folder.pinned; saveApps(); renderApps();
+            folder.pinned = !folder.pinned;
+            saveApps();
+            renderApps();
         }),
         button("Map bewerken", "", () => openFolderEditor(folder)),
         button("Map verwijderen", "mod-app-danger", () => {
-            if (!window.confirm(`Map "${folder.name}" verwijderen? De apps blijven behouden.`)) return;
-            currentApps.forEach((app) => { if (app.folderId === folder.id) app.folderId = undefined; });
+            if (
+                !window.confirm(
+                    `Map "${folder.name}" verwijderen? De apps blijven behouden.`,
+                )
+            )
+                return;
+            currentApps.forEach((app) => {
+                if (app.folderId === folder.id) delete app.folderId;
+            });
             folders = folders.filter((item) => item.id !== folder.id);
             openFolderId = null;
-            saveApps(); renderApps();
+            saveApps();
+            renderApps();
         }),
     );
     menu.append(trigger, options);
@@ -390,6 +559,7 @@ function renderApps() {
     if (!page) {
         return;
     }
+    page.dataset.hasBackground = String(hasCustomBackground());
     page.replaceChildren();
     const content = element("div", "mod-app-content");
     const title = element("div", "mod-app-heading");
@@ -410,13 +580,25 @@ function renderApps() {
     });
     const create = element("div", "mod-app-create-actions");
     const dropdown = element("div", "mod-app-create-dropdown");
-    const arrow = button("▾", "mod-app-primary mod-app-create-arrow", () => toggleAppMenu(dropdown));
+    const arrow = button("▾", "mod-app-primary mod-app-create-arrow", () =>
+        toggleAppMenu(dropdown),
+    );
     arrow.setAttribute("aria-expanded", "false");
     arrow.setAttribute("aria-label", "Meer toevoegen");
     const choices = element("div", "mod-app-create-options");
-    choices.append(button("Map aanmaken", "", () => { dropdown.classList.remove("open"); openFolderEditor(); }));
+    choices.append(
+        button("Map aanmaken", "", () => {
+            dropdown.classList.remove("open");
+            openFolderEditor();
+        }),
+    );
     dropdown.append(arrow, choices);
-    create.append(button("+ App toevoegen", "mod-app-primary", () => openEditor()), dropdown);
+    create.append(
+        button("+ App toevoegen", "mod-app-primary", () =>
+            openEditor(undefined, openFolderId ?? undefined),
+        ),
+        dropdown,
+    );
     toolbar.append(search, create);
     const grid = element("div", "mod-app-grid");
     grid.id = "mod-app-grid";
@@ -430,20 +612,119 @@ function updateGrid() {
     if (!grid) {
         return;
     }
-    const oldRects = new Map<string, DOMRect>();
-    grid.querySelectorAll<HTMLElement>(".mod-app-tile").forEach((tile) => {
-        if (tile.dataset.appId) {
-            oldRects.set(tile.dataset.appId, tile.getBoundingClientRect());
-        }
-    });
     grid.replaceChildren();
+    const query = searchText.trim().toLowerCase();
     const selectedFolder = folders.find((folder) => folder.id === openFolderId);
     if (openFolderId && !selectedFolder) openFolderId = null;
+
+    if (query) {
+        // Global search active: search across all apps and folders
+        grid.classList.remove("mod-app-folder-grid");
+        const matchingFolders = folders.filter((folder) =>
+            folder.name.toLowerCase().includes(query),
+        );
+        for (const folder of matchingFolders) {
+            const members = currentApps.filter(
+                (app) => app.folderId === folder.id,
+            );
+            const tile = element("div", "mod-app-tile mod-app-folder-tile");
+            tile.style.setProperty("--mod-folder-color", folder.color);
+            const opener = button("", "mod-app-folder-open", () => {
+                openFolderId = folder.id;
+                searchText = "";
+                renderApps();
+            });
+            const preview = element("div", "mod-app-folder-preview");
+            for (const app of members.slice(0, 4)) preview.append(appIcon(app));
+            opener.append(
+                preview,
+                element("span", "mod-app-name", folder.name),
+            );
+            tile.append(opener, folderMenu(folder));
+            grid.append(tile);
+        }
+
+        const matchingApps = currentApps.filter((app) =>
+            app.name.toLowerCase().includes(query),
+        );
+        for (const app of matchingApps) {
+            const tile = element("div", "mod-app-tile");
+            tile.dataset.appId = app.id;
+            if (app.pinned) {
+                tile.classList.add("mod-app-pinned");
+                const pin = element(
+                    "span",
+                    "mod-app-pinned-label",
+                    "★ Vastgezet",
+                );
+                pin.title = "Deze app is vastgezet";
+                tile.append(pin);
+            }
+            if (app.folderId) {
+                const parentFolder = folders.find((f) => f.id === app.folderId);
+                if (parentFolder) {
+                    const badge = element(
+                        "span",
+                        "mod-app-folder-badge",
+                        `📁 ${parentFolder.name}`,
+                    );
+                    badge.style.borderColor = parentFolder.color;
+                    tile.append(badge);
+                }
+            }
+            const link = element("a", "mod-app-link");
+            link.href = app.url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.append(
+                appIcon(app),
+                element("span", "mod-app-name", app.name),
+            );
+
+            const menu = element("div", "mod-app-menu");
+            const menuButton = button("⋮", "mod-app-menu-button", () =>
+                toggleAppMenu(menu),
+            );
+            menuButton.setAttribute("aria-label", "App-opties");
+            menuButton.setAttribute("aria-expanded", "false");
+            const options = element("div", "mod-app-menu-options");
+            options.append(
+                button(app.pinned ? "Losmaken" : "Vastzetten", "", () => {
+                    app.pinned = !app.pinned;
+                    saveApps();
+                    updateGrid();
+                }),
+                button("Bewerken", "", () => openEditor(app)),
+                button(
+                    app.folderId
+                        ? "Verplaatsen / uit map halen"
+                        : "Toevoegen aan groep",
+                    "",
+                    () => openMoveDialog(app),
+                ),
+                button("Verwijderen", "mod-app-danger", () => {
+                    currentApps = currentApps.filter(
+                        (item) => item.id !== app.id,
+                    );
+                    saveApps();
+                    updateGrid();
+                }),
+            );
+            menu.append(menuButton, options);
+            tile.append(link, menu);
+            grid.append(tile);
+        }
+        return;
+    }
+
     if (selectedFolder) {
         grid.classList.add("mod-app-folder-grid");
         const heading = element("div", "mod-app-folder-heading");
         heading.append(
-            button("← Alle apps", "mod-app-secondary", () => { openFolderId = null; renderApps(); }),
+            button("← Alle apps", "mod-app-secondary", () => {
+                openFolderId = null;
+                renderApps();
+            }),
             element("h2", "", selectedFolder.name),
             folderMenu(selectedFolder),
         );
@@ -451,34 +732,50 @@ function updateGrid() {
         grid.append(heading);
     } else {
         grid.classList.remove("mod-app-folder-grid");
-        for (const folder of [...folders].sort((a, b) => Number(b.pinned) - Number(a.pinned))) {
-            const members = currentApps.filter((app) => app.folderId === folder.id);
-            if (searchText && !folder.name.toLowerCase().includes(searchText.toLowerCase()) &&
-                !members.some((app) => app.name.toLowerCase().includes(searchText.toLowerCase()))) continue;
+        for (const folder of [...folders].sort(
+            (a, b) => Number(b.pinned) - Number(a.pinned),
+        )) {
+            const members = currentApps.filter(
+                (app) => app.folderId === folder.id,
+            );
             const tile = element("div", "mod-app-tile mod-app-folder-tile");
             tile.style.setProperty("--mod-folder-color", folder.color);
-            const opener = button("", "mod-app-folder-open", () => { openFolderId = folder.id; renderApps(); });
+            const opener = button("", "mod-app-folder-open", () => {
+                openFolderId = folder.id;
+                renderApps();
+            });
             const preview = element("div", "mod-app-folder-preview");
             for (const app of members.slice(0, 4)) preview.append(appIcon(app));
-            if (!members.length) preview.append(element("span", "", "📁"));
-            opener.append(preview, element("span", "mod-app-name", folder.name));
+            opener.append(
+                preview,
+                element("span", "mod-app-name", folder.name),
+            );
             tile.append(opener, folderMenu(folder));
             tile.addEventListener("contextmenu", (event) => {
                 event.preventDefault();
                 const menu = tile.querySelector<HTMLElement>(".mod-app-menu");
-                if (menu) { closeAppMenus(); menu.classList.add("open"); }
+                if (menu) {
+                    closeAppMenus();
+                    menu.classList.add("open");
+                }
             });
             grid.append(tile);
         }
     }
-    const add = button("+", "mod-app-add", () => openEditor());
+    const add = button("+", "mod-app-add", () =>
+        openEditor(undefined, openFolderId ?? undefined),
+    );
     add.append(element("span", "", "App toevoegen"));
-    if (!selectedFolder) grid.append(add);
+    grid.append(add);
 
-    const apps = [...currentApps].sort((a, b) => Number(b.pinned) - Number(a.pinned));
+    const apps = [...currentApps].sort(
+        (a, b) => Number(b.pinned) - Number(a.pinned),
+    );
     const filtered = apps.filter((app) =>
-        (selectedFolder ? app.folderId === selectedFolder.id : !app.folderId || !folders.some((folder) => folder.id === app.folderId)) &&
-        app.name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())
+        selectedFolder
+            ? app.folderId === selectedFolder.id
+            : !app.folderId ||
+              !folders.some((folder) => folder.id === app.folderId),
     );
     for (const app of filtered) {
         const tile = element("div", "mod-app-tile");
@@ -497,9 +794,9 @@ function updateGrid() {
         link.append(appIcon(app), element("span", "mod-app-name", app.name));
 
         const menu = element("div", "mod-app-menu");
-        const menuButton = button("⋮", "mod-app-menu-button", () => {
-            toggleAppMenu(menu);
-        });
+        const menuButton = button("⋮", "mod-app-menu-button", () =>
+            toggleAppMenu(menu),
+        );
         menuButton.setAttribute("aria-label", "App-opties");
         menuButton.setAttribute("aria-expanded", "false");
 
@@ -511,7 +808,13 @@ function updateGrid() {
                 updateGrid();
             }),
             button("Bewerken", "", () => openEditor(app)),
-            button(app.folderId ? "Verplaatsen / uit map halen" : "Toevoegen aan groep", "", () => openMoveDialog(app)),
+            button(
+                app.folderId
+                    ? "Verplaatsen / uit map halen"
+                    : "Toevoegen aan groep",
+                "",
+                () => openMoveDialog(app),
+            ),
             button("Verwijderen", "mod-app-danger", () => {
                 currentApps = currentApps.filter((item) => item.id !== app.id);
                 saveApps();
@@ -530,58 +833,91 @@ function updateGrid() {
             dragging = app.id;
             event.dataTransfer?.setData("text/plain", app.id);
         });
+        tile.addEventListener("dragend", () => {
+            dragging = null;
+        });
         tile.addEventListener("dragover", (event) => event.preventDefault());
         tile.addEventListener("drop", (event) => {
             event.preventDefault();
             if (!dragging || dragging === app.id) {
                 return;
             }
-            const source = currentApps.findIndex((item) => item.id === dragging);
-            const destination = currentApps.findIndex((item) => item.id === app.id);
-            if (source < 0 || destination < 0) {
-                return;
+            const source = currentApps.findIndex(
+                (item) => item.id === dragging,
+            );
+            const destination = currentApps.findIndex(
+                (item) => item.id === app.id,
+            );
+            if (source >= 0 && destination >= 0 && source !== destination) {
+                const [moved] = currentApps.splice(source, 1);
+                currentApps.splice(destination, 0, moved);
+                saveApps();
+                updateGrid();
             }
-            const [moved] = currentApps.splice(source, 1);
-            moved.pinned = app.pinned;
-            currentApps.splice(destination, 0, moved);
             dragging = null;
-            saveApps();
-            updateGrid();
         });
         grid.append(tile);
-    }
-    for (const tile of grid.querySelectorAll<HTMLElement>(".mod-app-tile")) {
-        const before = oldRects.get(tile.dataset.appId ?? "");
-        if (!before) {
-            continue;
-        }
-        const after = tile.getBoundingClientRect();
-        const dx = before.left - after.left;
-        const dy = before.top - after.top;
-        if (dx || dy) {
-            tile.animate(
-                [
-                    { transform: `translate(${dx}px, ${dy}px)` },
-                    { transform: "translate(0, 0)" },
-                ],
-                { duration: 280, easing: "cubic-bezier(.2,.8,.2,1)" },
-            );
-        }
     }
 }
 
 function updatePageOffset(tab: HTMLElement) {
-    const tabRect = tab.getBoundingClientRect();
-    const navigation = tab.closest<HTMLElement>("header, nav, sl-tab-bar");
-    const navRect = navigation?.getBoundingClientRect();
-    const bottom = Math.max(tabRect.bottom, navRect?.bottom ?? 0);
+    const layout = Number(get("layout"));
+    const isSidebar = layout === 2 || layout === 3 || layout === 5;
+    const isRightSidebar = layout === 3;
+    const isTopMenuLayout = layout === 5;
 
-    if (bottom > 0 && bottom < window.innerHeight) {
-        document.documentElement.style.setProperty(
-            "--mod-app-header-height",
-            `${Math.ceil(bottom)}px`,
+    let top = 0;
+    let left = 0;
+    let right = 0;
+
+    if (isSidebar) {
+        const sidebar =
+            tab.closest<HTMLElement>("sl-header, sl-tab-bar") ||
+            document.querySelector<HTMLElement>(
+                "sl-header, sl-tab-bar:first-of-type",
+            );
+        const sidebarRect = sidebar?.getBoundingClientRect();
+        const sidebarWidth =
+            sidebarRect && sidebarRect.width > 0
+                ? Math.ceil(sidebarRect.width)
+                : 120;
+
+        if (isRightSidebar) {
+            right = sidebarWidth;
+            left = 0;
+            top = 0;
+        } else {
+            left = sidebarWidth;
+            right = 0;
+            if (isTopMenuLayout) {
+                const topMenu = document.getElementById("mod-top-menu");
+                top = topMenu
+                    ? Math.ceil(topMenu.getBoundingClientRect().height)
+                    : 64;
+            } else {
+                top = 0;
+            }
+        }
+    } else {
+        const tabRect = tab.getBoundingClientRect();
+        const navigation = tab.closest<HTMLElement>(
+            "sl-header, header, nav, sl-tab-bar",
         );
+        const navRect = navigation?.getBoundingClientRect();
+        top = Math.max(tabRect.bottom, navRect?.bottom ?? 0);
+        if (top <= 0 || top >= window.innerHeight) {
+            top = 80;
+        }
+        top = Math.ceil(top);
     }
+
+    document.documentElement.style.setProperty("--mod-app-top", `${top}px`);
+    document.documentElement.style.setProperty("--mod-app-left", `${left}px`);
+    document.documentElement.style.setProperty("--mod-app-right", `${right}px`);
+    document.documentElement.style.setProperty(
+        "--mod-app-header-height",
+        `${top}px`,
+    );
 
     const page = document.getElementById("mod-app-page");
     if (page && page.parentElement !== document.body) {
@@ -592,14 +928,19 @@ function updatePageOffset(tab: HTMLElement) {
 function showApps(tab: HTMLElement) {
     active = true;
     document.documentElement.classList.add("mod-apps-open");
+    lastActiveTab = document.querySelector<HTMLElement>(
+        "sl-tab-item.active:not(#mod-simple-apps-launcher)",
+    );
     document.querySelectorAll("sl-tab-item.active").forEach((item) => {
         item.classList.remove("active");
+        item.setAttribute("aria-selected", "false");
     });
     tab.classList.add("active");
     tab.setAttribute("aria-selected", "true");
     const page = document.getElementById("mod-app-page");
     if (page) {
         updatePageOffset(tab);
+        page.dataset.hasBackground = String(hasCustomBackground());
         page.hidden = false;
     }
     renderApps();
@@ -616,40 +957,89 @@ function hideApps() {
     appsTab?.classList.remove("active");
     appsTab?.setAttribute("aria-selected", "false");
     document.getElementById("mod-app-editor")?.remove();
+    closeAppMenus();
+
+    if (lastActiveTab?.isConnected) {
+        lastActiveTab.classList.add("active");
+        lastActiveTab.setAttribute("aria-selected", "true");
+    } else {
+        const fallback = document.querySelector<HTMLElement>(
+            "sl-tab-item:not(#mod-simple-apps-launcher)",
+        );
+        fallback?.classList.add("active");
+        fallback?.setAttribute("aria-selected", "true");
+    }
+}
+
+function getTabBar(): HTMLElement | null {
+    return document.querySelector<HTMLElement>(
+        "sl-header sl-tab-bar, sl-tab-bar:first-of-type, sl-tab-bar",
+    );
 }
 
 function insertTab() {
-    const existing = Array.from(document.querySelectorAll("sl-tab-item"))
-        .find((tab) => tab.textContent?.trim().includes("Berichten"));
-    const reference = existing ?? document.querySelector("sl-tab-item:last-of-type");
+    const tabBar = getTabBar();
+    if (!tabBar) {
+        return;
+    }
+
     const currentTab = document.getElementById("mod-simple-apps-launcher");
-    if (currentTab && currentTab.parentElement === reference?.parentElement && currentTab.previousElementSibling === reference) {
+    const layout = Number(get("layout"));
+    const isSidebar = layout === 2 || layout === 3 || layout === 5;
+    const isRightSidebar = layout === 3;
+
+    const tabs = Array.from(
+        tabBar.querySelectorAll<HTMLElement>("sl-tab-item"),
+    ).filter((tab) => tab.id !== "mod-simple-apps-launcher");
+
+    if (tabs.length === 0) {
         return;
     }
-    currentTab?.remove();
-    if (!reference?.parentElement) {
+
+    const lastTab = tabs[tabs.length - 1];
+
+    if (
+        currentTab &&
+        currentTab.parentElement === tabBar &&
+        currentTab.previousElementSibling === lastTab
+    ) {
+        currentTab.dataset.sidebar = isSidebar ? "true" : "false";
+        currentTab.dataset.rightSidebar = isRightSidebar ? "true" : "false";
         return;
     }
-    const tab = reference.cloneNode(true) as HTMLElement;
-    tab.id = "mod-simple-apps-launcher";
-    tab.classList.remove("active");
-    tab.removeAttribute("aria-selected");
-    tab.replaceChildren();
-    const label = element("span", "mod-app-nav-label", "Apps");
-    const icon = element("span", "mod-app-nav-icon");
-    icon.innerHTML = "<svg viewBox='0 0 24 24' width='20' height='20' fill='currentColor' aria-hidden='true'><rect x='2' y='2' width='8' height='8' rx='1'/><rect x='14' y='2' width='8' height='8' rx='1'/><rect x='2' y='14' width='8' height='8' rx='1'/><rect x='14' y='14' width='8' height='8' rx='1'/></svg>";
-    tab.append(icon, label);
-    tab.classList.add("mod-app-nav-tab");
-    tab.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        showApps(tab);
-    });
-    reference.insertAdjacentElement("afterend", tab);
+
+    const launcher = currentTab ?? document.createElement("sl-tab-item");
+    if (!currentTab) {
+        launcher.id = "mod-simple-apps-launcher";
+        const item = element("div", "item");
+        const iconWrapper = element("i", "mod-app-nav-icon");
+        iconWrapper.innerHTML =
+            "<svg viewBox='0 0 24 24' width='24' height='24' fill='currentColor' aria-hidden='true'><rect x='2' y='2' width='8' height='8' rx='1'/><rect x='14' y='2' width='8' height='8' rx='1'/><rect x='2' y='14' width='8' height='8' rx='1'/><rect x='14' y='14' width='8' height='8' rx='1'/></svg>";
+        const label = element("span", "mod-app-nav-label", "Apps");
+        item.append(iconWrapper, label);
+        launcher.append(item);
+        launcher.classList.add("mod-app-nav-tab");
+        launcher.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (active) {
+                hideApps();
+            } else {
+                showApps(launcher);
+            }
+        });
+    }
+
+    launcher.dataset.sidebar = isSidebar ? "true" : "false";
+    launcher.dataset.rightSidebar = isRightSidebar ? "true" : "false";
     if (active) {
-        tab.classList.add("active");
-        tab.setAttribute("aria-selected", "true");
+        launcher.classList.add("active");
+        launcher.setAttribute("aria-selected", "true");
+    } else {
+        launcher.classList.remove("active");
+        launcher.removeAttribute("aria-selected");
     }
+    lastTab.insertAdjacentElement("afterend", launcher);
 }
 
 export function simpleApps() {
@@ -661,6 +1051,7 @@ export function simpleApps() {
         document.getElementById("mod-simple-apps-launcher")?.remove();
         document.getElementById("mod-app-page")?.remove();
         document.getElementById("mod-app-editor")?.remove();
+        document.getElementById("mod-app-styles")?.remove();
         return;
     }
     if (!document.getElementById("mod-app-styles")) {
@@ -668,22 +1059,88 @@ export function simpleApps() {
         styles.id = "mod-app-styles";
         styles.textContent = `
 #mod-simple-apps-launcher {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+}
+
+#mod-simple-apps-launcher svg {
+    fill: currentColor !important;
+}
+
+#mod-simple-apps-launcher:not([data-sidebar="true"]) {
+    display: inline-flex !important;
+    height: 100% !important;
+    align-items: center !important;
+    color: var(--action-neutral-normal, rgba(255, 255, 255, 0.7)) !important;
+    fill: var(--action-neutral-normal, rgba(255, 255, 255, 0.7)) !important;
+    transition: color 0.2s ease, fill 0.2s ease;
+}
+
+#mod-simple-apps-launcher:not([data-sidebar="true"]) .item,
+#mod-simple-apps-launcher:not([data-sidebar="true"]) .mod-app-nav-label,
+#mod-simple-apps-launcher:not([data-sidebar="true"]) .mod-app-nav-icon,
+#mod-simple-apps-launcher:not([data-sidebar="true"]) i,
+#mod-simple-apps-launcher:not([data-sidebar="true"]) span {
+    color: inherit !important;
+    fill: inherit !important;
+}
+
+#mod-simple-apps-launcher:not([data-sidebar="true"]):hover,
+#mod-simple-apps-launcher:not([data-sidebar="true"]):hover .item,
+#mod-simple-apps-launcher:not([data-sidebar="true"]):hover .mod-app-nav-label,
+#mod-simple-apps-launcher:not([data-sidebar="true"]):hover .mod-app-nav-icon,
+#mod-simple-apps-launcher:not([data-sidebar="true"]):hover i,
+#mod-simple-apps-launcher:not([data-sidebar="true"]):hover span,
+#mod-simple-apps-launcher:not([data-sidebar="true"]).active,
+#mod-simple-apps-launcher:not([data-sidebar="true"]).active .item,
+#mod-simple-apps-launcher:not([data-sidebar="true"]).active .mod-app-nav-label,
+#mod-simple-apps-launcher:not([data-sidebar="true"]).active .mod-app-nav-icon,
+#mod-simple-apps-launcher:not([data-sidebar="true"]).active i,
+#mod-simple-apps-launcher:not([data-sidebar="true"]).active span {
+    color: #fff !important;
+    fill: #fff !important;
+}
+
+#mod-simple-apps-launcher:not([data-sidebar="true"]) .item i,
+#mod-simple-apps-launcher:not([data-sidebar="true"]) .item .mod-app-nav-icon,
+#mod-simple-apps-launcher:not([data-sidebar="true"]):hover .item i,
+#mod-simple-apps-launcher:not([data-sidebar="true"]):hover .item .mod-app-nav-icon {
+    scale: 1 !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+#mod-simple-apps-launcher:not([data-sidebar="true"]) .item {
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    justify-content: center;
+    justify-content: center !important;
     gap: 8px;
-    cursor: pointer;
-    position: relative;
+    height: 100% !important;
+    padding: 0 14px !important;
 }
 
-#mod-simple-apps-launcher.active,
-#mod-simple-apps-launcher.active .mod-app-nav-label,
-#mod-simple-apps-launcher.active .mod-app-nav-icon {
-    color: var(--action-primary-normal, #006bc9) !important;
+#mod-simple-apps-launcher:not([data-sidebar="true"]) .mod-app-nav-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 24px;
+    width: 24px;
 }
 
-#mod-simple-apps-launcher.active::after {
+#mod-simple-apps-launcher:not([data-sidebar="true"]) .mod-app-nav-icon svg {
+    width: 22px !important;
+    height: 22px !important;
+}
+
+#mod-simple-apps-launcher:not([data-sidebar="true"]) .mod-app-nav-label {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#mod-simple-apps-launcher:not([data-sidebar="true"]).active::after {
     content: "";
     position: absolute;
     bottom: 0;
@@ -694,25 +1151,99 @@ export function simpleApps() {
     pointer-events: none;
 }
 
-#mod-simple-apps-launcher .mod-app-nav-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    color: inherit;
+#mod-simple-apps-launcher[data-sidebar="true"] {
+    display: block !important;
+    width: 100% !important;
+    height: 120px !important;
+    position: relative !important;
+    color: var(--action-neutral-normal, #fff) !important;
+    fill: var(--action-neutral-normal, #fff) !important;
 }
 
-#mod-simple-apps-launcher .mod-app-nav-icon svg {
-    display: block;
+#mod-simple-apps-launcher[data-sidebar="true"] .item,
+#mod-simple-apps-launcher[data-sidebar="true"] .mod-app-nav-label,
+#mod-simple-apps-launcher[data-sidebar="true"] .mod-app-nav-icon,
+#mod-simple-apps-launcher[data-sidebar="true"] i,
+#mod-simple-apps-launcher[data-sidebar="true"] span {
+    color: inherit !important;
+    fill: inherit !important;
 }
 
-#mod-simple-apps-launcher .mod-app-nav-label {
-    display: inline-block;
-    white-space: nowrap;
+#mod-simple-apps-launcher[data-sidebar="true"] .item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+#mod-simple-apps-launcher[data-sidebar="true"] .item i,
+#mod-simple-apps-launcher[data-sidebar="true"] .item .mod-app-nav-icon {
+    transition: scale 0.3s ease, transform 0.3s ease !important;
+    transform-origin: center center;
+}
+
+#mod-simple-apps-launcher[data-sidebar="true"]:hover .item i,
+#mod-simple-apps-launcher[data-sidebar="true"]:hover .item .mod-app-nav-icon,
+#mod-simple-apps-launcher[data-sidebar="true"] .item:hover i,
+#mod-simple-apps-launcher[data-sidebar="true"] .item:hover .mod-app-nav-icon {
+    scale: 0.9 !important;
+}
+
+#mod-simple-apps-launcher[data-sidebar="true"] .mod-app-nav-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 36px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+#mod-simple-apps-launcher[data-sidebar="true"] .mod-app-nav-icon svg {
+    width: 36px !important;
+    height: 36px !important;
+}
+
+#mod-simple-apps-launcher[data-sidebar="true"] .mod-app-nav-label {
+    font-size: 14px !important;
+    margin-top: 6px !important;
+    text-align: center !important;
+    display: block !important;
+    white-space: nowrap !important;
+}
+
+#mod-simple-apps-launcher[data-sidebar="true"].active,
+#mod-simple-apps-launcher[data-sidebar="true"].active .item,
+#mod-simple-apps-launcher[data-sidebar="true"].active .mod-app-nav-label,
+#mod-simple-apps-launcher[data-sidebar="true"].active .mod-app-nav-icon {
+    color: var(--action-neutral-normal, #fff) !important;
+    fill: var(--action-neutral-normal, #fff) !important;
+}
+
+#mod-simple-apps-launcher[data-sidebar="true"].active::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    height: 100%;
+    right: 0;
+    background: var(--action-accent-normal, var(--orange-50, #f59b21));
+    pointer-events: none;
+    z-index: 2;
+}
+
+#mod-simple-apps-launcher[data-sidebar="true"][data-right-sidebar="true"].active::after {
+    right: auto;
+    left: 0;
 }
 
 #mod-app-page,
 #mod-app-editor {
+    --mod-app-tile-bg: rgba(255, 255, 255, 0.88);
+    --mod-app-border-color: rgba(0, 0, 0, 0.12);
     --mod-app-surface: var(--bg-neutral-none, #fff);
     --mod-app-text: var(--text-strong, #263442);
     --mod-app-muted: var(--text-weak, #66758a);
@@ -725,9 +1256,9 @@ export function simpleApps() {
 }
 
 :root.dark #mod-app-page,
-:root.night #mod-app-page,
-:root.dark #mod-app-editor,
-:root.night #mod-app-editor {
+:root.dark #mod-app-editor {
+    --mod-app-tile-bg: rgba(32, 37, 43, 0.88);
+    --mod-app-border-color: rgba(255, 255, 255, 0.13);
     --mod-app-surface: var(--bg-neutral-none, #20252b);
     --mod-app-text: var(--text-strong, #f0f3f7);
     --mod-app-muted: var(--text-weak, #b7c0cb);
@@ -736,20 +1267,63 @@ export function simpleApps() {
     color-scheme: dark;
 }
 
+:root.night #mod-app-page,
+:root.night #mod-app-editor {
+    --mod-app-tile-bg: rgba(18, 18, 18, 0.92);
+    --mod-app-border-color: rgba(255, 255, 255, 0.16);
+    --mod-app-surface: var(--bg-neutral-none, #000);
+    --mod-app-text: var(--text-strong, #f0f3f7);
+    --mod-app-muted: var(--text-weak, #b7c0cb);
+    --mod-app-hover: var(--bg-neutral-weakest, #222);
+    --mod-app-soft: var(--bg-primary-weakest, #1a344d);
+    color-scheme: dark;
+}
+
 #mod-app-page {
     position: fixed;
-    top: var(--mod-app-header-height, 80px);
-    right: 0;
+    top: var(--mod-app-top, var(--mod-app-header-height, 80px));
+    right: var(--mod-app-right, 0);
     bottom: 0;
-    left: 0;
-    z-index: 5;
+    left: var(--mod-app-left, 0);
+    z-index: 25;
     isolation: isolate;
     pointer-events: auto;
     overflow-y: auto;
     overscroll-behavior: contain;
-    background: var(--mod-app-surface);
-    animation: mod-app-page-enter .22s ease-out both;
+    background: transparent;
     color: var(--mod-app-text);
+}
+
+#mod-app-page[data-has-background="true"] .mod-app-tile,
+#mod-app-page[data-has-background="true"] .mod-app-add,
+#mod-app-page[data-has-background="true"] .mod-app-search,
+#mod-app-page[data-has-background="true"] .mod-app-folder-heading,
+:root:has(#mod-background, #mod-backgroundslide, #mod-background-live, #mod-backgroundcolor) #mod-app-page .mod-app-tile,
+:root:has(#mod-background, #mod-backgroundslide, #mod-background-live, #mod-backgroundcolor) #mod-app-page .mod-app-add,
+:root:has(#mod-background, #mod-backgroundslide, #mod-background-live, #mod-backgroundcolor) #mod-app-page .mod-app-search,
+:root:has(#mod-background, #mod-backgroundslide, #mod-background-live, #mod-backgroundcolor) #mod-app-page .mod-app-folder-heading {
+    background: var(--mod-app-tile-bg);
+    border-color: var(--mod-app-border-color);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.16);
+    backdrop-filter: blur(max(var(--mod-uiblur, 0px), 8px));
+    -webkit-backdrop-filter: blur(max(var(--mod-uiblur, 0px), 8px));
+}
+
+#mod-app-page[data-has-background="true"] .mod-app-tile.mod-app-pinned,
+:root:has(#mod-background, #mod-backgroundslide, #mod-background-live, #mod-backgroundcolor) #mod-app-page .mod-app-tile.mod-app-pinned {
+    background: linear-gradient(180deg, var(--mod-app-soft) 0%, var(--mod-app-tile-bg) 65%);
+}
+
+#mod-app-page[data-has-background="true"] .mod-app-folder-preview,
+:root:has(#mod-background, #mod-backgroundslide, #mod-background-live, #mod-backgroundcolor) #mod-app-page .mod-app-folder-preview {
+    background: color-mix(in srgb, var(--mod-folder-color) 25%, var(--mod-app-tile-bg));
+}
+
+#mod-app-page[data-has-background="true"] .mod-app-heading h1,
+#mod-app-page[data-has-background="true"] .mod-app-heading p,
+:root:has(#mod-background, #mod-backgroundslide, #mod-background-live, #mod-backgroundcolor) #mod-app-page .mod-app-heading h1,
+:root:has(#mod-background, #mod-backgroundslide, #mod-background-live, #mod-backgroundcolor) #mod-app-page .mod-app-heading p {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 #mod-app-page[hidden] {
@@ -760,36 +1334,119 @@ html.mod-apps-open sl-header,
 html.mod-apps-open sl-topbar,
 html.mod-apps-open header:has(sl-tab-item),
 html.mod-apps-open nav:has(sl-tab-item),
-html.mod-apps-open #mod-top-menu {
-    z-index: 30;
-}
-
+html.mod-apps-open #mod-top-menu,
 html.mod-apps-open sl-tab-bar,
 html.mod-apps-open sl-tab-item {
-    position: relative;
-    z-index: 30;
+    z-index: 100 !important;
 }
 
 html.mod-apps-open .menu-avatar,
 html.mod-apps-open .selector-options,
 html.mod-apps-open .selector-option,
+html.mod-apps-open sl-popup,
+html.mod-apps-open hmy-popup,
 html.mod-apps-open [role="menu"],
 html.mod-apps-open [role="listbox"] {
-    z-index: 40;
+    z-index: 102 !important;
 }
 
 html.mod-apps-open body {
+    overflow-y: hidden !important;
     overscroll-behavior: none;
 }
 
-@keyframes mod-app-page-enter {
-    from { opacity: 0; }
-    to { opacity: 1; }
+html.mod-apps-open sl-root,
+html.mod-apps-open sl-home,
+html.mod-apps-open sl-start {
+    background: transparent !important;
 }
 
-@keyframes mod-app-card-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+html.mod-apps-open sl-root > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-root > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-home > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-home > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-start > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-start > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open router-outlet ~ *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open router-outlet ~ *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-cijfers > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-cijfers > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-rooster > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-rooster > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-rooster-weken > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-rooster-weken > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-berichten > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-berichten > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-studiewijzer > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-studiewijzer > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-studiewijzer-weken > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-studiewijzer-weken > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-sidebar-page > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-sidebar-page > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-main-content > *:not(:has(sl-header)):not(sl-header),
+html.mod-apps-open sl-main-content > *:not(:has(sl-header)):not(sl-header) *,
+html.mod-apps-open sl-registratie-overzicht,
+html.mod-apps-open sl-registratie-overzicht *,
+html.mod-apps-open sl-gepubliceerde-schoolinformatie-navigation,
+html.mod-apps-open sl-gepubliceerde-schoolinformatie-navigation *,
+html.mod-apps-open .datum-container,
+html.mod-apps-open .datum-container *,
+html.mod-apps-open sl-dagen-header,
+html.mod-apps-open sl-dagen-header *,
+html.mod-apps-open .berichten-lijst,
+html.mod-apps-open .berichten-lijst *,
+html.mod-apps-open sl-studiewijzer-weken-header,
+html.mod-apps-open sl-studiewijzer-weken-header *,
+html.mod-apps-open sl-rooster-tijden,
+html.mod-apps-open sl-rooster-tijden *,
+html.mod-apps-open sl-vakresultaten,
+html.mod-apps-open sl-vakresultaten *,
+html.mod-apps-open sl-plaatsingen,
+html.mod-apps-open sl-plaatsingen *,
+html.mod-apps-open #mod-new-year,
+html.mod-apps-open #mod-new-year * {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+html.mod-apps-open sl-header,
+html.mod-apps-open sl-header *,
+html.mod-apps-open sl-topbar,
+html.mod-apps-open sl-topbar *,
+html.mod-apps-open header:has(sl-tab-item),
+html.mod-apps-open header:has(sl-tab-item) *,
+html.mod-apps-open nav:has(sl-tab-item),
+html.mod-apps-open nav:has(sl-tab-item) *,
+html.mod-apps-open sl-tab-bar,
+html.mod-apps-open sl-tab-bar *,
+html.mod-apps-open sl-tab-item,
+html.mod-apps-open sl-tab-item *,
+html.mod-apps-open #mod-simple-apps-launcher,
+html.mod-apps-open #mod-simple-apps-launcher *,
+html.mod-apps-open #mod-top-menu,
+html.mod-apps-open #mod-top-menu *,
+html.mod-apps-open #mod-logo-wrapper,
+html.mod-apps-open #mod-logo-wrapper *,
+html.mod-apps-open #mod-logo,
+html.mod-apps-open #mod-logo *,
+html.mod-apps-open sl-popup,
+html.mod-apps-open sl-popup *,
+html.mod-apps-open hmy-popup,
+html.mod-apps-open hmy-popup *,
+html.mod-apps-open .menu-avatar,
+html.mod-apps-open .menu-avatar *,
+html.mod-apps-open .selector-options,
+html.mod-apps-open .selector-option,
+html.mod-apps-open [role="menu"],
+html.mod-apps-open [role="listbox"],
+html.mod-apps-open #mod-app-page,
+html.mod-apps-open #mod-app-editor,
+html.mod-apps-open #somtoday-mod,
+html.mod-apps-open #somtoday-mod * {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
 @keyframes mod-app-modal-enter {
@@ -884,7 +1541,6 @@ html.mod-apps-open body {
     flex-direction: column;
     overflow: visible;
     cursor: grab;
-    animation: mod-app-card-in .24s ease-out both;
 }
 
 .mod-app-tile.mod-app-pinned {
@@ -905,6 +1561,20 @@ html.mod-apps-open body {
     color: var(--mod-app-primary);
     font-size: 11px;
     font-weight: 700;
+    pointer-events: none;
+}
+
+.mod-app-folder-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 11px;
+    background: var(--mod-app-hover);
+    border: 1px solid var(--border-neutral-normal, #aaa);
     pointer-events: none;
 }
 
@@ -1173,11 +1843,14 @@ html.mod-apps-open body {
 .mod-app-secondary {
     border: 1px solid var(--border-neutral-normal, #dce3eb);
     border-radius: 8px;
-    background: transparent;
+    background: var(--mod-semi-transparant, transparent);
     color: inherit;
     padding: 11px 17px;
     cursor: pointer;
     font: inherit;
+    font-weight: 550;
+    backdrop-filter: blur(var(--mod-uiblur, 0px));
+    -webkit-backdrop-filter: blur(var(--mod-uiblur, 0px));
 }
 
 .mod-app-error {
@@ -1190,7 +1863,6 @@ html.mod-apps-open body {
     display: none;
 }
 
- 
 .mod-app-color-picker { position:relative; display:flex; align-items:center; gap:12px; width:max-content; min-height:48px; padding:6px 12px; border:1px solid var(--border-neutral-normal, #aaa); border-radius:10px; background:var(--mod-app-hover); cursor:pointer; }
 .mod-app-color-preview { width:30px; height:30px; border-radius:7px; border:1px solid #8886; pointer-events:none; }
 .mod-app-color-value { color:var(--mod-app-text); font:inherit; font-weight:600; pointer-events:none; }
@@ -1211,21 +1883,21 @@ html.mod-apps-open body {
 .mod-app-create-options button { width:100%; border:0; background:transparent; color:var(--mod-app-text); text-align:left; padding:10px; cursor:pointer; }
 .mod-app-create-options button:hover { background:var(--mod-app-hover); }
 .mod-app-tile { position:relative; }
-.mod-app-folder-tile { border-color:var(--mod-folder-color); }
+.mod-app-folder-tile { border-color:var(--mod-folder-color); border-width: 1.5px; }
 .mod-app-folder-open { border:0; background:transparent; color:var(--mod-app-text); cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:100%; height:100%; padding:18px; }
-.mod-app-folder-preview { display:grid; grid-template-columns:repeat(2, 36px); grid-template-rows:repeat(2, 36px); gap:3px; padding:10px; border-radius:12px; background:color-mix(in srgb, var(--mod-folder-color) 22%, var(--mod-app-surface)); min-height:72px; }
+.mod-app-folder-preview { display:grid; grid-template-columns:repeat(2, 36px); grid-template-rows:repeat(2, 36px); gap:3px; padding:10px; border-radius:12px; background:color-mix(in srgb, var(--mod-folder-color) 25%, var(--mod-app-tile-bg, var(--mod-app-surface))); min-height:72px; }
 .mod-app-folder-preview .mod-app-icon { width:36px; height:36px; font-size:14px; }
-.mod-app-folder-heading { grid-column:1/-1; display:flex; align-items:center; justify-content:center; gap:16px; position:relative; padding:12px; border-bottom:2px solid var(--mod-folder-color); }
+.mod-app-folder-heading { grid-column:1/-1; display:flex; align-items:center; justify-content:center; gap:16px; position:relative; padding:14px 20px; border-radius:12px; border:1px solid var(--mod-app-border-color, #aaa); border-bottom:3px solid var(--mod-folder-color); background:var(--mod-app-tile-bg, var(--mod-app-surface)); box-shadow:0 4px 18px rgba(0, 0, 0, 0.16); }
 .mod-app-folder-heading h2 { margin:0; color:var(--mod-app-text); }
 .mod-app-folder-grid { max-width:780px; margin-inline:auto; }
-.mod-app-editor-form select.mod-app-folder-select { appearance:auto !important; -webkit-appearance:menulist !important; display:block !important; opacity:1 !important; visibility:visible !important; cursor:pointer; min-height:46px; }
-.mod-app-folder-select { padding:12px; border:1px solid var(--border-neutral-normal, #aaa); border-radius:8px; background:var(--mod-app-surface); color:var(--mod-app-text); width:100%; }
 .mod-app-hint { display:block; font-weight:400; color:var(--mod-app-muted); }
 .mod-app-editor-form input[type="color"] { width:64px; height:42px; padding:2px; border:1px solid var(--border-neutral-normal, #aaa); background:transparent; border-radius:8px; }
 
 @media (max-width: 600px) {
     #mod-app-page {
         top: var(--mod-app-header-height, 72px);
+        left: 0 !important;
+        right: 0 !important;
     }
 
     .mod-app-content {
@@ -1249,12 +1921,13 @@ html.mod-apps-open body {
         document.head.append(styles);
     }
 
-    if (!document.getElementById("mod-app-page")) {
-        const page = element("main");
+    const page = document.getElementById("mod-app-page") ?? element("main");
+    if (!page.id) {
         page.id = "mod-app-page";
         page.hidden = true;
         document.body.append(page);
     }
+    page.dataset.hasBackground = String(hasCustomBackground());
     if (!active) {
         currentApps = loadApps();
         folders = loadFolders();
@@ -1269,13 +1942,18 @@ html.mod-apps-open body {
             tabUpdatePending = true;
             requestAnimationFrame(() => {
                 tabUpdatePending = false;
-                if (get("appsEnabled") === false || get("appsEnabled") === "false") {
+                if (
+                    get("appsEnabled") === false ||
+                    get("appsEnabled") === "false"
+                ) {
                     simpleApps();
                     return;
                 }
                 insertTab();
                 if (active) {
-                    const tab = document.getElementById("mod-simple-apps-launcher");
+                    const tab = document.getElementById(
+                        "mod-simple-apps-launcher",
+                    );
                     if (tab) {
                         updatePageOffset(tab);
                     }
@@ -1289,7 +1967,9 @@ html.mod-apps-open body {
     }
 
     if (!document.documentElement.dataset.modAppsListener) {
-        window.addEventListener("somtoday-mod-apps-setting-changed", () => simpleApps());
+        window.addEventListener("somtoday-mod-apps-setting-changed", () =>
+            simpleApps(),
+        );
         window.addEventListener("resize", () => {
             if (!active) {
                 return;
@@ -1299,21 +1979,57 @@ html.mod-apps-open body {
                 updatePageOffset(tab);
             }
         });
+        window.addEventListener("popstate", () => hideApps());
+        window.addEventListener("hashchange", () => hideApps());
         document.documentElement.dataset.modAppsListener = "true";
-        document.addEventListener("pointerdown", (event) => {
-            const target = event.target;
-            if (target instanceof Element && !target.closest(".mod-app-menu, .mod-app-create-dropdown")) {
-                closeAppMenus();
-            }
-        }, true);
+        document.addEventListener(
+            "pointerdown",
+            (event) => {
+                const target = event.target;
+                if (
+                    target instanceof Element &&
+                    !target.closest(
+                        ".mod-app-menu, .mod-app-create-dropdown, .mod-app-folder-picker",
+                    )
+                ) {
+                    closeAppMenus();
+                }
+            },
+            true,
+        );
         document.addEventListener("keydown", (event) => {
-            if (event.key === "Escape") closeAppMenus();
-        });
-        document.addEventListener("click", (event) => {
-            const target = event.target as HTMLElement;
-            if (target.closest("sl-tab-item:not(#mod-simple-apps-launcher)")) {
-                hideApps();
+            if (event.key === "Escape") {
+                const editor = document.getElementById("mod-app-editor");
+                if (editor) {
+                    editor.remove();
+                    return;
+                }
+                if (
+                    document.querySelector(
+                        ".mod-app-menu.open, .mod-app-create-dropdown.open, .mod-app-folder-picker.open",
+                    )
+                ) {
+                    closeAppMenus();
+                    return;
+                }
+                if (active) {
+                    hideApps();
+                }
             }
-        }, true);
+        });
+        document.addEventListener(
+            "click",
+            (event) => {
+                const target = event.target as HTMLElement;
+                if (
+                    target.closest(
+                        "sl-tab-item:not(#mod-simple-apps-launcher), .menu-avatar, .selector-option, #mod-top-menu, #mod-logo",
+                    )
+                ) {
+                    hideApps();
+                }
+            },
+            true,
+        );
     }
 }

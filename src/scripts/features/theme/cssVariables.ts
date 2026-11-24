@@ -45,7 +45,7 @@ export function updateCssVariables() {
                       (get("layout") == "4"
                           ? ""
                           : "sl-vakresultaten,hmy-geen-data,hmy-switch-group:has(hmy-switch),sl-bericht-detail .header,sl-bericht-nieuw > .titel,") +
-                      ".headers-container,.tabs,sl-studiewijzer-week:has(.datum.vandaag),#mod-top-menu,sl-home > * > sl-tab-bar.show,sl-dagen-header,sl-scrollable-title,sl-studiewijzer-weken-header,sl-cijfer-overzicht-voortgang>div,sl-rooster-tijden{backdrop-filter:blur(" +
+                      ".headers-container,.tabs,sl-studiewijzer-week:has(.datum.vandaag),#mod-top-menu,sl-home > * > sl-tab-bar.show,sl-dagen-header,sl-scrollable-title,sl-studiewijzer-weken-header,sl-cijfer-overzicht-voortgang>div,sl-rooster-tijden,#mod-app-page .mod-app-tile,#mod-app-page .mod-app-add,#mod-app-page .mod-app-search,#mod-app-page .mod-app-folder-heading{backdrop-filter:blur(" +
                       get("uiblur") +
                       "px);}") +
                 "@media(max-width:767px){sl-laatste-resultaat-item{backdrop-filter:none;}sl-laatsteresultaten{backdrop-filter:blur(" +
@@ -82,7 +82,9 @@ export function updateCssVariables() {
               : "rgba(255,255,255,0.65)") +
         "; --mod-border-neutral-normal: rgb(" +
         (darkmode ? "55,64,72" : "208,214,220") +
-        ");";
+        "); --mod-uiblur: " +
+        (get("uiblur") ?? 0) +
+        "px;";
     if (
         get("primarycolor") != "#0067c2" ||
         get("secondarycolor") != "#e69b22"

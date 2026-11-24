@@ -127,7 +127,15 @@ export function modInit() {
 
     // Make sure to remove inert on click if needed
     registerReloadCallback(() => {
-        execute([updateCssVariables, setBackground, initTheme, modLogo]);
+        execute([
+            updateCssVariables,
+            setBackground,
+            initTheme,
+            modLogo,
+            style,
+            topMenu,
+            simpleApps,
+        ]);
     });
 
     document.addEventListener("click", () => {
