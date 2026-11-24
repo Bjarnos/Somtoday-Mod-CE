@@ -4,15 +4,15 @@ Somtoday Mod CE is a free browser-extension which adjusts the student website of
 > [!IMPORTANT]
 > Somtoday Mod sadly closed active development and pull requests as of September 2026, because the owner no longer has access to Somtoday. Because of this, Somtoday Mod CE was created. A community edition of the popular browser extension with revived support and active development.
 
-[![Button Chrome]][ChromeLink]
-[![Button Edge]][EdgeLink]
-[![Button Firefox]][FirefoxLink]
-
 <br>
 
 # Install
 
-Somtoday mod CE is not yet on any extention stores. to install Somtoday mod CE you can follow the instructions below 
+[![Button Chrome]][ChromeLink]
+[![Button Edge]][EdgeLink]
+[![Button Firefox]][FirefoxLink]
+
+It's easiest to fetch Somtoday mod CE from the extention stores, but you can also install it locally by following the instructions below 
 
 <details>
 <summary>Chromium extension</summary>
@@ -26,8 +26,6 @@ Chromium extension:
 <br>
 
 </details>
-
-
 
 <details>
 <summary>Firefox extension</summary>
@@ -46,8 +44,6 @@ Firefox Developer, Firefox Nightly or Firefox ESR extension - <b>permanent</b>, 
 
 </details>
 
-
-
 <details>
 <summary>Userscript</summary>
 <br>
@@ -61,8 +57,8 @@ Userscript:
 
 <!---------------------------------------------------------------------------->
 [Button Chrome]: assets/chrome-webstore.svg
-[ChromeLink]: https://chromewebstore.google.com/detail/somtoday-mod-ce/ihfpaeafponejgdhegkdfhcffpcdhbel 'Install in the Chrome Webstore.'
+[ChromeLink]: https://chromewebstore.google.com/detail/somtoday-mod-ce/ihfpaeafponejgdhegkdfhcffpcdhbel 'Install in the Chrome Webstore'
 [Button Edge]: assets/edge-addons.svg
-[EdgeLink]: https://microsoftedge.microsoft.com/addons/detail/somtoday-mod-ce/cijmmhcnhlgcljcjpbodolpgaplofkgk 'Install in the Edge Addons Store.'
+[EdgeLink]: https://microsoftedge.microsoft.com/addons/detail/somtoday-mod-ce/cijmmhcnhlgcljcjpbodolpgaplofkgk 'Install in the Edge Addons Store'
 [Button Firefox]: assets/firefox-addons.svg
-[FirefoxLink]: https://addons.mozilla.org/en-US/firefox/addon/somtoday-mod-ce/ 'Install in the Firefox Addons Store.'
+[FirefoxLink]: https://addons.mozilla.org/en-US/firefox/addon/somtoday-mod-ce/ 'Install in the Firefox Addons Store'

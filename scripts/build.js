@@ -309,7 +309,7 @@ async function build() {
 // @namespace    https://github.com/Bjarnos/Somtoday-Mod-CE
 // @version      ${version}
 // @description  Give Somtoday a new look with this Community Edition script.
-// @author       Jona Zwetsloot, Bjarnos & Community
+// @author       Bjarnos, Jona Zwetsloot & Community
 ${matches}
 // @icon         https://raw.githubusercontent.com/Bjarnos/Somtoday-Mod-CE/main/src/icon128.png
 // @updateURL    ${downloadUrl}
@@ -320,7 +320,7 @@ ${matches}
 // ==/UserScript==
 
 // SOMTODAY MOD (COMMUNITY EDITION)${isMinified ? " - MINIFIED" : ""}
-// Somtoday Mod (c) 2023-${currentYear} by Jona Zwetsloot, Bjarnos & Community is licensed under CC BY-NC-SA 4.0
+// Somtoday Mod (c) 2023-${currentYear} by Bjarnos, Jona Zwetsloot & Community is licensed under CC BY-NC-SA 4.0
 // This means you are free to edit and share this code if you attribute the creator.
 // You also have to use the same license and you are not allowed to use this software for commercial purposes.
 
