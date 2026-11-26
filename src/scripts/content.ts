@@ -6,3 +6,5 @@ import "./the_escape";
 import "./minigame";
 import "./main_functions";
 import "./execute_after_page_load";
+
+import "./features/ui/extensionConflict";
