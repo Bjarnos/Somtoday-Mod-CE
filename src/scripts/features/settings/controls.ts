@@ -64,7 +64,7 @@ export function addSetting(
 ) {
     if (
         (get(key) == null ||
-            ((key === "appsEnabled" || key === "absenceStatisticsEnabled") &&
+            ((key === "appsEnabled" || key === "absenceStatisticsEnabled" || key === "gradePrivacyFeatureEnabled") &&
                 get(key) === "")) &&
         !key.startsWith("bools")
     ) {
@@ -102,7 +102,8 @@ export function addSetting(
                 (get(key) === true ||
                 get(key) === "true" ||
                 ((key === "appsEnabled" ||
-                    key === "absenceStatisticsEnabled") &&
+                    key === "absenceStatisticsEnabled" ||
+                    key === "gradePrivacyFeatureEnabled") &&
                     (get(key) === "" || get(key) == null))
                     ? "checked"
                     : "") +
