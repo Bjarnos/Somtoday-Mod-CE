@@ -248,7 +248,7 @@ function installOption() {
             (event) => {
                 if (
                     !(event.target instanceof Element) ||
-                    event.target.closest("#mod-christmas-option") ||
+                    event.target.closest("#mod-christmas-option, #mod-winter-option") ||
                     !event.target.closest('.container[role="radio"]') ||
                     !christmasEnabled()
                 )
