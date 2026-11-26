@@ -332,6 +332,43 @@ const css = `
     --bg-neutral-strong:#a83d38;
     --fg-on-neutral-strong:#fff8ec;
 }
+
+.mod-christmas-options #mod-christmas-option .mod-christmas-preview {
+    position:relative;
+    width:100%;
+    aspect-ratio:280/208;
+    box-sizing:border-box;
+    padding:10px;
+    border-radius:10px;
+    background:linear-gradient(135deg,#a83940 0%,#773c3b 35%,#28543a 70%,#438052 100%);
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid #d5b477;
+}
+.mod-christmas-options #mod-christmas-option .mod-christmas-preview img {
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:1000/560;
+    object-fit:contain;
+    border-radius:5px;
+    box-shadow:0 2px 8px #0005;
+}
+#mod-christmas-option .mod-christmas-preview .mod-christmas-ribbon {
+    position:absolute;
+    top:12px;
+    right:-34px;
+    width:120px;
+    padding:4px 0;
+    transform:rotate(45deg);
+    background:linear-gradient(90deg,#a83940,#76383a);
+    color:#fff8ec;
+    font-size:11px;
+    text-align:center;
+    box-shadow:0 2px 5px #0003;
+    z-index:2;
+}
 `;
 function installOption() {
     const night = document.getElementById("mod-night-theme");
@@ -357,7 +394,14 @@ function installOption() {
         const ribbon = document.createElement("span");
         ribbon.className = "mod-christmas-ribbon";
         ribbon.textContent = "Tijdelijk";
-        option.append(ribbon);
+        if (image) {
+            const preview = document.createElement("div");
+            preview.className = "mod-christmas-preview";
+            image.before(preview);
+            preview.append(image, ribbon);
+        } else {
+            option.append(ribbon);
+        }
         const radio = option.querySelector("input");
         if (radio) {
             radio.value = "christmas";
