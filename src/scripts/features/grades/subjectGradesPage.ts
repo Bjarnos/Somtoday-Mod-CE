@@ -149,12 +149,12 @@ let privacyShortcutBound = false;
 
 function gradePrivacyFeatureActive(): boolean {
     const featureEnabled = get("gradePrivacyFeatureEnabled");
-    return featureEnabled === true || featureEnabled === "true";
+    return featureEnabled === true || featureEnabled === "true" || featureEnabled == null || featureEnabled === "";
 }
 
 function gradePrivacyEnabled(): boolean {
     const value = get(privacyKey);
-    return value === true || value === "true";
+    return value === true || value === "true" || value == null || value === "";
 }
 
 function toggleGradePrivacy() {
