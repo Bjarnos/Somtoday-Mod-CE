@@ -154,7 +154,7 @@ function gradePrivacyFeatureActive(): boolean {
 
 function gradePrivacyEnabled(): boolean {
     const value = get(privacyKey);
-    return value === true || value === "true" || value == null || value === "";
+    return value === true || value === "true";
 }
 
 function toggleGradePrivacy() {
