@@ -680,10 +680,10 @@ export function openSettings() {
                 ) +
                 addSetting(
                     "Cijferprivacy",
-                    "Toon de oogknop waarmee je cijfers tijdelijk kunt verbergen.",
+                    "Toon de oogknop waarmee je cijfers tijdelijk kunt verbergen (sneltoets: P).",
                     "gradePrivacyFeatureEnabled",
                     "checkbox",
-                    true,
+                    false,
                 ) +
                 addSetting(
                     "Uitgebreide afwezigheid",

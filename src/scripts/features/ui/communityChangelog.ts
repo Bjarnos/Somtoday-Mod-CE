@@ -46,21 +46,23 @@ export function showChangelog(manual = false) {
         window.setTimeout(showChangelog, 500);
         return;
     }
+    const dark =
+        document.documentElement.classList.contains("dark") ||
+        document.documentElement.classList.contains("night");
     const dialog = document.createElement("dialog");
     dialog.id = "mod-ce-changelog";
     dialog.setAttribute("aria-labelledby", "mod-ce-changelog-title");
-    dialog.dataset.dark = "true";
     const release = releases[version];
     const entries = release?.changes ?? [];
     dialog.innerHTML = `
         <style>
-            #mod-ce-changelog { --cl-text:#e1e6eb; --cl-muted:#b6c0cb; --cl-card:#252d35; --cl-accent:#c3e0ff; --cl-icon:#19354c; box-sizing:border-box; width:432px; max-width:calc(100% - 32px); max-height:calc(100% - 32px); margin:auto; padding:16px 16px 24px; border:1px solid #39434d; border-radius:12px; background:#20262d; color:var(--cl-text); color-scheme:dark; font:inherit; overflow:auto; user-select:none; -webkit-user-select:none; animation:cl-enter .3s cubic-bezier(.2,.8,.2,1); }
-            #mod-ce-changelog { scrollbar-width:thin; scrollbar-color:#536b80 #20262d; overscroll-behavior:contain; }
+            #mod-ce-changelog { --cl-bg:var(--bg-elevated-none, ${dark ? "#20262d" : "#ffffff"}); --cl-border:var(--border-neutral-normal, ${dark ? "#39434d" : "#d8e0e8"}); --cl-text:${dark ? "#e1e6eb" : "#263746"}; --cl-muted:${dark ? "#b6c0cb" : "#566777"}; --cl-card:var(--bg-neutral-weakest, ${dark ? "#252d35" : "#f5f7f9"}); --cl-accent:var(--action-primary-normal, var(--fg-primary-normal, ${dark ? "#66b2fa" : "#006bc9"})); --cl-icon:color-mix(in srgb, var(--cl-accent) ${dark ? "18%" : "12%"}, transparent); box-sizing:border-box; width:432px; max-width:calc(100% - 32px); max-height:calc(100% - 32px); margin:auto; padding:16px 16px 24px; border:1px solid var(--cl-border); border-radius:12px; background:var(--cl-bg); color:var(--cl-text); color-scheme:${dark ? "dark" : "light"}; font:inherit; overflow:auto; user-select:none; -webkit-user-select:none; animation:cl-enter .3s cubic-bezier(.2,.8,.2,1); }
+            #mod-ce-changelog { scrollbar-width:thin; scrollbar-color:var(--cl-border) var(--cl-bg); overscroll-behavior:contain; }
             #mod-ce-changelog::-webkit-scrollbar { width:8px; }
-            #mod-ce-changelog::-webkit-scrollbar-track { background:#20262d; border-radius:12px; }
-            #mod-ce-changelog::-webkit-scrollbar-thumb { background:#536b80; border:2px solid #20262d; border-radius:12px; }
-            #mod-ce-changelog::-webkit-scrollbar-thumb:hover { background:#789bb8; }
-            #mod-ce-changelog::-webkit-scrollbar-corner { background:#20262d; }
+            #mod-ce-changelog::-webkit-scrollbar-track { background:var(--cl-bg); border-radius:12px; }
+            #mod-ce-changelog::-webkit-scrollbar-thumb { background:var(--cl-border); border:2px solid var(--cl-bg); border-radius:12px; }
+            #mod-ce-changelog::-webkit-scrollbar-thumb:hover { background:var(--cl-muted); }
+            #mod-ce-changelog::-webkit-scrollbar-corner { background:var(--cl-bg); }
             #mod-ce-changelog * { user-select:none; -webkit-user-select:none; }
             #mod-ce-changelog::backdrop { background:#0009; animation:cl-backdrop .25s ease both; }
             #mod-ce-changelog .content { display:flex; flex-direction:column; gap:16px; }
@@ -71,7 +73,7 @@ export function showChangelog(manual = false) {
             #mod-ce-changelog .cl-version { display:inline-block; border-radius:6px; padding:4px 10px; background:var(--cl-icon); color:var(--cl-accent); font-size:13px; font-weight:600; animation:cl-row .3s .12s both; }
             #mod-ce-changelog .omschrijving { margin:0; color:inherit; font-size:14px; line-height:1.4; animation:cl-row .3s .1s both; }
             #mod-ce-changelog .cl-entries { display:flex; flex-direction:column; gap:8px; }
-            #mod-ce-changelog .cl-entry { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #39434d; border-radius:6px; background:var(--cl-card); animation:cl-row .35s both; animation-delay:calc(100ms + var(--cl-index) * 65ms); transition:background .18s, border-color .18s, translate .18s; }
+            #mod-ce-changelog .cl-entry { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--cl-border); border-radius:6px; background:var(--cl-card); animation:cl-row .35s both; animation-delay:calc(100ms + var(--cl-index) * 65ms); transition:background .18s, border-color .18s, translate .18s; }
             #mod-ce-changelog .cl-entry:hover { translate:0 -2px; border-color:var(--cl-accent); }
             #mod-ce-changelog .cl-icon { display:grid; place-items:center; flex:0 0 40px; height:40px; border-radius:6px; background:var(--cl-icon); color:var(--cl-accent); transition:transform .2s; }
             #mod-ce-changelog .cl-entry:hover .cl-icon { transform:scale(1.09) rotate(-4deg); }
@@ -79,7 +81,7 @@ export function showChangelog(manual = false) {
             #mod-ce-changelog .cl-entry p { margin:0; font-size:13px; line-height:1.4; color:var(--cl-muted); }
             #mod-ce-changelog .buttons { display:flex; animation:cl-row .3s .2s both; }
             #mod-ce-changelog .buttons hmy-button { flex:1; min-width:0; }
-            #mod-ce-changelog .cl-done { width:100%; min-height:40px; padding:8px; border:1px solid #39434d; border-radius:6px; background:#66b2fa; color:#10283d; font:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:filter .15s,transform .15s; }
+            #mod-ce-changelog .cl-done { width:100%; min-height:40px; padding:8px; border:1px solid transparent; border-radius:6px; background:var(--cl-accent); color:#ffffff; font:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:filter .15s,transform .15s; }
             #mod-ce-changelog .cl-done:hover { filter:brightness(1.1); }
             #mod-ce-changelog .cl-done:active { transform:scale(.98); }
             #mod-ce-changelog.cl-closing { animation:cl-exit .18s ease both; pointer-events:none; }

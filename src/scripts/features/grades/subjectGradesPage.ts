@@ -135,6 +135,7 @@ export function subjectGradesPage() {
 
 const privacyKey = "gradePrivacyEnabled";
 const privacySelector = [
+    "sl-laatsteresultaten .cijfer",
     "sl-resultaat-item .cijfer",
     "sl-vakgemiddelde-item .cijfer",
     "sl-vakresultaten .cijfer",
@@ -144,9 +145,56 @@ const privacySelector = [
     "#mod-grades-graphs canvas",
 ].join(", ");
 
+let privacyShortcutBound = false;
+
+function gradePrivacyFeatureActive(): boolean {
+    const featureEnabled = get("gradePrivacyFeatureEnabled");
+    return featureEnabled === true || featureEnabled === "true";
+}
+
 function gradePrivacyEnabled(): boolean {
     const value = get(privacyKey);
     return value === true || value === "true";
+}
+
+function toggleGradePrivacy() {
+    set(privacyKey, !gradePrivacyEnabled());
+    updateGradePrivacy();
+}
+
+function bindGradePrivacyShortcut() {
+    if (privacyShortcutBound) return;
+    privacyShortcutBound = true;
+    document.addEventListener("keydown", (event) => {
+        if (
+            event.defaultPrevented ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.altKey ||
+            event.key.toLowerCase() !== "p"
+        ) {
+            return;
+        }
+        const target = event.target;
+        if (
+            target instanceof Element &&
+            (target.closest("input, textarea, select, [contenteditable]") ||
+                (target instanceof HTMLElement && target.isContentEditable))
+        ) {
+            return;
+        }
+        if (
+            document.querySelector(
+                "dialog[open], sl-modal, #mod-settings-modal",
+            ) ||
+            !gradePrivacyFeatureActive() ||
+            !document.querySelector(".mod-grade-privacy-button")
+        ) {
+            return;
+        }
+        event.preventDefault();
+        toggleGradePrivacy();
+    });
 }
 
 function updateGradePrivacy() {
@@ -170,8 +218,8 @@ window.addEventListener(
 );
 
 function insertGradePrivacyButton() {
-    const featureEnabled = get("gradePrivacyFeatureEnabled");
-    if (featureEnabled === false || featureEnabled === "false") {
+    bindGradePrivacyShortcut();
+    if (!gradePrivacyFeatureActive()) {
         document.documentElement.classList.remove("mod-grade-privacy");
         document
             .querySelectorAll(".mod-grade-privacy-button")
@@ -210,6 +258,22 @@ function insertGradePrivacyButton() {
                 right: 20px;
                 align-self: center;
                 margin: 0;
+            }
+            sl-laatsteresultaten {
+                position: relative;
+            }
+            sl-laatsteresultaten > .mod-grade-privacy-button {
+                position: absolute;
+                top: 6px;
+                right: 8px;
+                margin: 0;
+            }
+            .mod-grade-privacy-heading {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                gap: 8px;
             }
             .mod-grade-privacy-button:hover,
             .mod-grade-privacy-button[aria-pressed="true"] {
@@ -295,7 +359,17 @@ function insertGradePrivacyButton() {
             "hmy-switch-group, sl-scrollable-title",
         );
         if (host) hosts.add(host);
-        else if (gradePage instanceof HTMLElement) hosts.add(gradePage);
+        else if (gradePage instanceof HTMLElement) {
+            const heading = gradePage.querySelector(
+                ":scope > :is(h1, h2, h3, .titel, .title, .header)",
+            );
+            if (heading instanceof HTMLElement) {
+                heading.classList.add("mod-grade-privacy-heading");
+                hosts.add(heading);
+            } else {
+                hosts.add(gradePage);
+            }
+        }
     }
     document.querySelectorAll(".mod-grade-privacy-button").forEach((button) => {
         if (!button.parentElement || !hosts.has(button.parentElement))
@@ -314,8 +388,7 @@ function insertGradePrivacyButton() {
             button.addEventListener("click", (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                set(privacyKey, !gradePrivacyEnabled());
-                updateGradePrivacy();
+                toggleGradePrivacy();
             });
         }
         const download = host.querySelector(".mod-grades-download");

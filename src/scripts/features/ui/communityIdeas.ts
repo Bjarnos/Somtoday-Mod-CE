@@ -6,7 +6,7 @@ function openIdeas() {
     const dialog = document.createElement("dialog");
     dialog.id = dialogId;
     dialog.setAttribute("aria-labelledby", "mod-ce-ideas-title");
-    dialog.innerHTML = `<div class="content"><sl-ideeenbord class="in-modal"><span class="titel" id="mod-ce-ideas-title">Naar het Mod CE ideeënbord</span><sl-ideeenbord-image>
+    dialog.innerHTML = `<div class="content"><sl-ideeenbord class="in-modal"><span class="titel" id="mod-ce-ideas-title">Naar het Mod ideeënbord</span><sl-ideeenbord-image>
         <svg width="112" height="112" viewBox="0 0 112 112" aria-hidden="true">
             <rect x="12" y="35" width="88" height="65" rx="12" fill="#ed9a49"/>
             <rect x="27" y="44" width="58" height="8" rx="4" fill="#263746"/>
@@ -111,10 +111,10 @@ export function communityIdeas() {
     let node = walker.nextNode();
     while (node) {
         if (node.textContent?.trim().toLowerCase() === "ideeënbord")
-            node.textContent = "Mod CE Ideeënbord";
+            node.textContent = "Mod Ideeënbord";
         node = walker.nextNode();
     }
-    item.setAttribute("aria-label", "Mod CE Ideeënbord");
+    item.setAttribute("aria-label", "Mod Ideeënbord");
     item.tabIndex = 0;
     const icon = item.querySelector("i");
     if (icon && typeof window.logo === "function") {
