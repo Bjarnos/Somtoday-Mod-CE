@@ -315,6 +315,23 @@ const css = `
 :root.mod-christmas sl-studiewijzer-week:has(.datum.vandaag) {
     background:rgba(245,235,217,.38) !important;
 }
+
+:root.mod-christmas sl-rooster-item:has(hmy-pill[color="warning"]),
+:root.mod-christmas sl-rooster-item:has(hmy-pill[color="primary-warning"]),
+:root.mod-christmas sl-rooster-item:is(.gewijzigd,.warning),
+:root.mod-christmas sl-rooster-item:has(.gewijzigd,.warning,[color="warning"]) {
+    background-color:#e2d8fa !important;
+    border-left-color:#7952b3 !important;
+}
+:root.mod-christmas sl-rooster-item:is(.uitval,.vervallen,.cancelled),
+:root.mod-christmas sl-rooster-item:has(.opacity-80, .uitval, .vervallen, hmy-pill[color="negative"], hmy-pill[color="neutral"]) {
+    background-color:#f6d4d0 !important;
+    border-left-color:#b94740 !important;
+}
+:root.mod-christmas sl-rooster-item:has(.opacity-80) hmy-pill {
+    --bg-neutral-strong:#a83d38;
+    --fg-on-neutral-strong:#fff8ec;
+}
 `;
 function installOption() {
     const night = document.getElementById("mod-night-theme");
