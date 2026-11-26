@@ -251,6 +251,62 @@ const css = `
 :root.mod-christmas sl-rooster-weken {background:rgba(255,248,236,.78) !important;}
 :root.mod-christmas sl-rooster-item {background-color:var(--bg-neutral-none);color:#202a23;}
 :root.mod-christmas sl-rooster-weken :is(h1,h2,h3,h4,button,label) {color:#202a23;}
+
+:root.mod-christmas sl-rooster-weken,
+:root.mod-christmas sl-rooster-week,
+:root.mod-christmas sl-rooster-dag {
+    background-color:transparent !important;
+    border-radius:0;
+}
+:root.mod-christmas sl-rooster-dag .uur {
+    background-color:rgba(255,248,236,.76) !important;
+    border-color:#b7a78b !important;
+}
+:root.mod-christmas sl-rooster-dag.weekend .uur {background-color:rgba(255,248,236,.55) !important;}
+:root.mod-christmas :is(sl-rooster-week-header,sl-rooster-tijden) {
+    background-color:#f7efdf !important;
+    color:#202a23 !important;
+}
+:root.mod-christmas sl-rooster-week-header :is(h1,h2,h3,h4,p,span,label),
+:root.mod-christmas sl-rooster-tijden :is(span,.tijd) {
+    color:#202a23 !important;
+    text-shadow:none !important;
+}
+:root.mod-christmas sl-rooster-item {
+    background-color:#fff8ec;
+    color:#202a23;
+    border-radius:5px;
+    box-shadow:0 1px 4px #26382b40;
+}
+:root.mod-christmas :is(sl-cijfers,sl-cijfer-overzicht,sl-laatsteresultaten,sl-vakresultaten) {
+    background-color:transparent !important;
+}
+:root.mod-christmas sl-cijfers :is(sl-resultaat-item,sl-vakgemiddelde-item) {
+    background-color:#fff8ec !important;
+    border-radius:6px;
+}
+:root.mod-christmas sl-cijfers :is(.tabs,hmy-switch-group,sl-scrollable-title) {
+    background-color:#f7efdf !important;
+    color:#202a23 !important;
+}
+:root.mod-christmas sl-cijfers :is(button,hmy-button) svg {color:#28543a;}
+:root.mod-christmas sl-cijfers :is(button,hmy-button) svg [stroke]:not([stroke="none"]) {stroke:currentColor;}
+:root.mod-christmas :is(sl-bericht-detail,sl-bericht-nieuw,.berichten-lijst,.nieuw-bericht-form) {
+    background-color:#fff8ec !important;
+    color:#202a23 !important;
+    --text-strong:#202a23 !important;
+    --text-moderate:#34443a !important;
+    --text-weak:#526052 !important;
+    --fg-on-neutral-none:#202a23 !important;
+    --fg-on-neutral-weak:#34443a !important;
+}
+:root.mod-christmas :is(sl-bericht-detail .header,sl-bericht-nieuw > .titel) {
+    background-color:#f7efdf !important;
+    color:#202a23 !important;
+    text-shadow:none !important;
+}
+:root.mod-christmas :is(sl-bericht-detail,sl-bericht-nieuw,.berichten-lijst) :is(h1,h2,h3,h4) {color:#202a23 !important;text-shadow:none !important;}
+:root.mod-christmas :is(sl-bericht-nieuw,.berichten-lijst) :is(input,textarea) {background-color:#fffdf7 !important;color:#202a23 !important;}
 `;
 function installOption() {
     const night = document.getElementById("mod-night-theme");
