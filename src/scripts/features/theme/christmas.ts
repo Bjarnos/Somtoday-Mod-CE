@@ -307,6 +307,14 @@ const css = `
 }
 :root.mod-christmas :is(sl-bericht-detail,sl-bericht-nieuw,.berichten-lijst) :is(h1,h2,h3,h4) {color:#202a23 !important;text-shadow:none !important;}
 :root.mod-christmas :is(sl-bericht-nieuw,.berichten-lijst) :is(input,textarea) {background-color:#fffdf7 !important;color:#202a23 !important;}
+
+:root.mod-christmas sl-rooster-item {
+    background-color:#e6efdf;
+    border-radius:5px;
+}
+:root.mod-christmas sl-studiewijzer-week:has(.datum.vandaag) {
+    background:rgba(245,235,217,.38) !important;
+}
 `;
 function installOption() {
     const night = document.getElementById("mod-night-theme");
