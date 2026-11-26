@@ -1,6 +1,7 @@
 import { get } from "../../save_version_management";
 import { id, n, tn, tryRemove } from "../../shorthand_functions";
 import { startLiveWallpaper, stopLiveWallpaper } from "./liveWallpaper";
+import { christmasEnabled } from "./christmas";
 import { winterEnabled } from "./winter";
 
 export function getBackgroundFilters(fromSavedSettings = true) {
@@ -48,7 +49,7 @@ export function setBackground() {
     tryRemove(id("mod-backgroundslide"));
     tryRemove(id("mod-background-style"));
     stopLiveWallpaper();
-    if (winterEnabled()) return;
+    if (winterEnabled() || christmasEnabled()) return;
     if (
         (n(get("backgroundtype")) || get("backgroundtype") == "image") &&
         !n(get("background"))
