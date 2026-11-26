@@ -599,12 +599,155 @@ function renderApps() {
         ),
         dropdown,
     );
+    const viewControls = element("div", "mod-app-view-controls");
+    viewControls.setAttribute("role", "group");
+    viewControls.setAttribute("aria-label", "Apps-weergave");
+    const listMode = get("simpleAppsView") === "list";
+    const viewButtons: HTMLButtonElement[] = [];
+    for (const mode of ["grid", "list"] as const) {
+        const label = mode === "grid" ? "Kaartweergave" : "Lijstweergave";
+        const control = button("", "mod-app-view-button", () => {
+            set("simpleAppsView", mode);
+            grid.classList.toggle("mod-app-list-view", mode === "list");
+            for (const item of viewButtons) {
+                item.setAttribute(
+                    "aria-pressed",
+                    String(item.dataset.view === mode),
+                );
+            }
+        });
+        control.dataset.view = mode;
+        control.title = label;
+        control.setAttribute("aria-label", label);
+        control.setAttribute(
+            "aria-pressed",
+            String(mode === (listMode ? "list" : "grid")),
+        );
+        control.innerHTML =
+            mode === "grid"
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 5h12M9 12h12M9 19h12"/><path d="M3 5h1M3 12h1M3 19h1"/></svg>';
+        viewButtons.push(control);
+        viewControls.append(control);
+    }
+    const viewRow = element("div", "mod-app-view-row");
+    viewRow.append(viewControls);
     toolbar.append(search, create);
     const grid = element("div", "mod-app-grid");
     grid.id = "mod-app-grid";
-    content.append(title, toolbar, grid);
+    grid.classList.toggle("mod-app-list-view", listMode);
+    content.append(title, viewRow, toolbar, grid);
     page.append(content);
     updateGrid();
+}
+
+function clearAppDrag() {
+    dragging = null;
+    document
+        .querySelectorAll(".mod-app-dragging, .mod-app-drop-target")
+        .forEach((item) => {
+            item.classList.remove("mod-app-dragging", "mod-app-drop-target");
+        });
+}
+
+function bindAppDrag(tile: HTMLElement, app: App) {
+    tile.draggable = true;
+    tile.querySelectorAll<HTMLElement>("a, img").forEach((item) => {
+        item.draggable = false;
+    });
+    tile.addEventListener("dragstart", (event) => {
+        if (!event.dataTransfer) return;
+        clearAppDrag();
+        closeAppMenus();
+        dragging = app.id;
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", app.id);
+        const preview = tile.cloneNode(true) as HTMLElement;
+        const rect = tile.getBoundingClientRect();
+        preview.classList.add("mod-app-drag-preview");
+        preview.style.width = rect.width + "px";
+        preview.style.height = rect.height + "px";
+        preview.style.background = getComputedStyle(tile).backgroundColor;
+        preview.style.color = getComputedStyle(tile).color;
+        preview.querySelector(".mod-app-menu")?.remove();
+        document.body.append(preview);
+        event.dataTransfer.setDragImage(
+            preview,
+            rect.width / 2,
+            rect.height / 2,
+        );
+        requestAnimationFrame(() => {
+            preview.remove();
+            if (dragging === app.id) tile.classList.add("mod-app-dragging");
+        });
+    });
+    tile.addEventListener("dragend", clearAppDrag);
+}
+
+function bindAppDrop(
+    tile: HTMLElement,
+    onDrop: (app: App) => void,
+    targetAppId?: string,
+) {
+    tile.addEventListener("dragover", (event) => {
+        if (!dragging || dragging === targetAppId) return;
+        event.preventDefault();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+        tile.classList.add("mod-app-drop-target");
+    });
+    tile.addEventListener("dragleave", (event) => {
+        if (
+            event.relatedTarget instanceof Node &&
+            tile.contains(event.relatedTarget)
+        )
+            return;
+        tile.classList.remove("mod-app-drop-target");
+    });
+    tile.addEventListener("drop", (event) => {
+        if (!dragging) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const app = currentApps.find((item) => item.id === dragging);
+        clearAppDrag();
+        if (!app || app.id === targetAppId) return;
+        const before = new Map<string, DOMRect>();
+        document
+            .querySelectorAll<HTMLElement>(
+                "#mod-app-grid [data-app-id], #mod-app-grid [data-folder-id]",
+            )
+            .forEach((item) => {
+                before.set(
+                    item.dataset.appId || "folder:" + item.dataset.folderId,
+                    item.getBoundingClientRect(),
+                );
+            });
+        onDrop(app);
+        saveApps();
+        updateGrid();
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+        document
+            .querySelectorAll<HTMLElement>(
+                "#mod-app-grid [data-app-id], #mod-app-grid [data-folder-id]",
+            )
+            .forEach((item) => {
+                const previous = before.get(
+                    item.dataset.appId || "folder:" + item.dataset.folderId,
+                );
+                if (!previous) return;
+                const next = item.getBoundingClientRect();
+                const x = previous.left - next.left;
+                const y = previous.top - next.top;
+                if (x || y)
+                    item.animate(
+                        [
+                            { transform: `translate(${x}px, ${y}px)` },
+                            { transform: "none" },
+                        ],
+                        { duration: 260, easing: "cubic-bezier(.2,.8,.2,1)" },
+                    );
+            });
+    });
 }
 
 function updateGrid() {
@@ -629,6 +772,10 @@ function updateGrid() {
             );
             const tile = element("div", "mod-app-tile mod-app-folder-tile");
             tile.style.setProperty("--mod-folder-color", folder.color);
+            tile.dataset.folderId = folder.id;
+            bindAppDrop(tile, (app) => {
+                app.folderId = folder.id;
+            });
             const opener = button("", "mod-app-folder-open", () => {
                 openFolderId = folder.id;
                 searchText = "";
@@ -712,6 +859,7 @@ function updateGrid() {
             );
             menu.append(menuButton, options);
             tile.append(link, menu);
+            bindAppDrag(tile, app);
             grid.append(tile);
         }
         return;
@@ -729,6 +877,9 @@ function updateGrid() {
             folderMenu(selectedFolder),
         );
         heading.style.setProperty("--mod-folder-color", selectedFolder.color);
+        bindAppDrop(heading.querySelector<HTMLElement>("button")!, (app) => {
+            delete app.folderId;
+        });
         grid.append(heading);
     } else {
         grid.classList.remove("mod-app-folder-grid");
@@ -740,6 +891,10 @@ function updateGrid() {
             );
             const tile = element("div", "mod-app-tile mod-app-folder-tile");
             tile.style.setProperty("--mod-folder-color", folder.color);
+            tile.dataset.folderId = folder.id;
+            bindAppDrop(tile, (app) => {
+                app.folderId = folder.id;
+            });
             const opener = button("", "mod-app-folder-open", () => {
                 openFolderId = folder.id;
                 renderApps();
@@ -829,33 +984,18 @@ function updateGrid() {
             menu.classList.add("open");
             menuButton.setAttribute("aria-expanded", "true");
         });
-        tile.addEventListener("dragstart", (event) => {
-            dragging = app.id;
-            event.dataTransfer?.setData("text/plain", app.id);
-        });
-        tile.addEventListener("dragend", () => {
-            dragging = null;
-        });
-        tile.addEventListener("dragover", (event) => event.preventDefault());
-        tile.addEventListener("drop", (event) => {
-            event.preventDefault();
-            if (!dragging || dragging === app.id) {
-                return;
-            }
-            const source = currentApps.findIndex(
-                (item) => item.id === dragging,
-            );
-            const destination = currentApps.findIndex(
-                (item) => item.id === app.id,
-            );
-            if (source >= 0 && destination >= 0 && source !== destination) {
-                const [moved] = currentApps.splice(source, 1);
+        bindAppDrag(tile, app);
+        bindAppDrop(
+            tile,
+            (moved) => {
+                const source = currentApps.indexOf(moved);
+                const destination = currentApps.indexOf(app);
+                if (source < 0 || destination < 0) return;
+                currentApps.splice(source, 1);
                 currentApps.splice(destination, 0, moved);
-                saveApps();
-                updateGrid();
-            }
-            dragging = null;
-        });
+            },
+            app.id,
+        );
         grid.append(tile);
     }
 }
@@ -1098,8 +1238,16 @@ export function simpleApps() {
 #mod-simple-apps-launcher:not([data-sidebar="true"]).active .mod-app-nav-icon,
 #mod-simple-apps-launcher:not([data-sidebar="true"]).active i,
 #mod-simple-apps-launcher:not([data-sidebar="true"]).active span {
-    color: #fff !important;
-    fill: #fff !important;
+    color: var(--mod-app-nav-highlight, #fff) !important;
+    fill: var(--mod-app-nav-highlight, #fff) !important;
+}
+
+:root:not(.dark):not(.night):not(.mod-winter) #mod-simple-apps-launcher:not([data-sidebar="true"]) {
+    --mod-app-nav-highlight: var(--action-primary-normal, #006bc9);
+}
+:root:not(.dark):not(.night):not(.mod-winter) #mod-simple-apps-launcher:not([data-sidebar="true"]):hover,
+:root:not(.dark):not(.night):not(.mod-winter) #mod-simple-apps-launcher:not([data-sidebar="true"]).active {
+    --mod-app-nav-highlight: #006bc9;
 }
 
 #mod-simple-apps-launcher:not([data-sidebar="true"]) .item i,
@@ -1536,6 +1684,34 @@ html.mod-apps-open #somtoday-mod * {
     transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
 
+ .mod-app-drag-preview {
+    position: fixed !important;
+    left: -10000px !important;
+    top: 0 !important;
+    box-sizing: border-box;
+    pointer-events: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px #0003;
+}
+#mod-app-grid .mod-app-dragging {
+    opacity: .35 !important;
+    transform: scale(.96);
+}
+#mod-app-grid .mod-app-drop-target {
+    border-color: var(--mod-app-primary, #006bc9) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mod-app-primary, #006bc9) 28%, transparent);
+    transform: scale(1.035);
+}
+#mod-app-grid .mod-app-folder-tile.mod-app-drop-target {
+    background: color-mix(in srgb, var(--mod-folder-color) 15%, var(--mod-app-surface));
+}
+#mod-app-grid .mod-app-link, #mod-app-grid .mod-app-link img {
+    -webkit-user-drag: none;
+    user-select: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    #mod-app-grid .mod-app-dragging, #mod-app-grid .mod-app-drop-target { transform: none; transition: none; }
+}
 .mod-app-tile {
     display: flex;
     flex-direction: column;
@@ -1564,12 +1740,37 @@ html.mod-apps-open #somtoday-mod * {
     pointer-events: none;
 }
 
+
+#mod-app-page .mod-app-view-row { display:flex; justify-content:flex-end; margin-top:12px; }
+#mod-app-page .mod-app-view-row + .mod-app-toolbar { margin-top:8px; }
+.mod-app-view-controls { display:flex; gap:4px; padding:3px; border:1px solid var(--border-neutral-normal,#dce3eb); border-radius:8px; background:var(--mod-app-surface); }
+.mod-app-view-button { display:grid; place-items:center; width:32px; height:30px; border:0; border-radius:5px; background:transparent; color:var(--mod-app-muted); cursor:pointer; transition:background .18s,color .18s,transform .18s; }
+.mod-app-view-button svg { width:18px; height:18px; }
+.mod-app-view-button:hover { background:var(--mod-app-hover); color:var(--mod-app-primary); }
+.mod-app-view-button[aria-pressed="true"] { background:var(--mod-app-primary); color:#fff; }
+.mod-app-view-button:active { transform:scale(.94); }
+.mod-app-tile.mod-app-pinned .mod-app-folder-badge { top:38px; }
+.mod-app-grid.mod-app-list-view { grid-template-columns:minmax(0,1fr); gap:8px; }
+.mod-app-list-view .mod-app-tile, .mod-app-list-view .mod-app-add { min-height:64px; }
+.mod-app-list-view .mod-app-link, .mod-app-list-view .mod-app-folder-open { flex-direction:row; justify-content:flex-start; text-align:left; gap:14px; padding:10px 52px 10px 14px; box-sizing:border-box; }
+.mod-app-list-view .mod-app-link > .mod-app-icon { width:40px; height:40px; flex:0 0 40px; font-size:20px; border-radius:9px; }
+.mod-app-list-view .mod-app-folder-preview { grid-template-columns:repeat(2,14px); grid-template-rows:repeat(2,14px); min-height:0; padding:5px; gap:2px; border-radius:8px; }
+.mod-app-list-view .mod-app-folder-preview .mod-app-icon { width:14px; height:14px; font-size:9px; border-radius:3px; }
+.mod-app-list-view .mod-app-menu { top:16px; }
+.mod-app-list-view .mod-app-add { display:flex; flex-direction:row; align-items:center; justify-content:center; gap:10px; }
+.mod-app-list-view .mod-app-pinned-label, .mod-app-list-view .mod-app-folder-badge { position:static; align-self:flex-start; margin:5px 52px 0 14px; max-width:calc(100% - 70px); }
+.mod-app-list-view .mod-app-tile:hover { transform:translateX(2px); }
+@media (prefers-reduced-motion: reduce) { .mod-app-view-button { transition:none; } }
+
 .mod-app-folder-badge {
     position: absolute;
     top: 12px;
-    right: 12px;
-    display: inline-flex;
-    align-items: center;
+    left: 12px;
+    max-width: calc(100% - 58px);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: block;
     padding: 2px 7px;
     border-radius: 6px;
     font-size: 11px;
@@ -1661,6 +1862,10 @@ html.mod-apps-open #somtoday-mod * {
     box-shadow: 0 8px 24px #101d2b20;
 }
 
+#mod-app-grid .mod-app-tile:has(.mod-app-menu.open) {
+    position: relative;
+    z-index: 100;
+}
 .mod-app-menu.open .mod-app-menu-options {
     display: flex;
     flex-direction: column;
