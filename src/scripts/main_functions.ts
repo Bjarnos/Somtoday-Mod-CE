@@ -46,12 +46,12 @@ import { platform, version } from "./save_version_management";
 import { cn, execute, id, n, tn, tryRemove } from "./shorthand_functions";
 
 export function modInit() {
-    // Make sure to have only one instance of the mod active at a time
-    if (id("somtoday-mod-active")) {
+    // Make sure to have only one instance of Somtoday Mod CE active at a time
+    if (id("somtoday-mod-ce-active")) {
         setTimeout(
             console.warn.bind(
                 console,
-                "SOMTODAY MOD:\nMultiple instances of Somtoday Mod are running.\nSomtoday Mod " +
+                "SOMTODAY MOD:\nMultiple instances of Somtoday Mod CE are running.\nSomtoday Mod CE " +
                     platform +
                     " v" +
                     version +
@@ -80,7 +80,7 @@ export function modInit() {
     const selectedQuestion = Math.floor(Math.random() * mathQuestions.length);
     tn("body", 0).insertAdjacentHTML(
         "beforeend",
-        '<div id="somtoday-mod"><div id="somtoday-mod-active" data-platform="' +
+        '<div id="somtoday-mod"><div id="somtoday-mod-ce-active" data-platform="' +
             platform +
             '" data-version="' +
             version +

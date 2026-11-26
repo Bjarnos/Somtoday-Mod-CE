@@ -30,7 +30,7 @@
             "run_at": "document_end"
         }
     ],
-    "permissions": ["storage", "unlimitedStorage", "management"],
+    "permissions": ["storage", "unlimitedStorage"],
     "host_permissions": ["*:\/\/*.somtoday.nl\/*", "*:\/\/som.today\/*"],
     "options_ui": {
         "page": "options.html",
