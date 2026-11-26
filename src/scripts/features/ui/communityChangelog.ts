@@ -107,32 +107,50 @@ export function showChangelog(manual = false) {
             <div class="cl-entries"></div>
             <div class="buttons"><hmy-button mode="secondary"><button type="button" class="secondary normal center cl-done">Verder naar Somtoday</button></hmy-button></div>
         </div>`;
-    dialog.querySelector(".cl-version")!.textContent = `Versie ${version}`;
-    dialog.querySelector("#mod-ce-changelog-title")!.textContent =
-        release?.title ?? "Nieuw in Somtoday Mod CE";
-    dialog.querySelector(".cl-intro")!.textContent =
-        release?.intro ??
-        "Bedankt dat je Somtoday Mod Community Edition gebruikt!";
-    const list = dialog.querySelector(".cl-entries")!;
-    entries.forEach((entry, index) => {
-        const row = document.createElement("div");
-        row.className = "cl-entry";
-        row.style.setProperty("--cl-index", String(index));
-        row.innerHTML = `<div class="cl-icon">${icon(entry.icon)}</div><div><strong></strong><p></p></div>`;
-        row.querySelector("strong")!.textContent = entry.title;
-        row.querySelector("p")!.textContent = entry.description;
-        if (entry.icon === "snowflake") {
-            row.classList.add("cl-winter");
-            const tag = document.createElement("span");
-            tag.className = "cl-winter-tag";
-            tag.textContent = "Tijdelijk";
-            row.querySelector("strong")!.append(tag);
+    const versionEl = dialog.querySelector(".cl-version");
+    if (versionEl) versionEl.textContent = `Versie ${version}`;
+    const titleEl = dialog.querySelector("#mod-ce-changelog-title");
+    if (titleEl)
+        titleEl.textContent = release?.title ?? "Nieuw in Somtoday Mod CE";
+    const introEl = dialog.querySelector(".cl-intro");
+    if (introEl) {
+        introEl.textContent =
+            release?.intro ??
+            "Bedankt dat je Somtoday Mod Community Edition gebruikt!";
+    }
+    const list = dialog.querySelector(".cl-entries");
+    if (list) {
+        entries.forEach((entry, index) => {
+            const row = document.createElement("div");
+            row.className = "cl-entry";
+            row.style.setProperty("--cl-index", String(index));
+
+            const iconWrap = document.createElement("div");
+            iconWrap.className = "cl-icon";
+            iconWrap.innerHTML = icon(entry.icon);
+
+            const body = document.createElement("div");
+            const strong = document.createElement("strong");
+            strong.textContent = entry.title;
+            if (entry.icon === "snowflake") {
+                row.classList.add("cl-winter");
+                const tag = document.createElement("span");
+                tag.className = "cl-winter-tag";
+                tag.textContent = "Tijdelijk";
+                strong.append(tag);
+            }
+            const desc = document.createElement("p");
+            desc.textContent = entry.description;
+            body.append(strong, desc);
+
+            row.append(iconWrap, body);
+            list.append(row);
+        });
+        if (!entries.length) {
+            list.textContent =
+                "Voor deze versie zijn nog geen release-notities toegevoegd.";
         }
-        list.append(row);
-    });
-    if (!entries.length)
-        list.textContent =
-            "Voor deze versie zijn nog geen release-notities toegevoegd.";
+    }
     dialog.addEventListener("close", () => dialog.remove());
     const close = () => {
         if (dialog.classList.contains("cl-closing")) return;
@@ -150,7 +168,8 @@ export function showChangelog(manual = false) {
     });
     document.body.append(dialog);
     dialog.showModal();
-    if (manual) dialog.querySelector(".cl-done")!.textContent = "Sluiten";
+    const doneButton = dialog.querySelector(".cl-done");
+    if (manual && doneButton) doneButton.textContent = "Sluiten";
     shown = true;
     set(seenKey, version);
 }
