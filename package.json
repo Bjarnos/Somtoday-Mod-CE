@@ -1,6 +1,6 @@
 {
     "name": "somtoday-mod-ce",
-    "version": "6.2.0",
+    "version": "6.2.1",
     "description": "Somtoday Mod (Community Edition) - Customise Somtoday with themes, grades overview, and extra features.",
     "scripts": {
         "build": "node scripts/build.js",
