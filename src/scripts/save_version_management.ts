@@ -25,6 +25,8 @@ export let data: Record<string, unknown> | null | undefined;
 export const isExtension = platform !== "Userscript";
 export const hasSettingsHash = window.location.hash === "#mod-settings";
 export let storageMethod: string;
+export let storageLoadFailed = false;
+export let storageReady: Promise<void> = Promise.resolve();
 
 export let get: (key: string) => any;
 export let set: (key: string, value: any) => void;
@@ -60,17 +62,49 @@ else if (storage) {
         data = result || {};
         (window as any).data = data;
     };
-    try {
-        const loadPromise = storage.local.get(null, onDataLoaded);
-        if (loadPromise && typeof loadPromise.then === "function") {
-            loadPromise.then(onDataLoaded).catch((err: unknown) => {
-                console.error("SOMTODAY MOD: Error loading storage", err);
-                onDataLoaded({});
+    storageReady = new Promise<void>((resolve) => {
+        let settled = false;
+        const finish = (result: any, failed = false) => {
+            if (settled) return;
+            settled = true;
+            storageLoadFailed = failed;
+            if (!failed) {
+                onDataLoaded(result);
+            }
+            resolve();
+        };
+        try {
+            const loadPromise = storage.local.get(null, (result: any) => {
+                const lastError =
+                    typeof chrome !== "undefined"
+                        ? chrome.runtime?.lastError
+                        : undefined;
+                if (lastError) {
+                    console.error(
+                        "SOMTODAY MOD: Error loading storage",
+                        lastError,
+                    );
+                    finish(null, true);
+                    return;
+                }
+                finish(result, false);
             });
+            if (loadPromise && typeof loadPromise.then === "function") {
+                loadPromise
+                    .then((result: any) => finish(result, false))
+                    .catch((err: unknown) => {
+                        console.error(
+                            "SOMTODAY MOD: Error loading storage",
+                            err,
+                        );
+                        finish(null, true);
+                    });
+            }
+        } catch (err) {
+            console.error("SOMTODAY MOD: Error loading storage", err);
+            finish(null, true);
         }
-    } catch {
-        storage.local.get(null, onDataLoaded);
-    }
+    });
     storage.onChanged?.addListener((changes: any) => {
         if (changes.enabled != null) {
             window.location.reload();
@@ -232,7 +266,10 @@ else if (window?.indexedDB) {
         return data[key];
     };
 
-    getAllFromStore();
+    storageReady = getAllFromStore().catch((err) => {
+        console.error("SOMTODAY MOD: Error loading IndexedDB storage", err);
+        storageLoadFailed = true;
+    });
 }
 // Fallback to local storage
 else if (window?.localStorage) {

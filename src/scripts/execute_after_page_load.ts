@@ -8,7 +8,9 @@ import {
     hasSettingsHash,
     isExtension,
     set,
+    storageLoadFailed,
     storageMethod,
+    storageReady,
 } from "./save_version_management";
 import {
     BOOL_INDEX,
@@ -123,7 +125,6 @@ async function autoLogin(): Promise<void> {
 }
 
 async function waitForPageLoad(): Promise<void> {
-    const storageTimeout = Date.now() + 3000;
     const getStorageMethod = () =>
         typeof storageMethod !== "undefined"
             ? storageMethod
@@ -133,13 +134,20 @@ async function waitForPageLoad(): Promise<void> {
             ? data
             : (window as any).data;
 
-    while (
-        (getStorageMethod() === "extension" ||
-            getStorageMethod() === "indexedDB") &&
-        getData() == null &&
-        Date.now() < storageTimeout
+    if (
+        getStorageMethod() === "extension" ||
+        getStorageMethod() === "indexedDB"
     ) {
-        await new Promise((resolve) => setTimeout(resolve, 25));
+        await Promise.race([
+            storageReady,
+            new Promise<void>((resolve) => setTimeout(resolve, 10000)),
+        ]);
+        if (storageLoadFailed || getData() == null) {
+            console.warn(
+                "SOMTODAY MOD: Storage did not load; skipping initialization to protect saved settings.",
+            );
+            return;
+        }
     }
 
     // Remember to open settings if settings hash is present

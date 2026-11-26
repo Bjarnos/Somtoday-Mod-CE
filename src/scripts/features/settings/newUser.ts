@@ -1,9 +1,22 @@
-import { get, hasSettingsHash, set } from "../../save_version_management";
+import {
+    data,
+    get,
+    hasSettingsHash,
+    set,
+    storageLoadFailed,
+    storageMethod,
+} from "../../save_version_management";
 import { cn, execute, id, n, tn, tryRemove } from "../../shorthand_functions";
 import { reset } from "./backup";
 import { closeSettings, openSettings } from "./modal";
 
 export function checkNewUser() {
+    if (
+        (storageMethod === "extension" || storageMethod === "indexedDB") &&
+        (storageLoadFailed || data == null)
+    ) {
+        return;
+    }
     if (n(get("firstused"))) {
         set("birthday", "00-00-0000");
         set("lastjubileum", 0);
