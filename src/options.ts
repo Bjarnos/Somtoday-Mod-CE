@@ -12,35 +12,6 @@
     setElementHtml("activetext", "activeText");
     setElementHtml("btn-1", "btnOne");
     setElementHtml("btn-2", "btnTwo");
-    setElementHtml("new-1", "newOne");
-    setElementHtml("new-2", "newTwo");
-    setElementHtml("new-3", "newThree");
-    setElementHtml("whats-new", "whatsNew");
-    setElementHtml("new-header", "whatsNewHeader");
-    setElementHtml("back", "back");
-
-    document.getElementById("whats-new")?.addEventListener("click", () => {
-        const activated = document.getElementById("activated");
-        if (activated) {
-            activated.style.display = "none";
-        }
-        const newRelease = document.getElementById("new-in-this-release");
-        if (newRelease) {
-            newRelease.style.display = "block";
-        }
-    });
-
-    document.getElementById("back")?.addEventListener("click", () => {
-        const activated = document.getElementById("activated");
-        if (activated) {
-            activated.style.display = "block";
-        }
-        const newRelease = document.getElementById("new-in-this-release");
-        if (newRelease) {
-            newRelease.style.display = "none";
-        }
-    });
-
     // Color functions
     const hexToRgb = (hex: string): [number, number, number] => {
         const normalized = hex

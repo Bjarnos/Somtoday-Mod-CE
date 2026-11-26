@@ -54,35 +54,8 @@
                 width: 100%;
             }
             #version {
-                position: absolute;
-                bottom: 20px;
-                right: 20px;
-                margin-top: 20px;
-            }
-            a.more {
-                display: inline-block;
-                width: fit-content;
-                font-size: 16px;
-                user-select: none;
-                padding-right: 20px;
-            }
-            a.more:after{
-                transition: margin-left 0.3s ease;
-                display: inline-block;
-                margin-left: 5px;
-                position: absolute;
-                margin-top: 2px;
-                content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%231e90ff" height="1em" viewBox="0 0 320 512"><path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/></svg>');
-                fill: var(--button-color);
-            }
-            a.more:hover:after {
-                margin-left: 10px;
-            }
-            #new-in-this-release {
-                display: none;
-            }
-            ul {
-                font-size: 16px;
+                text-align: right;
+                margin: 20px 0 16px;
             }
             @media (prefers-color-scheme: dark) {
                 html {
@@ -97,9 +70,6 @@
                 a {
                     color: #68b5ff;
                 }
-                a.more:after{
-                    content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%2368b5ff" height="1em" viewBox="0 0 320 512"><path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/></svg>');
-                }
             }
         </style>
     </head>
@@ -109,21 +79,6 @@
             <p id="activetext"></p>
             <div></div>
             <a class="button" target="_blank" href="https://leerling.somtoday.nl" id="btn-1"></a><a class="button" target="_blank" href="https://leerling.somtoday.nl/rooster#mod-settings" id="btn-2"></a>
-            <div></div>
-            <div></div>
-            <a id="whats-new" class="more"></a>
-            <div></div>
-        </div>
-        <div id="new-in-this-release">
-            <h1 id="new-header"></h1>
-            <ul>
-                <li id="new-1"></li>
-                <li id="new-2"></li>
-                <li id="new-3"></li>
-            </ul>
-            <div></div>
-            <a id="back" class="more"></a>
-            <div></div>
         </div>
         <div id="version"></div>
     </body>
