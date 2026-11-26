@@ -363,6 +363,24 @@ const css = `
     box-shadow:0 2px 5px #0003;
     z-index:2;
 }
+
+:root.mod-christmas .berichten-lijst :is(.datum,.date,.tijd,time,[class*="datum"],[class*="date"]) {
+    color:#202a23 !important;
+    text-shadow:none !important;
+}
+:root.mod-christmas .mod-christmas-message-placeholder {
+    background:rgba(255,248,236,.88) !important;
+    color:#202a23 !important;
+    border:1px solid #c8b494;
+    border-radius:12px;
+    padding:24px;
+    box-sizing:border-box;
+}
+:root.mod-christmas .mod-christmas-message-placeholder :is(p,span,a,button) {
+    color:#202a23 !important;
+    text-shadow:none !important;
+}
+:root.mod-christmas .mod-christmas-message-placeholder :is(a,button) {color:#28543a !important;}
 `;
 function installOption() {
     const night = document.getElementById("mod-night-theme");
@@ -452,4 +470,18 @@ function installOption() {
 }
 
 
-export function christmasTheme() { if (christmasEnabled()) { for (const item of document.querySelectorAll<HTMLElement>("sl-rooster-item")) { const pills = Array.from(item.querySelectorAll("hmy-pill")); const cancelled = pills.some(pill => /^(valt uit|uitval|vervallen)$/i.test((pill.textContent || "").trim())); const changed = pills.some(pill => /^toets\b/i.test((pill.textContent || "").trim())) || !!item.querySelector("[aria-label*=\"gewijzig\" i], [title*=\"gewijzig\" i]"); const status = cancelled ? "cancelled" : changed ? "changed" : ""; if (item.dataset.christmasStatus !== status) item.dataset.christmasStatus = status; } } if (!document.getElementById("mod-christmas-style")) { const style = document.createElement("style"); style.id = "mod-christmas-style"; style.textContent = css; document.head.append(style); } const enabled = christmasEnabled(); document.documentElement.classList.toggle("mod-christmas", enabled); if (enabled && !document.getElementById("mod-christmas-room")) { const layer = document.createElement("div"); layer.id = "mod-christmas-room"; layer.setAttribute("aria-hidden","true"); layer.innerHTML = christmasRoom(); document.getElementById("somtoday-mod")?.append(layer); } else if (!enabled) document.getElementById("mod-christmas-room")?.remove(); installOption(); }
+function styleChristmasMessages() {
+    for (const panel of document.querySelectorAll(".mod-christmas-message-placeholder")) {
+        if (!christmasEnabled() || !/selecteer of maak nieuw bericht/i.test(panel.textContent || "")) panel.classList.remove("mod-christmas-message-placeholder");
+    }
+    if (!christmasEnabled() || !document.querySelector(".berichten-lijst")) return;
+    for (const element of document.querySelectorAll<HTMLElement>("p,span,div")) {
+        if (element.children.length > 3 || !/^selecteer of maak nieuw bericht$/i.test((element.textContent || "").trim())) continue;
+        const parent = element.parentElement;
+        if (parent && !parent.closest(".berichten-lijst")) {
+            const panel = parent.querySelector("svg,img") ? parent : parent.parentElement;
+            if (panel && !panel.closest(".berichten-lijst") && (panel.textContent || "").trim().length < 100) panel.classList.add("mod-christmas-message-placeholder");
+        }
+    }
+}
+export function christmasTheme() { styleChristmasMessages(); if (christmasEnabled()) { for (const item of document.querySelectorAll<HTMLElement>("sl-rooster-item")) { const pills = Array.from(item.querySelectorAll("hmy-pill")); const cancelled = pills.some(pill => /^(valt uit|uitval|vervallen)$/i.test((pill.textContent || "").trim())); const changed = pills.some(pill => /^toets\b/i.test((pill.textContent || "").trim())) || !!item.querySelector("[aria-label*=\"gewijzig\" i], [title*=\"gewijzig\" i]"); const status = cancelled ? "cancelled" : changed ? "changed" : ""; if (item.dataset.christmasStatus !== status) item.dataset.christmasStatus = status; } } if (!document.getElementById("mod-christmas-style")) { const style = document.createElement("style"); style.id = "mod-christmas-style"; style.textContent = css; document.head.append(style); } const enabled = christmasEnabled(); document.documentElement.classList.toggle("mod-christmas", enabled); if (enabled && !document.getElementById("mod-christmas-room")) { const layer = document.createElement("div"); layer.id = "mod-christmas-room"; layer.setAttribute("aria-hidden","true"); layer.innerHTML = christmasRoom(); document.getElementById("somtoday-mod")?.append(layer); } else if (!enabled) document.getElementById("mod-christmas-room")?.remove(); installOption(); }
