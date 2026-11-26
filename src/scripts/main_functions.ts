@@ -27,6 +27,7 @@ import {
     style,
     updateCssVariables,
 } from "./features/theme";
+import { christmasTheme } from "./features/theme/christmas";
 import { winterTheme } from "./features/theme/winter";
 import {
     modLogo,
@@ -172,6 +173,7 @@ export function modInit() {
             communityIdeas,
             communityChangelog,
             winterTheme,
+            christmasTheme,
             newYearCountdown,
             topMenu,
             easterEggs,
