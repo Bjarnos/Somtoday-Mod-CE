@@ -1,4 +1,5 @@
 import { get, set } from "../../save_version_management";
+import { christmasTheme } from "./christmas";
 import { setBackground } from "./wallpaper";
 
 export const winterAvailable = true;
@@ -236,7 +237,9 @@ function installOption() {
         const select = (event: Event) => {
             event.preventDefault();
             event.stopPropagation();
+            set("christmasTheme", false);
             set("winterTheme", true);
+            christmasTheme();
             winterTheme();
             setBackground();
         };
