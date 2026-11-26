@@ -63,7 +63,11 @@ export function addSetting(
     param6?: any,
 ) {
     if (
-        (get(key) == null || (key === "appsEnabled" && get(key) === "")) &&
+        (get(key) == null ||
+            ((key === "appsEnabled" ||
+                key === "gradePrivacyFeatureEnabled" ||
+                key === "absenceStatisticsEnabled") &&
+                get(key) === "")) &&
         !key.startsWith("bools")
     ) {
         set(key, value);
@@ -99,7 +103,10 @@ export function addSetting(
                 '" class="mod-custom-setting" type="checkbox" ' +
                 (get(key) === true ||
                 get(key) === "true" ||
-                (key === "appsEnabled" && (get(key) === "" || get(key) == null))
+                ((key === "appsEnabled" ||
+                    key === "gradePrivacyFeatureEnabled" ||
+                    key === "absenceStatisticsEnabled") &&
+                    (get(key) === "" || get(key) == null))
                     ? "checked"
                     : "") +
                 ' oninput="this.classList.add(\'mod-modified\');" id="' +

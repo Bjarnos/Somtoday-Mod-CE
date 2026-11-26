@@ -27,6 +27,7 @@ import {
     style,
     updateCssVariables,
 } from "./features/theme";
+import { winterTheme } from "./features/theme/winter";
 import {
     modLogo,
     profilePicture,
@@ -36,6 +37,10 @@ import {
     topMenu,
     userName,
 } from "./features/ui";
+import { absenceStatistics } from "./features/ui/absenceStatistics";
+import { communityChangelog } from "./features/ui/communityChangelog";
+import { communityIdeas } from "./features/ui/communityIdeas";
+import { planningColors } from "./features/ui/planningColors";
 import { errorPage } from "./minigame";
 import { platform, version } from "./save_version_management";
 import { cn, execute, id, n, tn, tryRemove } from "./shorthand_functions";
@@ -162,6 +167,11 @@ export function modInit() {
             subjectGradesPage,
             somtodayRecap,
             rosterSimplify,
+            planningColors,
+            absenceStatistics,
+            communityIdeas,
+            communityChangelog,
+            winterTheme,
             newYearCountdown,
             topMenu,
             easterEggs,

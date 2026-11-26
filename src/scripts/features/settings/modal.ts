@@ -29,6 +29,7 @@ import { gradeGraphs } from "../grades/graphs";
 import { fonts } from "../theme/fonts";
 import { randomColor, startLiveWallpaper } from "../theme/liveWallpaper";
 import { getBackgroundFilters } from "../theme/wallpaper";
+import { showChangelog } from "../ui/communityChangelog";
 import { exportSettings, importSettings, reset } from "./backup";
 import { addSetting, addSlider, addTheme, resetThemeCount } from "./controls";
 import { insertModSettingLink } from "./newUser";
@@ -676,6 +677,20 @@ export function openSettings() {
                     "appsEnabled",
                     "checkbox",
                     true,
+                ) +
+                addSetting(
+                    "Cijferprivacy",
+                    "Toon de oogknop waarmee je cijfers tijdelijk kunt verbergen.",
+                    "gradePrivacyFeatureEnabled",
+                    "checkbox",
+                    true,
+                ) +
+                addSetting(
+                    "Uitgebreide afwezigheid",
+                    "Toon alle afwezigheidscategorieën en interactieve statistieken.",
+                    "absenceStatisticsEnabled",
+                    "checkbox",
+                    true,
                 ),
             "{{browser_settings}}":
                 addSetting(
@@ -766,6 +781,7 @@ export function openSettings() {
             "{{platform}}": `Somtoday ${platform}`,
             "{{contributors_list}}": contributorContent,
             "{{updateinfo}}": updateinfo,
+            "{{changelog_button}}": `<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;"><button type="button" id="mod-view-changelog" class="mod-button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>Bekijk nieuwste changelog</span></button></div>`,
             "{{export_import_buttons}}": `<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;"><div id="export-settings" class="mod-button">${window.getIcon("export", null, "var(--fg-on-primary-weak)")}<span>Exporteer Mod-instellingen</span></div><div id="import-settings" class="mod-button">${window.getIcon("import", null, "var(--fg-on-primary-weak)")}<span>Importeer Mod-instellingen</span></div></div><input type="file" id="import-settings-json" class="hidden" accept="application/json">`,
         };
         for (const key in replacements) {
@@ -785,6 +801,10 @@ export function openSettings() {
                 execute([startTheEscape]);
             });
         }
+
+        document
+            .getElementById("mod-view-changelog")
+            ?.addEventListener("click", () => showChangelog(true));
 
         // Import/export settings
         if (
@@ -1716,6 +1736,16 @@ async function save() {
             set("appsEnabled", element.checked);
             window.dispatchEvent(
                 new Event("somtoday-mod-apps-setting-changed"),
+            );
+        } else if (element.id === "absenceStatisticsEnabled") {
+            set("absenceStatisticsEnabled", element.checked);
+            window.dispatchEvent(
+                new Event("somtoday-mod-absence-setting-changed"),
+            );
+        } else if (element.id === "gradePrivacyFeatureEnabled") {
+            set("gradePrivacyFeatureEnabled", element.checked);
+            window.dispatchEvent(
+                new Event("somtoday-mod-grade-privacy-setting-changed"),
             );
         } else if (
             element.type == "checkbox" &&
