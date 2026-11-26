@@ -316,23 +316,17 @@ const css = `
     background:rgba(245,235,217,.38) !important;
 }
 
-:root.mod-christmas sl-rooster-item:has(hmy-pill[color="warning"]),
-:root.mod-christmas sl-rooster-item:has(hmy-pill[color="primary-warning"]),
+:root.mod-christmas sl-rooster-item:has(hmy-pill[color="warning"], hmy-pill[color="primary-warning"], .gewijzigd, .warning, [color="warning"]),
 :root.mod-christmas sl-rooster-item:is(.gewijzigd,.warning),
-:root.mod-christmas sl-rooster-item:has(.gewijzigd,.warning,[color="warning"]) {
+:root.mod-christmas sl-rooster-item[data-christmas-status="changed"] {
     background-color:#e2d8fa !important;
     border-left-color:#7952b3 !important;
 }
 :root.mod-christmas sl-rooster-item:is(.uitval,.vervallen,.cancelled),
-:root.mod-christmas sl-rooster-item:has(.opacity-80, .uitval, .vervallen, hmy-pill[color="negative"], hmy-pill[color="neutral"]) {
+:root.mod-christmas sl-rooster-item[data-christmas-status="cancelled"] {
     background-color:#f6d4d0 !important;
     border-left-color:#b94740 !important;
 }
-:root.mod-christmas sl-rooster-item:has(.opacity-80) hmy-pill {
-    --bg-neutral-strong:#a83d38;
-    --fg-on-neutral-strong:#fff8ec;
-}
-
 .mod-christmas-options #mod-christmas-option .mod-christmas-preview {
     position:relative;
     width:100%;
@@ -458,4 +452,4 @@ function installOption() {
 }
 
 
-export function christmasTheme() { if (!document.getElementById("mod-christmas-style")) { const style = document.createElement("style"); style.id = "mod-christmas-style"; style.textContent = css; document.head.append(style); } const enabled = christmasEnabled(); document.documentElement.classList.toggle("mod-christmas", enabled); if (enabled && !document.getElementById("mod-christmas-room")) { const layer = document.createElement("div"); layer.id = "mod-christmas-room"; layer.setAttribute("aria-hidden","true"); layer.innerHTML = christmasRoom(); document.getElementById("somtoday-mod")?.append(layer); } else if (!enabled) document.getElementById("mod-christmas-room")?.remove(); installOption(); }
+export function christmasTheme() { if (christmasEnabled()) { for (const item of document.querySelectorAll<HTMLElement>("sl-rooster-item")) { const pills = Array.from(item.querySelectorAll("hmy-pill")); const cancelled = pills.some(pill => /^(valt uit|uitval|vervallen)$/i.test((pill.textContent || "").trim())); const changed = pills.some(pill => /^toets\b/i.test((pill.textContent || "").trim())) || !!item.querySelector("[aria-label*=\"gewijzig\" i], [title*=\"gewijzig\" i]"); const status = cancelled ? "cancelled" : changed ? "changed" : ""; if (item.dataset.christmasStatus !== status) item.dataset.christmasStatus = status; } } if (!document.getElementById("mod-christmas-style")) { const style = document.createElement("style"); style.id = "mod-christmas-style"; style.textContent = css; document.head.append(style); } const enabled = christmasEnabled(); document.documentElement.classList.toggle("mod-christmas", enabled); if (enabled && !document.getElementById("mod-christmas-room")) { const layer = document.createElement("div"); layer.id = "mod-christmas-room"; layer.setAttribute("aria-hidden","true"); layer.innerHTML = christmasRoom(); document.getElementById("somtoday-mod")?.append(layer); } else if (!enabled) document.getElementById("mod-christmas-room")?.remove(); installOption(); }
