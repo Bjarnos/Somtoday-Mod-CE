@@ -87,8 +87,9 @@ export function showChangelog(manual = false) {
             #mod-ce-changelog .buttons { display:flex; animation:cl-row .3s .2s both; }
             #mod-ce-changelog .buttons hmy-button { flex:1; min-width:0; }
             #mod-ce-changelog .cl-done { width:100%; min-height:40px; padding:8px; border:1px solid transparent; border-radius:6px; background:var(--cl-accent); color:#ffffff; font:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:filter .15s,transform .15s; }
-            #mod-ce-changelog .cl-done:hover { filter:brightness(1.1); }
-            #mod-ce-changelog .cl-done:active { transform:scale(.98); }
+            #mod-ce-changelog .cl-done:disabled { opacity:.55; cursor:wait; filter:none; transform:none; }
+            #mod-ce-changelog .cl-done:hover:not(:disabled) { filter:brightness(1.1); }
+            #mod-ce-changelog .cl-done:active:not(:disabled) { transform:scale(.98); }
             #mod-ce-changelog.cl-closing { animation:cl-exit .18s ease both; pointer-events:none; }
             #mod-ce-changelog.cl-closing::backdrop { animation:cl-backdrop .18s reverse both; }
             @keyframes cl-enter { from { opacity:0; transform:translateY(12px) scale(.97); } to { opacity:1; transform:none; } }
@@ -157,9 +158,14 @@ export function showChangelog(manual = false) {
                 "Voor deze versie zijn nog geen release-notities toegevoegd.";
         }
     }
-    dialog.addEventListener("close", () => dialog.remove());
+    let locked = !manual;
+    let countdown: ReturnType<typeof setInterval> | undefined;
+    dialog.addEventListener("close", () => {
+        clearInterval(countdown);
+        dialog.remove();
+    });
     const close = () => {
-        if (dialog.classList.contains("cl-closing")) return;
+        if (locked || dialog.classList.contains("cl-closing")) return;
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             dialog.close();
             return;
@@ -174,8 +180,27 @@ export function showChangelog(manual = false) {
     });
     document.body.append(dialog);
     dialog.showModal();
-    const doneButton = dialog.querySelector(".cl-done");
-    if (manual && doneButton) doneButton.textContent = "Sluiten";
+    const doneButton = dialog.querySelector<HTMLButtonElement>(".cl-done");
+    if (manual && doneButton) {
+        doneButton.textContent = "Sluiten";
+    } else if (doneButton) {
+        const unlockAt = performance.now() + 3000;
+        doneButton.disabled = true;
+        doneButton.textContent = "Verder naar Somtoday (3)";
+        countdown = setInterval(() => {
+            const remaining = Math.max(0, Math.ceil((unlockAt - performance.now()) / 1000));
+            if (remaining > 0) {
+                doneButton.textContent = `Verder naar Somtoday (${remaining})`;
+                return;
+            }
+            clearInterval(countdown);
+            locked = false;
+            doneButton.disabled = false;
+            doneButton.textContent = "Verder naar Somtoday";
+        }, 100);
+    } else {
+        locked = false;
+    }
     shown = true;
     set(seenKey, version);
 }
