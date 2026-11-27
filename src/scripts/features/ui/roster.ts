@@ -292,7 +292,7 @@ function rosterReloadButton() {
             #mod-roster-reload:hover:not(:disabled) {transform:translateY(-2px);filter:brightness(.97);}
             #mod-roster-reload:active:not(:disabled) {transform:translateY(0);}
             #mod-roster-reload:disabled {opacity:1;cursor:wait;}
-            #mod-roster-refresh-line {position:fixed;height:2px;overflow:hidden;pointer-events:none;z-index:20;border-radius:2px;background:color-mix(in srgb,currentColor 12%,transparent);}
+            #mod-roster-refresh-line {position:fixed;height:3px;overflow:hidden;pointer-events:none;z-index:999;border-radius:2px;background:color-mix(in srgb,currentColor 12%,transparent);}
             #mod-roster-refresh-line::after {content:"";display:block;width:30%;height:100%;background:currentColor;border-radius:2px;animation:mod-roster-refresh-progress 1s ease-in-out infinite;}
             @keyframes mod-roster-refresh-progress {from {transform:translateX(-100%);}to {transform:translateX(435%);}}
             sl-rooster-weken.mod-roster-refreshing {opacity:.78;transition:opacity .2s ease;}
@@ -329,6 +329,13 @@ function rosterReloadButton() {
             });
         }
         const roster = document.querySelector("sl-rooster-weken");
+        const status = document.createElement("div");
+        status.id = "mod-roster-refresh-status";
+        status.setAttribute("role", "status");
+        status.textContent = "Rooster vernieuwen…";
+        status.style.color = getComputedStyle(button).color;
+        status.style.backgroundColor = getComputedStyle(weekend).backgroundColor;
+        status.style.border = getComputedStyle(weekend).border;
         const line = document.createElement("div");
         line.id = "mod-roster-refresh-line";
         line.setAttribute("aria-hidden", "true");
@@ -341,8 +348,12 @@ function rosterReloadButton() {
             line.style.top = rect.top + "px";
             line.style.width = rect.width + "px";
             line.style.visibility = rect.top < 0 || rect.top > window.innerHeight ? "hidden" : "visible";
+            status.style.top = Math.max(8, rect.top + 8) + "px";
+            status.style.left = Math.max(8, rect.right - status.offsetWidth - 12) + "px";
+            status.style.visibility = line.style.visibility;
+            current.classList.add("mod-rooster-refreshing");
         };
-        document.body.append(line);
+        document.body.append(line, status);
         positionLine();
         roster?.classList.add("mod-roster-refreshing");
         window.addEventListener("resize", positionLine);
@@ -351,7 +362,7 @@ function rosterReloadButton() {
         let timeout: ReturnType<typeof setTimeout>;
         let finished = false;
         const started = performance.now();
-        const finish = () => {
+        const finish = (changed = false) => {
             if (finished) return;
             finished = true;
             observer.disconnect();
@@ -360,6 +371,8 @@ function rosterReloadButton() {
             window.removeEventListener("resize", positionLine);
             window.removeEventListener("scroll", positionLine, true);
             line.remove();
+            status.textContent = changed ? "Roosterweergave bijgewerkt" : "Vernieuwing niet bevestigd";
+            setTimeout(() => status.remove(), 1800);
             roster?.classList.remove("mod-roster-refreshing");
             document.querySelector("sl-rooster-weken")?.classList.remove("mod-roster-refreshing");
             rosterRefreshActive = false;
@@ -377,10 +390,12 @@ function rosterReloadButton() {
             if (!changed) return;
             positionLine();
             clearTimeout(quietTimer);
-            quietTimer = setTimeout(finish, Math.max(350, 650 - (performance.now() - started)));
+            quietTimer = setTimeout(() => finish(true), Math.max(450, 900 - (performance.now() - started)));
         });
         observer.observe(document.body, { childList: true, subtree: true });
-        timeout = setTimeout(finish, 5000);
-        today.click();
+        timeout = setTimeout(() => finish(false), 8000);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            if (!finished && today.isConnected) today.click();
+        }));
     });
 }
