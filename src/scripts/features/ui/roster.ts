@@ -259,8 +259,8 @@ function rosterReloadButton() {
     button.className = weekend.className;
     button.title = "Rooster vernieuwen";
     button.setAttribute("aria-label", "Rooster vernieuwen");
-    button.style.cssText = "display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:48px;height:36px;padding:0 10px;margin-right:8px;color:var(--fg-primary-normal,#006bc9);flex-shrink:0;cursor:pointer;";
-    button.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h2m4 0h2m-8 3h2m4 0h2"/></svg><svg class="mod-roster-reload-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a8 8 0 0 1 14 5M4 12a8 8 0 0 0 14 5"/></svg>';
+    button.style.cssText = "display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:40px;height:36px;padding:0 10px;margin-right:8px;color:var(--fg-primary-normal,#006bc9);flex-shrink:0;cursor:pointer;";
+    button.innerHTML = '<svg width="24" height="24" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><defs><mask id="mod-roster-calendar-mask"><rect width="32" height="32" fill="white"/><circle cx="24" cy="24" r="8.5" fill="black"/></mask></defs><g mask="url(#mod-roster-calendar-mask)"><rect x="3" y="5" width="22" height="23" rx="3"/><path d="M9 2v6M19 2v6M3 12h22"/><path d="M8 17h2m4 0h2m4 0h1M8 22h2m4 0h2"/></g><g class="mod-roster-reload-icon" style="transform-box:view-box;transform-origin:24px 24px"><path d="M30 22a6.3 6.3 0 1 0 0 4M30 17v5h-5"/></g></svg>';
     anchor.before(button);
 
     button.addEventListener("click", () => {
