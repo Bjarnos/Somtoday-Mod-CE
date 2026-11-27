@@ -59,7 +59,7 @@ function updateParticles() {
         if (
             particle.x > width + 20 ||
             particle.x < -20 ||
-            particle.y > height
+            particle.y > height + 40
         ) {
             if (streamingConfetti && particles.length <= maxParticleCount) {
                 resetParticle(particle, width, height);
@@ -133,9 +133,6 @@ export function stopConfetti(): void {
 export function toggleConfetti(): boolean {
     if (streamingConfetti) {
         stopConfetti();
-        particles.length = 0;
-        const canvas = id("confetti-canvas") as HTMLCanvasElement | null;
-        canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
         return false;
     }
     startConfetti();
