@@ -251,22 +251,54 @@ function rosterReloadButton() {
     const weekend = buttons.find(button => /^(toon|verberg) weekend$/i.test(button.textContent?.trim() || ""));
     if (!weekend) return;
     const anchor = weekend.closest("hmy-button") || weekend;
+    const syncButtonStyle = (target: HTMLButtonElement) => {
+        const native = getComputedStyle(weekend);
+        const styles = {
+            color: native.color,
+            backgroundColor: native.backgroundColor,
+            border: native.border,
+            borderRadius: native.borderRadius,
+            boxShadow: native.boxShadow,
+            height: weekend.getBoundingClientRect().height + "px",
+        };
+        for (const [key, value] of Object.entries(styles)) {
+            const property = key.replace(/[A-Z]/g, letter => "-" + letter.toLowerCase());
+            if (target.style.getPropertyValue(property) !== value) {
+                target.style.setProperty(property, value);
+            }
+        }
+    };
     const existing = anchor.parentElement?.querySelector<HTMLButtonElement>("#mod-roster-reload");
     if (existing) {
-        const color = getComputedStyle(weekend).color;
-        if (existing.style.color !== color) existing.style.color = color;
+        if (!weekend.matches(":hover,:active")) syncButtonStyle(existing);
         return;
     }
 
     const button = document.createElement("button");
     button.id = "mod-roster-reload";
     button.type = "button";
-    button.className = weekend.className;
+    button.className = "mod-roster-reload-button";
     button.title = "Rooster vernieuwen";
     button.setAttribute("aria-label", "Rooster vernieuwen");
-    button.style.cssText = "display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:40px;height:36px;padding:0 10px;margin-right:8px;color:inherit;flex-shrink:0;cursor:pointer;";
+    button.style.cssText = "appearance:none;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:36px;padding:0 9px;margin-right:8px;flex-shrink:0;cursor:pointer;vertical-align:middle;";
     button.innerHTML = '<svg style="display:block;flex-shrink:0;overflow:visible" width="24" height="24" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><defs><mask id="mod-roster-calendar-mask"><rect width="32" height="32" fill="white"/><circle cx="24" cy="24" r="9.5" fill="black"/></mask></defs><g mask="url(#mod-roster-calendar-mask)"><rect x="3" y="5" width="22" height="23" rx="3"/><path d="M9 2v6M19 2v6M3 12h22"/><path d="M8 17h2m4 0h2m4 0h1M8 22h2m4 0h2"/></g><g class="mod-roster-reload-icon" style="transform-box:view-box;transform-origin:24px 24px"><path d="M29.5 21a6.3 6.3 0 1 0 .4 5.5M29.5 16.5V21H25" fill="none"/></g></svg>';
-    button.style.color = getComputedStyle(weekend).color;
+    if (!document.getElementById("mod-roster-reload-style")) {
+        const style = document.createElement("style");
+        style.id = "mod-roster-reload-style";
+        style.textContent = `
+            #mod-roster-reload {transition:transform .18s ease,filter .18s ease; background-image:none!important;}
+            #mod-roster-reload:hover:not(:disabled) {transform:translateY(-2px);filter:brightness(.97);}
+            #mod-roster-reload:active:not(:disabled) {transform:translateY(0);}
+            #mod-roster-reload:disabled {opacity:1;cursor:wait;}
+            #mod-roster-reload:focus-visible {outline:2px solid currentColor;outline-offset:2px;}
+            @media(prefers-reduced-motion:reduce) {
+                #mod-roster-reload {transition:none;}
+                #mod-roster-reload:hover:not(:disabled) {transform:none;}
+            }
+        `;
+        document.head.append(style);
+    }
+    syncButtonStyle(button);
     anchor.before(button);
 
     button.addEventListener("click", () => {
