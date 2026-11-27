@@ -7,6 +7,11 @@
                 "icon": "clock",
                 "title": "Schooldag-countdown",
                 "description": "Zie direct op je startpagina hoelang je nog naar school moet. Open eerst je rooster om de countdown te laden."
+            },
+            {
+                "icon": "reload",
+                "title": "Rooster herladen",
+                "description": "Vernieuw je rooster met de nieuwe herlaadknop naast ‘Toon weekend’, zonder de hele pagina te vernieuwen."
             }
         ]
     }
