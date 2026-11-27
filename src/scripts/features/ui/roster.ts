@@ -319,7 +319,7 @@ function rosterReloadButton() {
         const icon = button.querySelector<SVGElement>(".mod-roster-reload-icon");
         if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             icon?.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
-                duration: 650,
+                duration: 450,
                 easing: "cubic-bezier(.4,0,.2,1)"
             });
         }
@@ -372,14 +372,14 @@ function rosterReloadButton() {
             if (!changed) return;
             positionStatus();
             clearTimeout(quietTimer);
-            quietTimer = setTimeout(() => finish(true), Math.max(450, 900 - (performance.now() - started)));
+            quietTimer = setTimeout(() => finish(true), Math.max(150, 450 - (performance.now() - started)));
         });
         observer.observe(document.body, { childList: true, subtree: true });
-        timeout = setTimeout(() => finish(false), 8000);
+        timeout = setTimeout(() => finish(false), 2000);
         requestAnimationFrame(() => requestAnimationFrame(() => {
             if (finished) return;
             if (!today?.isConnected || today.disabled) {
-                setTimeout(() => finish(false), 900);
+                setTimeout(() => finish(false), 450);
                 return;
             }
             try {
