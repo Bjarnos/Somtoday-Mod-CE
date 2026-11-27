@@ -6,6 +6,8 @@ let loadedDate = "";
 let frame: HTMLIFrameElement | null = null;
 let lastRequest = 0;
 let initialized = false;
+const cacheKey = "mod-school-day-countdown-v2";
+let cacheChecked = "";
 let cancelLoad: (() => void) | null = null;
 
 function enabled() {
@@ -15,6 +17,27 @@ function enabled() {
 
 function dateKey() {
     return new Date().toDateString();
+}
+
+function restoreCache() {
+    const date = dateKey();
+    if (cacheChecked === date) return;
+    cacheChecked = date;
+    try {
+        const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+        if (cached?.date === date && Array.isArray(cached.lessons) && cached.lessons.every((lesson: Lesson) => Number.isFinite(lesson.start) && Number.isFinite(lesson.end) && lesson.start >= 0 && lesson.end > lesson.start && lesson.end <= 1440 && typeof lesson.cancelled === "boolean")) {
+            lessons = cached.lessons;
+            loadedDate = date;
+        }
+    } catch {}
+}
+
+function saveCache() {
+    if (lessons === null || loadedDate !== dateKey()) return;
+    try {
+        const value = JSON.stringify({ date: loadedDate, lessons });
+        if (sessionStorage.getItem(cacheKey) !== value) sessionStorage.setItem(cacheKey, value);
+    } catch {}
 }
 
 function readRoster(doc: Document): boolean {
@@ -74,8 +97,11 @@ function loadRoster() {
             }
             else ready = 0;
         } catch { ready = 0; }
-        if (ready >= 2 || attempts >= 100) finish();
-    }, 150);
+        if (ready >= 2) {
+            saveCache();
+            finish();
+        } else if (attempts >= 150) finish();
+    }, 100);
     cancelLoad = finish;
 }
 
@@ -86,8 +112,8 @@ function updateCountdown() {
     const value = bar.querySelector(".mod-school-day-value");
     if (!label || !value) return;
     let title = "Schooldag";
-    let text = "Rooster laden…";
-    if (loadedDate !== dateKey()) lessons = null;
+    let text = "Rooster laden… (Dit kan even duren)";
+    if (loadedDate !== dateKey()) { lessons = null; restoreCache(); }
     if (lessons !== null) {
         const now = new Date();
         const minute = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
@@ -114,9 +140,13 @@ export function schoolDayCountdown() {
         document.getElementById("mod-school-day-countdown")?.remove();
         cancelLoad?.();
         lastRequest = 0;
+        lessons = null;
+        cacheChecked = "";
+        try { sessionStorage.removeItem(cacheKey); } catch {}
         return;
     }
-    readRoster(document);
+    restoreCache();
+    if (readRoster(document)) saveCache();
     const root = document.querySelector("sl-root") || document.body;
     const heading = Array.from(root.querySelectorAll<HTMLElement>("*")).find(el => el.children.length === 0 && el.textContent?.trim() === "Nieuwsberichten" && el.getClientRects().length > 0);
     if (!heading) { document.getElementById("mod-school-day-countdown")?.remove(); cancelLoad?.(); return; }
@@ -137,9 +167,15 @@ export function schoolDayCountdown() {
             #mod-school-day-countdown { display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 22px;margin:4px 0 24px;border-radius:10px;background:var(--bg-primary-weakest,#e2f1fc);color:var(--fg-on-neutral-none,#123654);width:100%;font-weight:600;box-sizing:border-box; }
             #mod-school-day-countdown svg {color:#006bc9;flex-shrink:0;padding-right:20px;border-right:1px solid #b6d7ef;box-sizing:content-box;}
             .mod-school-day-value {background:#c8e3f8;border-radius:12px;padding:6px 14px;font-size:1.15em;}
-            :root:is(.dark,.night) #mod-school-day-countdown {background:#233d53;color:#e6f3ff;}
-            :root:is(.dark,.night) .mod-school-day-value {background:#345873;}
-            :root:is(.dark,.night) #mod-school-day-countdown svg {color:#91ccff;}
+            :root.dark #mod-school-day-countdown {background:#263746;color:#e8f3ff;border:1px solid #40586d;}
+            :root.dark #mod-school-day-countdown .mod-school-day-value {background:#364e63;color:#f1f7ff;}
+            :root.dark #mod-school-day-countdown svg {color:#91ccff;border-color:#506a80;}
+            :root.night #mod-school-day-countdown {background:#171b20;color:#e8f3ff;border:1px solid #303a45;}
+            :root.night #mod-school-day-countdown .mod-school-day-value {background:#252f3a;color:#e8f3ff;}
+            :root.night #mod-school-day-countdown svg {color:#83bfff;border-color:#384a5c;}
+            :root.mod-winter #mod-school-day-countdown {background:linear-gradient(110deg,#edf7ff,#dceefa);color:#18384e;border:1px solid #a9cbe3;}
+            :root.mod-winter #mod-school-day-countdown .mod-school-day-value {background:#c3dff3;color:#18384e;}
+            :root.mod-winter #mod-school-day-countdown svg {color:#246fa8;border-color:#a9cbe3;}
         
             #mod-school-day-countdown {width:100%; min-height:56px; flex-shrink:0;}
             .mod-school-day-value:empty {display:none;}
@@ -147,8 +183,8 @@ export function schoolDayCountdown() {
         document.head.append(style);
         window.setInterval(() => { if (enabled() && document.getElementById("mod-school-day-countdown")) { loadRoster(); updateCountdown(); } }, 1000);
     }
-    loadRoster();
     updateCountdown();
+    loadRoster();
 }
 
 window.addEventListener("somtoday-mod-countdown-setting-changed", schoolDayCountdown);
