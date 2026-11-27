@@ -17,6 +17,7 @@ type Release = {
 const releases: Record<string, Release> = changelog;
 
 const icons: Record<string, string> = {
+    reload: '<path d="M17 11V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h7M6 2v4m7-4v4M2 9h15M6 13h3m-3 4h3"/><path d="M21 15a5 5 0 1 0 .3 5M21 11v4h-4"/>',
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3"/>',
     eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
     calendar:
