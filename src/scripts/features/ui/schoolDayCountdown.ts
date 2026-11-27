@@ -57,19 +57,28 @@ function updateCountdown() {
 
 export function schoolDayCountdown() {
     readRoster();
-    const heading = Array.from(document.querySelectorAll<HTMLElement>("h1,h2,h3,h4")).find(el => el.textContent?.trim() === "Nieuwsberichten");
-    if (!heading || !document.querySelector("sl-laatsteresultaten")) return;
+    const root = document.querySelector("sl-root") || document.body;
+    const heading = Array.from(root.querySelectorAll<HTMLElement>("h1,h2,h3,h4,span,div,p,sl-scrollable-title"))
+        .find(el => el.textContent?.trim() === "Nieuwsberichten" && el.getClientRects().length > 0);
+    const grades = root.querySelector("sl-laatsteresultaten");
+    if (!heading || !grades) { document.getElementById("mod-school-day-countdown")?.remove(); return; }
+    let anchor: Element = heading;
+    while (anchor.parentElement && anchor.parentElement !== root && !anchor.parentElement.contains(grades) && anchor.parentElement.getBoundingClientRect().width <= grades.getBoundingClientRect().width * 2.5) {
+        if (anchor.parentElement.textContent?.includes("Volgende les")) break;
+        if (anchor.parentElement.querySelector("input") || anchor.parentElement.textContent?.includes("Ongelezen")) { anchor = anchor.parentElement; break; }
+        anchor = anchor.parentElement;
+    }
     if (!document.getElementById("mod-school-day-countdown")) {
         const bar = document.createElement("div");
         bar.id = "mod-school-day-countdown";
         bar.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="mod-school-day-label"></span><strong class="mod-school-day-value"></strong>';
-        heading.before(bar);
+        anchor.before(bar);
     }
     if (!timerStarted) {
         timerStarted = true;
         const style = document.createElement("style");
         style.textContent = `
-            #mod-school-day-countdown { display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 22px;margin:12px 0 24px;border-radius:10px;background:linear-gradient(110deg,#e2f1fc,#dceefa);color:#123654;font-weight:600;box-sizing:border-box; }
+            #mod-school-day-countdown { display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 22px;margin:12px 0 24px;border-radius:10px;background:var(--bg-primary-weakest,#e2f1fc);color:var(--fg-on-neutral-none,#123654);width:100%;font-weight:600;box-sizing:border-box; }
             #mod-school-day-countdown svg {color:#006bc9;flex-shrink:0;padding-right:20px;border-right:1px solid #b6d7ef;box-sizing:content-box;}
             .mod-school-day-value {background:#c8e3f8;border-radius:12px;padding:6px 14px;font-size:1.15em;}
             :root:is(.dark,.night) #mod-school-day-countdown {background:#233d53;color:#e6f3ff;}
