@@ -159,7 +159,26 @@ export function schoolDayCountdown() {
     if (!document.getElementById("mod-school-day-countdown")) {
         const bar = document.createElement("div");
         bar.id = "mod-school-day-countdown";
-        bar.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="mod-school-day-label"></span><strong class="mod-school-day-value"></strong><span class="mod-school-day-date"></span><div class="mod-school-day-progress" hidden><div class="mod-school-day-track" role="progressbar" aria-label="Voortgang schooldag" aria-valuemin="0" aria-valuemax="100"><div class="mod-school-day-fill"></div></div><span class="mod-school-day-percent"></span></div>';
+        bar.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" class="mod-school-day-clock" role="button" tabindex="0" aria-label="Draai de klokwijzers"><circle cx="12" cy="12" r="9"/><path class="mod-school-day-hands" d="M12 6v6l4 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="mod-school-day-label"></span><strong class="mod-school-day-value"></strong><span class="mod-school-day-date"></span><div class="mod-school-day-progress" hidden><div class="mod-school-day-track" role="progressbar" aria-label="Voortgang schooldag" aria-valuemin="0" aria-valuemax="100"><div class="mod-school-day-fill"></div></div><span class="mod-school-day-percent"></span></div>';
+        const clock = bar.querySelector<SVGSVGElement>(".mod-school-day-clock");
+        const hands = clock?.querySelector<SVGPathElement>(".mod-school-day-hands");
+        if (clock && hands) {
+            let spin: Animation | null = null;
+            const spinHands = () => {
+                if (spin?.playState === "running" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+                spin = hands.animate(
+                    [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
+                    { duration: 850, easing: "cubic-bezier(.45,0,.2,1)" }
+                );
+            };
+            clock.addEventListener("click", spinHands);
+            clock.addEventListener("keydown", event => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    spinHands();
+                }
+            });
+        }
         anchor.before(bar);
     }
     if (!initialized) {
@@ -168,6 +187,9 @@ export function schoolDayCountdown() {
         style.textContent = `
             #mod-school-day-countdown { display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 22px;margin:4px 0 24px;border-radius:10px;background:var(--bg-primary-weakest,#e2f1fc);color:var(--fg-on-neutral-none,#123654);width:100%;font-weight:600;box-sizing:border-box; }
             #mod-school-day-countdown svg {color:#006bc9;flex-shrink:0;padding-right:20px;border-right:1px solid #b6d7ef;box-sizing:content-box;}
+            #mod-school-day-countdown .mod-school-day-clock {cursor:pointer;}
+            #mod-school-day-countdown .mod-school-day-clock:focus-visible {outline:2px solid currentColor;outline-offset:3px;border-radius:4px;}
+            #mod-school-day-countdown .mod-school-day-hands {transform-box:view-box;transform-origin:12px 12px;}
             .mod-school-day-value {background:#c8e3f8;border-radius:12px;padding:6px 14px;font-size:1.15em;}
             :root.dark #mod-school-day-countdown {background:#263746;color:#e8f3ff;border:1px solid #40586d;}
             :root.dark #mod-school-day-countdown .mod-school-day-value {background:#364e63;color:#f1f7ff;}
