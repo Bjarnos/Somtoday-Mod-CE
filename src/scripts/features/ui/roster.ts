@@ -292,11 +292,12 @@ function rosterReloadButton() {
             #mod-roster-reload:hover:not(:disabled) {transform:translateY(-2px);filter:brightness(.97);}
             #mod-roster-reload:active:not(:disabled) {transform:translateY(0);}
             #mod-roster-reload:disabled {opacity:1;cursor:wait;}
-            sl-rooster-weken.mod-roster-refreshing {opacity:.78;transition:opacity .2s ease;}
+            sl-rooster-weken {transition:opacity .16s ease,filter .16s ease;}
+            sl-rooster-weken.mod-roster-refreshing {opacity:.18!important;filter:blur(7px)!important;}
             #mod-roster-reload:focus-visible {outline:2px solid currentColor;outline-offset:2px;}
             @media(prefers-reduced-motion:reduce) {
                 #mod-roster-reload {transition:none;}
-                sl-rooster-weken.mod-roster-refreshing {transition:none;opacity:.5!important;filter:none!important;}
+                sl-rooster-weken.mod-roster-refreshing {transition:none;opacity:.18!important;filter:blur(7px)!important;}
                 #mod-roster-reload:hover:not(:disabled) {transform:none;}
             }
         `;
@@ -328,10 +329,7 @@ function rosterReloadButton() {
         status.id = "mod-roster-refresh-status";
         status.setAttribute("role", "status");
         status.textContent = "Rooster vernieuwen…";
-        status.style.color = getComputedStyle(button).color;
-        const background = getComputedStyle(weekend).backgroundColor;
-        if (background !== "rgba(0, 0, 0, 0)" && background !== "transparent") status.style.backgroundColor = background;
-        status.style.border = getComputedStyle(weekend).border;
+        status.style.cssText = "position:fixed!important;bottom:24px!important;left:50%!important;top:auto!important;right:auto!important;transform:translateX(-50%);z-index:2147483647!important;display:block!important;visibility:visible!important;opacity:1!important;padding:12px 20px;border-radius:10px;background:#075da8!important;color:#fff!important;font:600 14px/20px system-ui,sans-serif;box-shadow:0 5px 24px #0004;pointer-events:none;max-width:calc(100vw - 32px);box-sizing:border-box;";
         const positionStatus = () => {
             document.querySelector("sl-rooster-weken")?.classList.add("mod-roster-refreshing");
         };
@@ -353,7 +351,8 @@ function rosterReloadButton() {
             window.removeEventListener("scroll", positionStatus, true);
             status.textContent = changed ? "Roosterweergave bijgewerkt" : "Vernieuwing niet bevestigd";
             document.getElementById("mod-roster-refresh-status")?.remove();
-            document.body.append(status);
+            document.documentElement.append(status);
+            if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) status.animate([{opacity:0,transform:"translate(-50%,10px)"},{opacity:1,transform:"translate(-50%,0)"}],{duration:200,easing:"ease-out"});
             setTimeout(() => status.remove(), 2500);
             roster?.classList.remove("mod-roster-refreshing");
             document.querySelector("sl-rooster-weken")?.classList.remove("mod-roster-refreshing");
@@ -372,14 +371,14 @@ function rosterReloadButton() {
             if (!changed) return;
             positionStatus();
             clearTimeout(quietTimer);
-            quietTimer = setTimeout(() => finish(true), Math.max(150, 450 - (performance.now() - started)));
+            quietTimer = setTimeout(() => finish(true), Math.max(150, 600 - (performance.now() - started)));
         });
         observer.observe(document.body, { childList: true, subtree: true });
         timeout = setTimeout(() => finish(false), 2000);
         requestAnimationFrame(() => requestAnimationFrame(() => {
             if (finished) return;
             if (!today?.isConnected || today.disabled) {
-                setTimeout(() => finish(false), 450);
+                setTimeout(() => finish(false), 600);
                 return;
             }
             try {
