@@ -3,12 +3,9 @@ import { get } from "../../save_version_management";
 type Lesson = { start: number; end: number; cancelled: boolean };
 let lessons: Lesson[] | null = null;
 let loadedDate = "";
-let frame: HTMLIFrameElement | null = null;
-let lastRequest = 0;
 let initialized = false;
 const cacheKey = "mod-school-day-countdown-v2";
 let cacheChecked = "";
-let cancelLoad: (() => void) | null = null;
 
 function enabled() {
     const value = get("schoolDayCountdownEnabled");
@@ -64,47 +61,6 @@ function readRoster(doc: Document): boolean {
     return true;
 }
 
-function loadRoster() {
-    if (!enabled() || frame || Date.now() - lastRequest < (lessons === null ? 5000 : 60000)) return;
-    const link = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]")).find(a => /^(rooster|ga naar rooster)$/i.test(a.textContent?.trim() || ""));
-    if (!link || new URL(link.href).origin !== location.origin || link.href === location.href) return;
-    lastRequest = Date.now();
-    const iframe = document.createElement("iframe");
-    frame = iframe;
-    iframe.title = "Roostergegevens laden";
-    iframe.setAttribute("aria-hidden", "true");
-    iframe.tabIndex = -1;
-    iframe.style.cssText = "position:fixed;left:-20000px;top:0;width:1200px;height:800px;pointer-events:none;visibility:hidden";
-    iframe.src = link.href;
-    document.body.append(iframe);
-    let attempts = 0;
-    let ready = 0;
-    let previous = "";
-    const finish = () => {
-        clearInterval(poll);
-        iframe.remove();
-        frame = null;
-        cancelLoad = null;
-        updateCountdown();
-    };
-    const poll = window.setInterval(() => {
-        attempts++;
-        try {
-            if (iframe.contentDocument && readRoster(iframe.contentDocument)) {
-                const snapshot = JSON.stringify(lessons);
-                ready = snapshot === previous ? ready + 1 : 1;
-                previous = snapshot;
-            }
-            else ready = 0;
-        } catch { ready = 0; }
-        if (ready >= 2) {
-            saveCache();
-            finish();
-        } else if (attempts >= 150) finish();
-    }, 100);
-    cancelLoad = finish;
-}
-
 function updateCountdown() {
     const bar = document.getElementById("mod-school-day-countdown");
     if (!bar) return;
@@ -112,7 +68,7 @@ function updateCountdown() {
     const value = bar.querySelector(".mod-school-day-value");
     if (!label || !value) return;
     let title = "Schooldag";
-    let text = "Rooster laden… (Dit kan even duren)";
+    let text = "Open eerst je rooster om de timer te laden.";
     if (loadedDate !== dateKey()) { lessons = null; restoreCache(); }
     if (lessons !== null) {
         const now = new Date();
@@ -129,7 +85,7 @@ function updateCountdown() {
             const minutes = remaining % 60;
             text = [hours ? hours + " uur" : "", minutes ? minutes + (minutes === 1 ? " minuut" : " minuten") : ""].filter(Boolean).join(" ");
         }
-    } else if (lastRequest && !frame) text = "Rooster nog niet beschikbaar";
+    }
     if (label.textContent !== title) label.textContent = title;
     if (value.textContent !== text) value.textContent = text;
 }
@@ -138,8 +94,6 @@ export function schoolDayCountdown() {
     if (window.top !== window) return;
     if (!enabled()) {
         document.getElementById("mod-school-day-countdown")?.remove();
-        cancelLoad?.();
-        lastRequest = 0;
         lessons = null;
         cacheChecked = "";
         try { sessionStorage.removeItem(cacheKey); } catch {}
@@ -149,7 +103,7 @@ export function schoolDayCountdown() {
     if (readRoster(document)) saveCache();
     const root = document.querySelector("sl-root") || document.body;
     const heading = Array.from(root.querySelectorAll<HTMLElement>("*")).find(el => el.children.length === 0 && el.textContent?.trim() === "Nieuwsberichten" && el.getClientRects().length > 0);
-    if (!heading) { document.getElementById("mod-school-day-countdown")?.remove(); cancelLoad?.(); return; }
+    if (!heading) { document.getElementById("mod-school-day-countdown")?.remove(); return; }
     let anchor: Element = heading;
     while (anchor.parentElement && anchor.parentElement !== root && !anchor.parentElement.textContent?.includes("Volgende les") && !anchor.parentElement.textContent?.includes("Laatste cijfer")) {
         anchor = anchor.parentElement;
@@ -181,10 +135,9 @@ export function schoolDayCountdown() {
             .mod-school-day-value:empty {display:none;}
         `;
         document.head.append(style);
-        window.setInterval(() => { if (enabled() && document.getElementById("mod-school-day-countdown")) { loadRoster(); updateCountdown(); } }, 1000);
+        window.setInterval(() => { if (enabled() && document.getElementById("mod-school-day-countdown")) { updateCountdown(); } }, 1000);
     }
     updateCountdown();
-    loadRoster();
 }
 
 window.addEventListener("somtoday-mod-countdown-setting-changed", schoolDayCountdown);
