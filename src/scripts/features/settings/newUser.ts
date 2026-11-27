@@ -17,7 +17,7 @@ export function checkNewUser() {
     ) {
         return;
     }
-    if (n(get("firstused"))) {
+    if (n(get("firstused")) && !id("mod-welcome")) {
         set("birthday", "00-00-0000");
         set("lastjubileum", 0);
         execute([reset]);
@@ -25,13 +25,17 @@ export function checkNewUser() {
             "afterbegin",
             `<style>
                 #mod-welcome {position:fixed;inset:0;background:#0006;z-index:1000;display:flex;align-items:center;justify-content:center;transition:opacity .3s ease;}
-                #mod-welcome > div {width:360px;max-width:calc(100% - 32px);max-height:calc(100% - 32px);overflow:auto;box-sizing:border-box;background:#fff;color:#18334b;border-radius:20px;padding:30px;box-shadow:0 16px 60px #0002;animation:mod-welcome-in .35s ease both;text-align:center;}
-                #mod-welcome-logo {width:76px;height:76px;object-fit:contain;border-radius:10px;cursor:pointer;transition:transform .3s ease;}
+                #mod-welcome > div {width:400px;max-width:calc(100% - 32px);max-height:calc(100% - 32px);overflow:auto;box-sizing:border-box;background:#fff;color:#18334b;border-radius:20px;padding:30px;box-shadow:0 16px 60px #0002;animation:mod-welcome-in .35s ease both;text-align:center;}
+                #mod-welcome-logo {width:84px;height:84px;object-fit:contain;border-radius:10px;cursor:pointer;transition:transform .3s ease;}
                 #mod-welcome h2 {font-size:21px;font-weight:650;margin:18px 0 10px;}
-                #mod-welcome p {font-size:14px;line-height:1.6;margin:0 0 22px;}
-                #mod-welcome label {display:flex;align-items:center;gap:10px;text-align:left;font-size:13px;margin:0 0 22px;cursor:pointer;}
+                #mod-welcome p {font-size:14px;line-height:1.6;margin:0 0 16px;color:#536579;}
+                #mod-welcome label {display:flex;align-items:center;gap:10px;text-align:left;font-size:13px;margin:20px 0; padding-top:18px;border-top:1px solid #e8edf2;cursor:pointer;}
                 #mod-welcome input {width:18px;height:18px;flex-shrink:0;accent-color:#087bd1;}
-                #mod-welcome button {display:block;width:100%;padding:12px;border-radius:10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s,transform .2s;border:1px solid #d7e0e8;}
+                #mod-welcome button {display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s,transform .2s;border:1px solid #d7e0e8;}
+                #mod-welcome button svg {width:16px;height:16px;flex-shrink:0;}
+                #mod-welcome button:focus-visible,#mod-welcome-logo:focus-visible {outline:2px solid #087bd1;outline-offset:3px;}
+                #mod-welcome.mod-welcome-closing > div {animation:mod-welcome-out .3s ease both;}
+                @keyframes mod-welcome-out {to {opacity:0;transform:translateY(8px) scale(.97);}}
                 #mod-welcome button:active {transform:scale(.98);}
                 #mod-welcome-open-settings {background:#087bd1;color:white;border-color:#087bd1!important;margin-bottom:8px;}
                 #mod-welcome-open-settings:hover {background:#066ab5;}
@@ -47,13 +51,18 @@ export function checkNewUser() {
         id("somtoday-mod").insertAdjacentHTML(
             "afterbegin",
             '<div id="mod-welcome"><div role="dialog" aria-modal="true" aria-labelledby="mod-welcome-title">' +
-                (logoUrl ? '<img id="mod-welcome-logo" src="' + logoUrl + '" alt="Somtoday Mod CE">' : window.logo("mod-welcome-logo", null, "#087bd1")) +
-                '<h2 id="mod-welcome-title">Welkom bij Somtoday Mod CE!</h2><p>Somtoday Mod CE is succesvol geïnstalleerd.</p>' +
+                (logoUrl ? '<img id="mod-welcome-logo" src="' + logoUrl + '" alt="Somtoday Mod CE" tabindex="0" role="button" aria-label="Draai het logo">' : window.logo("mod-welcome-logo", null, "#087bd1")) +
+                '<h2 id="mod-welcome-title">Welkom bij Somtoday Mod CE!</h2><p>Bedankt voor het installeren van Somtoday Mod Community Edition.</p><p>Maak Somtoday helemaal van jou. Pas je voorkeuren aan of ga direct aan de slag.</p>' +
                 '<label for="errordata"><input type="checkbox" id="errordata">Anonieme foutmeldingen delen (optioneel)</label>' +
-                (hasSettingsHash ? "" : '<button type="button" id="mod-welcome-open-settings">Naar Mod-instellingen</button>') +
-                '<button type="button" id="mod-welcome-close">Doorgaan naar Somtoday</button></div></div>',
+                (hasSettingsHash ? "" : '<button type="button" id="mod-welcome-open-settings">' + window.getIcon("gear", null, "#fff") + 'Naar Mod-instellingen</button>') +
+                '<button type="button" id="mod-welcome-close">Doorgaan naar Somtoday<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>',
         );
+        let closing = false;
         function closeWelcomeDialog() {
+            if (closing) return;
+            closing = true;
+            id("mod-welcome").classList.add("mod-welcome-closing");
+            id("mod-welcome").style.pointerEvents = "none";
             const now = new Date();
             set(
                 "firstused",
@@ -80,16 +89,22 @@ export function checkNewUser() {
                 execute([openSettings]);
             }
         });
-        id("mod-welcome-logo").addEventListener(
-            "click",
-            function (this: HTMLElement) {
-                this.style.transform = "scale(1.3)";
-                setTimeout(() => {
-                    const logo = id("mod-welcome-logo");
-                    if (logo) logo.style.transform = "scale(1)";
-                }, 300);
-            },
-        );
+        const logo = id("mod-welcome-logo");
+        let spin: Animation | null = null;
+        const animateLogo = () => {
+            if (spin?.playState === "running" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+            spin = logo.animate(
+                [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
+                { duration: 700, easing: "cubic-bezier(.45,0,.2,1)" }
+            );
+        };
+        logo.addEventListener("click", animateLogo);
+        logo.addEventListener("keydown", (event: KeyboardEvent) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                animateLogo();
+            }
+        });
     }
 }
 
