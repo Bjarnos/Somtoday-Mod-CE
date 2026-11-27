@@ -340,9 +340,8 @@ function rosterReloadButton() {
         let quietTimer: ReturnType<typeof setTimeout>;
         let timeout: ReturnType<typeof setTimeout>;
         let finished = false;
-        let requested = false;
         const started = performance.now();
-        const finish = (changed = false) => {
+        const finish = () => {
             if (finished) return;
             finished = true;
             observer.disconnect();
@@ -350,7 +349,7 @@ function rosterReloadButton() {
             clearTimeout(timeout);
             window.removeEventListener("resize", positionStatus);
             window.removeEventListener("scroll", positionStatus, true);
-            if (changed && requested) {
+            if (document.querySelector("sl-rooster-weken")) {
                 status.textContent = "Rooster bijgewerkt";
                 document.getElementById("mod-roster-refresh-status")?.remove();
                 document.documentElement.append(status);
@@ -374,23 +373,21 @@ function rosterReloadButton() {
             if (!changed) return;
             positionStatus();
             clearTimeout(quietTimer);
-            quietTimer = setTimeout(() => finish(true), Math.max(150, 600 - (performance.now() - started)));
+            quietTimer = setTimeout(() => finish(), Math.max(150, 600 - (performance.now() - started)));
         });
         observer.observe(document.body, { childList: true, subtree: true });
-        timeout = setTimeout(() => finish(false), 2000);
+        timeout = setTimeout(() => finish(), 2000);
         requestAnimationFrame(() => requestAnimationFrame(() => {
             if (finished) return;
             if (!today?.isConnected || today.disabled) {
-                setTimeout(() => finish(false), 600);
+                setTimeout(() => finish(), 600);
                 return;
             }
             try {
-                requested = true;
                 today.click();
             } catch (error) {
-                requested = false;
                 console.warn("Rooster vernieuwen mislukt", error);
-                finish(false);
+                finish();
             }
         }));
     });
