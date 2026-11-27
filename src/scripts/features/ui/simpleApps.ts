@@ -1069,7 +1069,7 @@ const appsSessionKey = "mod-apps-open";
 
 function restoreAppsPage() {
     const tab = document.getElementById("mod-simple-apps-launcher");
-    if (!active && tab && sessionStorage.getItem(appsSessionKey) === "true") {
+    if (!active && tab && tab.getBoundingClientRect().width > 0 && document.getElementById("mod-app-page") && sessionStorage.getItem(appsSessionKey) === "true") {
         showApps(tab);
     }
 }
@@ -1077,7 +1077,6 @@ function restoreAppsPage() {
 function showApps(tab: HTMLElement) {
     active = true;
     sessionStorage.setItem(appsSessionKey, "true");
-    document.documentElement.classList.add("mod-apps-open");
     lastActiveTab = document.querySelector<HTMLElement>(
         "sl-tab-item.active:not(#mod-simple-apps-launcher)",
     );
@@ -1091,9 +1090,10 @@ function showApps(tab: HTMLElement) {
     if (page) {
         updatePageOffset(tab);
         page.dataset.hasBackground = String(hasCustomBackground());
+        renderApps();
         page.hidden = false;
+        document.documentElement.classList.add("mod-apps-open");
     }
-    renderApps();
 }
 
 function hideApps() {
