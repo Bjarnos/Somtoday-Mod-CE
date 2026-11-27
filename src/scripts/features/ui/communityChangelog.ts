@@ -17,6 +17,7 @@ type Release = {
 const releases: Record<string, Release> = changelog;
 
 const icons: Record<string, string> = {
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3"/>',
     eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
     calendar:
         '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-13 5h3m3 0h3"/>',
