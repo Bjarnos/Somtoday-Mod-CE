@@ -67,14 +67,19 @@ function updateCountdown() {
     const label = bar.querySelector(".mod-school-day-label");
     const value = bar.querySelector(".mod-school-day-value");
     if (!label || !value) return;
+    let progress: number | null = null;
     let title = "Schooldag";
     let text = "Open eerst je rooster om de timer te laden.";
     if (loadedDate !== dateKey()) { lessons = null; restoreCache(); }
     if (lessons !== null) {
         const now = new Date();
-        const minute = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+        const minute = now.getHours() * 60 + now.getMinutes() + (now.getSeconds() + now.getMilliseconds() / 1000) / 60;
         const active = lessons.filter(lesson => !lesson.cancelled);
         const end = Math.max(0, ...active.map(lesson => lesson.end));
+        if (active.length) {
+            const start = Math.min(...active.map(lesson => lesson.start));
+            progress = Math.max(0, Math.min(100, (minute - start) / (end - start) * 100));
+        }
         if (!active.length) { title = "Je hebt geen lessen vandaag"; text = ""; }
         else if (minute >= end) { title = "Je bent uit!"; text = "Fijne dag!"; }
         else if (lessons.some(lesson => lesson.cancelled && minute >= lesson.start && minute < lesson.end) && !active.some(lesson => minute >= lesson.start && minute < lesson.end)) { title = "Je hebt nu uitval"; text = ""; }
@@ -84,6 +89,23 @@ function updateCountdown() {
             const hours = Math.floor(remaining / 60);
             const minutes = remaining % 60;
             text = [hours ? hours + " uur" : "", minutes ? minutes + (minutes === 1 ? " minuut" : " minuten") : ""].filter(Boolean).join(" ");
+        }
+    }
+    const progressRow = bar.querySelector<HTMLElement>(".mod-school-day-progress");
+    const track = bar.querySelector<HTMLElement>(".mod-school-day-track");
+    const fill = bar.querySelector<HTMLElement>(".mod-school-day-fill");
+    const percentage = bar.querySelector<HTMLElement>(".mod-school-day-percent");
+    if (progressRow && track && fill && percentage) {
+        progressRow.hidden = progress === null;
+        const phase = progress === null ? "blue" : progress >= 90 ? "green" : progress >= 75 ? "yellow" : progress >= 50 ? "orange" : "blue";
+        if (bar.dataset.phase !== phase) bar.dataset.phase = phase;
+        if (progress !== null) {
+            const formatted = (progress === 100 ? 100 : Math.floor(progress * 100) / 100).toFixed(2);
+            const width = progress + "%";
+            if (fill.style.width !== width) fill.style.width = width;
+            const display = formatted.replace(".", ",") + "%";
+            if (percentage.textContent !== display) percentage.textContent = display;
+            if (track.getAttribute("aria-valuenow") !== formatted) track.setAttribute("aria-valuenow", formatted);
         }
     }
     if (label.textContent !== title) label.textContent = title;
@@ -111,7 +133,7 @@ export function schoolDayCountdown() {
     if (!document.getElementById("mod-school-day-countdown")) {
         const bar = document.createElement("div");
         bar.id = "mod-school-day-countdown";
-        bar.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="mod-school-day-label"></span><strong class="mod-school-day-value"></strong>';
+        bar.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="mod-school-day-label"></span><strong class="mod-school-day-value"></strong><div class="mod-school-day-progress" hidden><div class="mod-school-day-track" role="progressbar" aria-label="Voortgang schooldag" aria-valuemin="0" aria-valuemax="100"><div class="mod-school-day-fill"></div></div><span class="mod-school-day-percent"></span></div>';
         anchor.before(bar);
     }
     if (!initialized) {
@@ -133,6 +155,21 @@ export function schoolDayCountdown() {
         
             #mod-school-day-countdown {width:100%; min-height:56px; flex-shrink:0;}
             .mod-school-day-value:empty {display:none;}
+            #mod-school-day-countdown {--countdown-fill:#1683db;row-gap:10px;}
+            #mod-school-day-countdown .mod-school-day-progress {display:flex;align-items:center;gap:12px;flex:0 0 100%;min-width:0;}
+            #mod-school-day-countdown .mod-school-day-progress[hidden] {display:none;}
+            .mod-school-day-track {height:7px;flex:1;min-width:0;border-radius:99px;overflow:hidden;background:color-mix(in srgb,currentColor 15%,transparent);}
+            .mod-school-day-fill {height:100%;width:0;border-radius:inherit;background:var(--countdown-fill);transition:width 1s linear,background-color .5s ease;}
+            .mod-school-day-percent {font-size:12px;min-width:62px;text-align:right;font-variant-numeric:tabular-nums;}
+            #mod-school-day-countdown .mod-school-day-value {transition:background-color .5s ease,color .5s ease;}
+            #mod-school-day-countdown[data-phase="orange"] {--countdown-fill:#e58a25;--countdown-pill:#ffdfb5;--countdown-text:#754008;}
+            #mod-school-day-countdown[data-phase="yellow"] {--countdown-fill:#d4ad19;--countdown-pill:#fff0aa;--countdown-text:#685000;}
+            #mod-school-day-countdown[data-phase="green"] {--countdown-fill:#32a565;--countdown-pill:#ccefd9;--countdown-text:#185c35;}
+            :root #mod-school-day-countdown:is([data-phase="orange"],[data-phase="yellow"],[data-phase="green"]) .mod-school-day-value {background:var(--countdown-pill);color:var(--countdown-text);}
+            :root:is(.dark,.night):not(.mod-winter) #mod-school-day-countdown[data-phase="orange"] {--countdown-pill:#69441f;--countdown-text:#ffe1b9;}
+            :root:is(.dark,.night):not(.mod-winter) #mod-school-day-countdown[data-phase="yellow"] {--countdown-pill:#62531c;--countdown-text:#fff0aa;}
+            :root:is(.dark,.night):not(.mod-winter) #mod-school-day-countdown[data-phase="green"] {--countdown-pill:#244f39;--countdown-text:#ccefd9;}
+            @media(prefers-reduced-motion:reduce) { .mod-school-day-fill,#mod-school-day-countdown .mod-school-day-value {transition:none;} }
         `;
         document.head.append(style);
         window.setInterval(() => { if (enabled() && document.getElementById("mod-school-day-countdown")) { updateCountdown(); } }, 1000);
