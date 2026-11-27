@@ -679,6 +679,13 @@ export function openSettings() {
                     true,
                 ) +
                 addSetting(
+                    "Schooldag-countdown",
+                    "Toon op de startpagina hoelang je nog naar school moet.",
+                    "schoolDayCountdownEnabled",
+                    "checkbox",
+                    true,
+                ) +
+                addSetting(
                     "Cijferprivacy",
                     "Toon de oogknop waarmee je cijfers tijdelijk kunt verbergen (sneltoets: P).",
                     "gradePrivacyFeatureEnabled",
@@ -1742,6 +1749,9 @@ async function save() {
             window.dispatchEvent(
                 new Event("somtoday-mod-absence-setting-changed"),
             );
+        } else if (element.id === "schoolDayCountdownEnabled") {
+            set("schoolDayCountdownEnabled", element.checked);
+            window.dispatchEvent(new Event("somtoday-mod-countdown-setting-changed"));
         } else if (element.id === "gradePrivacyFeatureEnabled") {
             set("gradePrivacyFeatureEnabled", element.checked);
             window.dispatchEvent(
