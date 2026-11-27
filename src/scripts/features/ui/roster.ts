@@ -292,14 +292,10 @@ function rosterReloadButton() {
             #mod-roster-reload:hover:not(:disabled) {transform:translateY(-2px);filter:brightness(.97);}
             #mod-roster-reload:active:not(:disabled) {transform:translateY(0);}
             #mod-roster-reload:disabled {opacity:1;cursor:wait;}
-            #mod-roster-refresh-line {position:fixed;height:3px;overflow:hidden;pointer-events:none;z-index:999;border-radius:2px;background:color-mix(in srgb,currentColor 12%,transparent);}
-            #mod-roster-refresh-line::after {content:"";display:block;width:30%;height:100%;background:currentColor;border-radius:2px;animation:mod-roster-refresh-progress 1s ease-in-out infinite;}
-            @keyframes mod-roster-refresh-progress {from {transform:translateX(-100%);}to {transform:translateX(435%);}}
             sl-rooster-weken.mod-roster-refreshing {opacity:.78;transition:opacity .2s ease;}
             #mod-roster-reload:focus-visible {outline:2px solid currentColor;outline-offset:2px;}
             @media(prefers-reduced-motion:reduce) {
                 #mod-roster-reload {transition:none;}
-                #mod-roster-refresh-line::after {animation:none;width:100%;}
                 sl-rooster-weken.mod-roster-refreshing {transition:none;opacity:1;}
                 #mod-roster-reload:hover:not(:disabled) {transform:none;}
             }
@@ -336,28 +332,20 @@ function rosterReloadButton() {
         status.style.color = getComputedStyle(button).color;
         status.style.backgroundColor = getComputedStyle(weekend).backgroundColor;
         status.style.border = getComputedStyle(weekend).border;
-        const line = document.createElement("div");
-        line.id = "mod-roster-refresh-line";
-        line.setAttribute("aria-hidden", "true");
-        line.style.color = getComputedStyle(button).color;
-        const positionLine = () => {
+        const positionStatus = () => {
             const current = document.querySelector("sl-rooster-weken");
             if (!current) return;
             const rect = current.getBoundingClientRect();
-            line.style.left = rect.left + "px";
-            line.style.top = rect.top + "px";
-            line.style.width = rect.width + "px";
-            line.style.visibility = rect.top < 0 || rect.top > window.innerHeight ? "hidden" : "visible";
             status.style.top = Math.max(8, rect.top + 8) + "px";
             status.style.left = Math.max(8, rect.right - status.offsetWidth - 12) + "px";
-            status.style.visibility = line.style.visibility;
+            status.style.visibility = rect.top < 0 || rect.top > window.innerHeight ? "hidden" : "visible";
             current.classList.add("mod-rooster-refreshing");
         };
-        document.body.append(line, status);
-        positionLine();
+        document.body.append(status);
+        positionStatus();
         roster?.classList.add("mod-roster-refreshing");
-        window.addEventListener("resize", positionLine);
-        window.addEventListener("scroll", positionLine, true);
+        window.addEventListener("resize", positionStatus);
+        window.addEventListener("scroll", positionStatus, true);
         let quietTimer: ReturnType<typeof setTimeout>;
         let timeout: ReturnType<typeof setTimeout>;
         let finished = false;
@@ -368,9 +356,8 @@ function rosterReloadButton() {
             observer.disconnect();
             clearTimeout(quietTimer);
             clearTimeout(timeout);
-            window.removeEventListener("resize", positionLine);
-            window.removeEventListener("scroll", positionLine, true);
-            line.remove();
+            window.removeEventListener("resize", positionStatus);
+            window.removeEventListener("scroll", positionStatus, true);
             status.textContent = changed ? "Roosterweergave bijgewerkt" : "Vernieuwing niet bevestigd";
             setTimeout(() => status.remove(), 1800);
             roster?.classList.remove("mod-roster-refreshing");
@@ -388,7 +375,7 @@ function rosterReloadButton() {
                 )
             );
             if (!changed) return;
-            positionLine();
+            positionStatus();
             clearTimeout(quietTimer);
             quietTimer = setTimeout(() => finish(true), Math.max(450, 900 - (performance.now() - started)));
         });
