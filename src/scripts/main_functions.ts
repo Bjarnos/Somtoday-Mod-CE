@@ -40,6 +40,7 @@ import {
 import { absenceStatistics } from "./features/ui/absenceStatistics";
 import { communityChangelog } from "./features/ui/communityChangelog";
 import { communityIdeas } from "./features/ui/communityIdeas";
+import { schoolDayCountdown } from "./features/ui/schoolDayCountdown";
 import { planningColors } from "./features/ui/planningColors";
 import { errorPage } from "./minigame";
 import { platform, version } from "./save_version_management";
@@ -166,6 +167,7 @@ export function modInit() {
             insertGradeDownloadButton,
             subjectGradesPage,
             somtodayRecap,
+            schoolDayCountdown,
             rosterSimplify,
             planningColors,
             absenceStatistics,
