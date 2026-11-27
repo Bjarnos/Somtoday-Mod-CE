@@ -21,17 +21,31 @@
                 "css/legacy-platformer.css",
                 "css/easter-eggs.css"
             ],
-            "matches": ["*://*.somtoday.nl/*", "*://som.today/*"],
+            "matches": [
+                "*://*.somtoday.nl/*",
+                "*://som.today/*"
+            ],
             "run_at": "document_start"
         },
         {
-            "js": ["scripts/content.js"],
-            "matches": ["*://*.somtoday.nl/*", "*://som.today/*"],
+            "js": [
+                "scripts/content.js"
+            ],
+            "matches": [
+                "*://*.somtoday.nl/*",
+                "*://som.today/*"
+            ],
             "run_at": "document_end"
         }
     ],
-    "permissions": ["storage", "unlimitedStorage"],
-    "host_permissions": ["*:\/\/*.somtoday.nl\/*", "*:\/\/som.today\/*"],
+    "permissions": [
+        "storage",
+        "unlimitedStorage"
+    ],
+    "host_permissions": [
+        "*://*.somtoday.nl/*",
+        "*://som.today/*"
+    ],
     "options_ui": {
         "page": "options.html",
         "open_in_tab": false
@@ -44,12 +58,16 @@
         {
             "resources": [
                 "version_info.json",
-                "sounds\/*",
-                "images\/*",
-                "fonts\/*",
-                "data\/*"
+                "sounds/*",
+                "images/*",
+                "fonts/*",
+                "data/*",
+                "icon128.png"
             ],
-            "matches": ["*:\/\/*.somtoday.nl\/*"]
+            "matches": [
+                "*://*.somtoday.nl/*",
+                "*://som.today/*"
+            ]
         }
     ],
     "background": {
