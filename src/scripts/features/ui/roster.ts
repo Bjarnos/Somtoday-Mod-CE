@@ -350,11 +350,13 @@ function rosterReloadButton() {
             clearTimeout(timeout);
             window.removeEventListener("resize", positionStatus);
             window.removeEventListener("scroll", positionStatus, true);
-            status.textContent = changed ? "Roosterweergave bijgewerkt" : requested ? "Roostervernieuwing aangevraagd" : "Rooster herladen momenteel niet beschikbaar";
-            document.getElementById("mod-roster-refresh-status")?.remove();
-            document.documentElement.append(status);
-            if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) status.animate([{opacity:0,transform:"translate(-50%,10px)"},{opacity:1,transform:"translate(-50%,0)"}],{duration:200,easing:"ease-out"});
-            setTimeout(() => status.remove(), 2500);
+            if (changed && requested) {
+                status.textContent = "Rooster bijgewerkt";
+                document.getElementById("mod-roster-refresh-status")?.remove();
+                document.documentElement.append(status);
+                if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) status.animate([{opacity:0,transform:"translate(-50%,10px)"},{opacity:1,transform:"translate(-50%,0)"}],{duration:200,easing:"ease-out"});
+                setTimeout(() => status.remove(), 2500);
+            }
             roster?.classList.remove("mod-roster-refreshing");
             document.querySelector("sl-rooster-weken")?.classList.remove("mod-roster-refreshing");
             rosterRefreshActive = false;
