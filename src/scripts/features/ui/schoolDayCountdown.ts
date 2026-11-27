@@ -68,6 +68,12 @@ function updateCountdown() {
     const value = bar.querySelector(".mod-school-day-value");
     if (!label || !value) return;
     let progress: number | null = null;
+    const dateLabel = bar.querySelector(".mod-school-day-date");
+    const today = new Date();
+    const weekday = today.toLocaleDateString("nl-NL", { weekday: "long" });
+    const date = today.toLocaleDateString("nl-NL", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const dateText = weekday.charAt(0).toUpperCase() + weekday.slice(1) + ", " + date;
+    if (dateLabel && dateLabel.textContent !== dateText) dateLabel.textContent = dateText;
     let title = "Schooldag";
     let text = "Open eerst je rooster om de timer te laden.";
     if (loadedDate !== dateKey()) { lessons = null; restoreCache(); }
@@ -133,7 +139,7 @@ export function schoolDayCountdown() {
     if (!document.getElementById("mod-school-day-countdown")) {
         const bar = document.createElement("div");
         bar.id = "mod-school-day-countdown";
-        bar.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="mod-school-day-label"></span><strong class="mod-school-day-value"></strong><div class="mod-school-day-progress" hidden><div class="mod-school-day-track" role="progressbar" aria-label="Voortgang schooldag" aria-valuemin="0" aria-valuemax="100"><div class="mod-school-day-fill"></div></div><span class="mod-school-day-percent"></span></div>';
+        bar.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="mod-school-day-label"></span><strong class="mod-school-day-value"></strong><span class="mod-school-day-date"></span><div class="mod-school-day-progress" hidden><div class="mod-school-day-track" role="progressbar" aria-label="Voortgang schooldag" aria-valuemin="0" aria-valuemax="100"><div class="mod-school-day-fill"></div></div><span class="mod-school-day-percent"></span></div>';
         anchor.before(bar);
     }
     if (!initialized) {
@@ -156,6 +162,8 @@ export function schoolDayCountdown() {
             #mod-school-day-countdown {width:100%; min-height:56px; flex-shrink:0;}
             .mod-school-day-value:empty {display:none;}
             #mod-school-day-countdown {--countdown-fill:#1683db;row-gap:10px;}
+            #mod-school-day-countdown .mod-school-day-date {margin-left:auto;align-self:flex-start;font-size:13px;font-weight:500;white-space:nowrap;color:inherit;opacity:.85;}
+            @media(max-width:600px) { #mod-school-day-countdown .mod-school-day-date {flex-basis:100%;text-align:right;} }
             #mod-school-day-countdown .mod-school-day-progress {display:flex;align-items:center;gap:12px;flex:0 0 100%;min-width:0;}
             #mod-school-day-countdown .mod-school-day-progress[hidden] {display:none;}
             .mod-school-day-track {height:7px;flex:1;min-width:0;border-radius:99px;overflow:hidden;background:color-mix(in srgb,currentColor 15%,transparent);}
