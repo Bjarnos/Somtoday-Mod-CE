@@ -61,6 +61,13 @@ function readRoster(doc: Document): boolean {
     return true;
 }
 
+function formatRemaining(minutes: number) {
+    const remaining = Math.max(0, Math.ceil(minutes));
+    const hours = Math.floor(remaining / 60);
+    const rest = remaining % 60;
+    return [hours ? hours + " uur" : "", rest ? rest + (rest === 1 ? " minuut" : " minuten") : ""].filter(Boolean).join(" ") || "0 minuten";
+}
+
 function updateCountdown() {
     const bar = document.getElementById("mod-school-day-countdown");
     if (!bar) return;
@@ -82,19 +89,32 @@ function updateCountdown() {
         const minute = now.getHours() * 60 + now.getMinutes() + (now.getSeconds() + now.getMilliseconds() / 1000) / 60;
         const active = lessons.filter(lesson => !lesson.cancelled);
         const end = Math.max(0, ...active.map(lesson => lesson.end));
+        const start = Math.min(...active.map(lesson => lesson.start));
+        const inLesson = active.some(lesson => minute >= lesson.start && minute < lesson.end);
+        const inCancellation = lessons.some(lesson => lesson.cancelled && minute >= lesson.start && minute < lesson.end);
+        const nextStart = Math.min(...active.filter(lesson => lesson.start > minute).map(lesson => lesson.start));
+        const weekend = now.getDay() === 0 || now.getDay() === 6;
         if (active.length) {
-            const start = Math.min(...active.map(lesson => lesson.start));
             progress = Math.max(0, Math.min(100, (minute - start) / (end - start) * 100));
         }
-        if (!active.length) { title = "Je hebt geen lessen vandaag"; text = ""; }
-        else if (minute >= end) { title = "Je bent uit!"; text = "Fijne dag!"; }
-        else if (lessons.some(lesson => lesson.cancelled && minute >= lesson.start && minute < lesson.end) && !active.some(lesson => minute >= lesson.start && minute < lesson.end)) { title = "Je hebt nu uitval"; text = ""; }
-        else {
+        if (!active.length) {
+            title = weekend ? "Het is weekend!" : "Je hebt geen lessen vandaag";
+            text = weekend ? "Fijn weekend!" : "";
+        } else if (minute >= end) {
+            title = now.getDay() === 5 ? "Het is weekend!" : "Je bent uit!";
+            text = now.getDay() === 5 ? "Fijn weekend!" : "Fijne dag!";
+        } else if (!inLesson && inCancellation && Number.isFinite(nextStart)) {
+            title = "Je hebt nu uitval";
+            text = "Nog " + formatRemaining(nextStart - minute);
+        } else if (minute < start) {
+            title = "Je schooldag begint over";
+            text = formatRemaining(start - minute);
+        } else if (!inLesson && Number.isFinite(nextStart)) {
+            title = "Je hebt nu pauze";
+            text = "Nog " + formatRemaining(nextStart - minute);
+        } else {
             title = "Je bent uit over";
-            const remaining = Math.ceil(end - minute);
-            const hours = Math.floor(remaining / 60);
-            const minutes = remaining % 60;
-            text = [hours ? hours + " uur" : "", minutes ? minutes + (minutes === 1 ? " minuut" : " minuten") : ""].filter(Boolean).join(" ");
+            text = formatRemaining(end - minute);
         }
     }
     const progressRow = bar.querySelector<HTMLElement>(".mod-school-day-progress");
