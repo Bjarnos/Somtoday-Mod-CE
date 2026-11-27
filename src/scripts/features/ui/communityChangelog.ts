@@ -81,6 +81,9 @@ export function showChangelog(manual = false) {
             #mod-ce-changelog .cl-entry:hover .cl-icon { transform:scale(1.09) rotate(-4deg); }
             #mod-ce-changelog .cl-entry strong { display:block; font-size:14px; margin-bottom:4px; color:inherit; }
             #mod-ce-changelog .cl-entry p { margin:0; font-size:13px; line-height:1.4; color:var(--cl-muted); }
+            #mod-ce-changelog .cl-feedback { margin:0; padding:4px 4px 0; text-align:center; font-size:13px; line-height:1.5; color:var(--cl-muted); animation:cl-row .35s .2s both; }
+            #mod-ce-changelog .cl-feedback a { color:var(--cl-accent); font-weight:600; text-decoration:underline; text-underline-offset:2px; }
+            #mod-ce-changelog .cl-feedback a:hover { opacity:.8; }
             #mod-ce-changelog .buttons { display:flex; animation:cl-row .3s .2s both; }
             #mod-ce-changelog .buttons hmy-button { flex:1; min-width:0; }
             #mod-ce-changelog .cl-done { width:100%; min-height:40px; padding:8px; border:1px solid transparent; border-radius:6px; background:var(--cl-accent); color:#ffffff; font:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:filter .15s,transform .15s; }
@@ -107,6 +110,7 @@ export function showChangelog(manual = false) {
             <div class="cl-header"><span class="titel" id="mod-ce-changelog-title">Nieuw in Somtoday Mod CE</span><div class="cl-logo"><svg viewBox="0 0 112 112" aria-hidden="true"><rect x="14" y="30" width="84" height="72" rx="9" fill="#59a9e5"/><rect x="24" y="10" width="64" height="74" rx="7" fill="#d0eaff"/><path d="M36 30h40M36 43h40M36 56h24" stroke="#4289c1" stroke-width="5" stroke-linecap="round"/><circle cx="80" cy="81" r="22" fill="#19354c"/><path d="m70 81 7 7 13-15" stroke="#8dcaff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cl-version"></span></div>
             <span class="omschrijving cl-intro"></span>
             <div class="cl-entries"></div>
+            <p class="cl-feedback">Heb je zelf nog ideeën voor Somtoday Mod CE? Deel je suggestie op ons <a href="https://smce.bjarnos.dev/" target="_blank" rel="noopener noreferrer">ideeënbord</a>!</p>
             <div class="buttons"><hmy-button mode="secondary"><button type="button" class="secondary normal center cl-done">Verder naar Somtoday</button></hmy-button></div>
         </div>`;
     const versionEl = dialog.querySelector(".cl-version");
