@@ -296,7 +296,7 @@ function rosterReloadButton() {
             #mod-roster-reload:focus-visible {outline:2px solid currentColor;outline-offset:2px;}
             @media(prefers-reduced-motion:reduce) {
                 #mod-roster-reload {transition:none;}
-                sl-rooster-weken.mod-roster-refreshing {transition:none;opacity:1;}
+                sl-rooster-weken.mod-roster-refreshing {transition:none;opacity:.5!important;filter:none!important;}
                 #mod-roster-reload:hover:not(:disabled) {transform:none;}
             }
         `;
@@ -333,15 +333,8 @@ function rosterReloadButton() {
         if (background !== "rgba(0, 0, 0, 0)" && background !== "transparent") status.style.backgroundColor = background;
         status.style.border = getComputedStyle(weekend).border;
         const positionStatus = () => {
-            const current = document.querySelector("sl-rooster-weken");
-            if (!current) return;
-            const rect = current.getBoundingClientRect();
-            status.style.top = Math.max(8, rect.top + 8) + "px";
-            status.style.left = Math.max(8, rect.right - status.offsetWidth - 12) + "px";
-            status.style.visibility = rect.top < 0 || rect.top > window.innerHeight ? "hidden" : "visible";
-            current.classList.add("mod-rooster-refreshing");
+            document.querySelector("sl-rooster-weken")?.classList.add("mod-roster-refreshing");
         };
-        document.body.append(status);
         positionStatus();
         roster?.classList.add("mod-roster-refreshing");
         window.addEventListener("resize", positionStatus);
@@ -359,7 +352,9 @@ function rosterReloadButton() {
             window.removeEventListener("resize", positionStatus);
             window.removeEventListener("scroll", positionStatus, true);
             status.textContent = changed ? "Roosterweergave bijgewerkt" : "Vernieuwing niet bevestigd";
-            setTimeout(() => status.remove(), 1800);
+            document.getElementById("mod-roster-refresh-status")?.remove();
+            document.body.append(status);
+            setTimeout(() => status.remove(), 2500);
             roster?.classList.remove("mod-roster-refreshing");
             document.querySelector("sl-rooster-weken")?.classList.remove("mod-roster-refreshing");
             rosterRefreshActive = false;
