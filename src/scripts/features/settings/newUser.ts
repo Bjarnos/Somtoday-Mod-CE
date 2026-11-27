@@ -23,31 +23,35 @@ export function checkNewUser() {
         execute([reset]);
         tn("head", 0).insertAdjacentHTML(
             "afterbegin",
-            "<style>#mod-welcome{background:#0005;position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;transition:opacity 0.3s ease;}#mod-welcome > div{width:355px;transform:translate(-50%, -50%);top:50%;position:absolute;left:50%;background: var(--bg-elevated-none);border-radius:16px;overflow:hidden;overflow-y:scroll;max-width:calc(100% - 30px);max-height:calc(100% - 30px);}#mod-welcome > div > div:first-child{background:#09f;height:130px;display:flex;justify-content:center;align-items:center}#mod-welcome>div>div>svg{width:70px;height:35%;transition:transform .3s ease;cursor:pointer;}#mod-welcome > div > div:last-child{padding:15px 20px;}#mod-welcome h2{font-weight:400;}#mod-welcome input[type=checkbox]{width:20px;display:inline-block;height:20px;}#mod-welcome label{user-select:none;vertical-align:top;display:inline-block;padding-left:10px;margin-bottom:25px;font-size:14px;max-width:calc(100% - 35px);}div:hover > svg .glasses{animation:1s glasses linear forwards;}@keyframes glasses{0%{transform:translateY(-60px);opacity:0;}50%{transform:translateY(-30px);opacity:1;}100%{transform:translateY(0px);opacity:1;}}@media (min-width: 370px) and (min-height:700px){#mod-welcome > div{overflow-y:hidden;}#mod-welcome > div > div:first-child{height:200px;}#mod-welcome > div > div:last-child{padding:30px;}}</style>",
+            `<style>
+                #mod-welcome {position:fixed;inset:0;background:#0006;z-index:1000;display:flex;align-items:center;justify-content:center;transition:opacity .3s ease;}
+                #mod-welcome > div {width:360px;max-width:calc(100% - 32px);max-height:calc(100% - 32px);overflow:auto;box-sizing:border-box;background:#fff;color:#18334b;border-radius:20px;padding:30px;box-shadow:0 16px 60px #0002;animation:mod-welcome-in .35s ease both;text-align:center;}
+                #mod-welcome-logo {width:76px;height:76px;object-fit:contain;border-radius:10px;cursor:pointer;transition:transform .3s ease;}
+                #mod-welcome h2 {font-size:21px;font-weight:650;margin:18px 0 10px;}
+                #mod-welcome p {font-size:14px;line-height:1.6;margin:0 0 22px;}
+                #mod-welcome label {display:flex;align-items:center;gap:10px;text-align:left;font-size:13px;margin:0 0 22px;cursor:pointer;}
+                #mod-welcome input {width:18px;height:18px;flex-shrink:0;accent-color:#087bd1;}
+                #mod-welcome button {display:block;width:100%;padding:12px;border-radius:10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s,transform .2s;border:1px solid #d7e0e8;}
+                #mod-welcome button:active {transform:scale(.98);}
+                #mod-welcome-open-settings {background:#087bd1;color:white;border-color:#087bd1!important;margin-bottom:8px;}
+                #mod-welcome-open-settings:hover {background:#066ab5;}
+                #mod-welcome-close {background:white;color:#18334b;}
+                #mod-welcome-close:hover {background:#f0f5fa;}
+                @keyframes mod-welcome-in {from {opacity:0;transform:translateY(10px) scale(.97);}to {opacity:1;transform:none;}}
+                @media(prefers-reduced-motion:reduce) {#mod-welcome,#mod-welcome > div,#mod-welcome button,#mod-welcome-logo {animation:none;transition:none;}}
+            </style>`,
         );
-        const welcomecontent =
-            "<h2>Somtoday Mod is ge&iuml;nstalleerd!</h2><p>Stel achtergronden in, krijg inzicht in je cijfers en meer met Somtoday Mod!</p><p>" +
-            (hasSettingsHash
-                ? "Laten we meteen beginnen!"
-                : "Meteen naar de instellingen gaan?") +
-            "</p>";
+        const logoUrl = typeof chrome !== "undefined" && chrome.runtime?.getURL
+            ? chrome.runtime.getURL("icon128.png")
+            : "";
         id("somtoday-mod").insertAdjacentHTML(
             "afterbegin",
-            '<div id="mod-welcome"><div><div>' +
-                window.logo("mod-welcome-logo", null, "#fff") +
-                "</div><div>" +
-                welcomecontent +
-                '<br><input type="checkbox" id="errordata"><label for="errordata">Verstuur error-data om bugs te fixen</label><div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">' +
-                (hasSettingsHash
-                    ? ""
-                    : '<div tabindex="0" class="mod-button" id="mod-welcome-open-settings">' +
-                      window.getIcon(
-                          "gear",
-                          null,
-                          "var(--fg-on-primary-weak)",
-                      ) +
-                      "<span>Instellingen</span></div>") +
-                '<div tabindex="0" class="mod-button" id="mod-welcome-close">Sluiten</div></div></div></div></div>',
+            '<div id="mod-welcome"><div role="dialog" aria-modal="true" aria-labelledby="mod-welcome-title">' +
+                (logoUrl ? '<img id="mod-welcome-logo" src="' + logoUrl + '" alt="Somtoday Mod CE">' : window.logo("mod-welcome-logo", null, "#087bd1")) +
+                '<h2 id="mod-welcome-title">Welkom bij Somtoday Mod CE!</h2><p>Somtoday Mod CE is succesvol geïnstalleerd.</p>' +
+                '<label for="errordata"><input type="checkbox" id="errordata">Anonieme foutmeldingen delen (optioneel)</label>' +
+                (hasSettingsHash ? "" : '<button type="button" id="mod-welcome-open-settings">Naar Mod-instellingen</button>') +
+                '<button type="button" id="mod-welcome-close">Doorgaan naar Somtoday</button></div></div>',
         );
         function closeWelcomeDialog() {
             const now = new Date();
@@ -81,7 +85,8 @@ export function checkNewUser() {
             function (this: HTMLElement) {
                 this.style.transform = "scale(1.3)";
                 setTimeout(() => {
-                    id("mod-welcome-logo").style.transform = "scale(1)";
+                    const logo = id("mod-welcome-logo");
+                    if (logo) logo.style.transform = "scale(1)";
                 }, 300);
             },
         );
