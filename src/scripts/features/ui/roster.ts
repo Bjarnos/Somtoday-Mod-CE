@@ -245,6 +245,8 @@ export function rosterSimplify() {
 }
 
 
+let rosterRefreshActive = false;
+
 function rosterReloadButton() {
     if (!document.querySelector("sl-rooster-weken")) return;
     const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("button"));
@@ -290,9 +292,15 @@ function rosterReloadButton() {
             #mod-roster-reload:hover:not(:disabled) {transform:translateY(-2px);filter:brightness(.97);}
             #mod-roster-reload:active:not(:disabled) {transform:translateY(0);}
             #mod-roster-reload:disabled {opacity:1;cursor:wait;}
+            #mod-roster-refresh-line {position:fixed;height:2px;overflow:hidden;pointer-events:none;z-index:20;border-radius:2px;background:color-mix(in srgb,currentColor 12%,transparent);}
+            #mod-roster-refresh-line::after {content:"";display:block;width:30%;height:100%;background:currentColor;border-radius:2px;animation:mod-roster-refresh-progress 1s ease-in-out infinite;}
+            @keyframes mod-roster-refresh-progress {from {transform:translateX(-100%);}to {transform:translateX(435%);}}
+            sl-rooster-weken.mod-roster-refreshing {opacity:.78;transition:opacity .2s ease;}
             #mod-roster-reload:focus-visible {outline:2px solid currentColor;outline-offset:2px;}
             @media(prefers-reduced-motion:reduce) {
                 #mod-roster-reload {transition:none;}
+                #mod-roster-refresh-line::after {animation:none;width:100%;}
+                sl-rooster-weken.mod-roster-refreshing {transition:none;opacity:1;}
                 #mod-roster-reload:hover:not(:disabled) {transform:none;}
             }
         `;
@@ -302,7 +310,7 @@ function rosterReloadButton() {
     anchor.before(button);
 
     button.addEventListener("click", () => {
-        if (button.disabled) return;
+        if (button.disabled || rosterRefreshActive) return;
         const today = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find(
             candidate => candidate.textContent?.trim() === "Vandaag"
         );
@@ -311,6 +319,8 @@ function rosterReloadButton() {
             return;
         }
         button.disabled = true;
+        rosterRefreshActive = true;
+        button.setAttribute("aria-busy", "true");
         const icon = button.querySelector<SVGElement>(".mod-roster-reload-icon");
         if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             icon?.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
@@ -318,11 +328,59 @@ function rosterReloadButton() {
                 easing: "cubic-bezier(.4,0,.2,1)"
             });
         }
-        today.click();
-        setTimeout(() => {
+        const roster = document.querySelector("sl-rooster-weken");
+        const line = document.createElement("div");
+        line.id = "mod-roster-refresh-line";
+        line.setAttribute("aria-hidden", "true");
+        line.style.color = getComputedStyle(button).color;
+        const positionLine = () => {
+            const current = document.querySelector("sl-rooster-weken");
+            if (!current) return;
+            const rect = current.getBoundingClientRect();
+            line.style.left = rect.left + "px";
+            line.style.top = rect.top + "px";
+            line.style.width = rect.width + "px";
+            line.style.visibility = rect.top < 0 || rect.top > window.innerHeight ? "hidden" : "visible";
+        };
+        document.body.append(line);
+        positionLine();
+        roster?.classList.add("mod-roster-refreshing");
+        window.addEventListener("resize", positionLine);
+        window.addEventListener("scroll", positionLine, true);
+        let quietTimer: ReturnType<typeof setTimeout>;
+        let timeout: ReturnType<typeof setTimeout>;
+        let finished = false;
+        const started = performance.now();
+        const finish = () => {
+            if (finished) return;
+            finished = true;
+            observer.disconnect();
+            clearTimeout(quietTimer);
+            clearTimeout(timeout);
+            window.removeEventListener("resize", positionLine);
+            window.removeEventListener("scroll", positionLine, true);
+            line.remove();
+            roster?.classList.remove("mod-roster-refreshing");
+            document.querySelector("sl-rooster-weken")?.classList.remove("mod-roster-refreshing");
+            rosterRefreshActive = false;
             button.disabled = false;
-            button.title = "Rooster vernieuwen";
+            button.removeAttribute("aria-busy");
             execute([rosterSimplify]);
-        }, 750);
+        };
+        const observer = new MutationObserver(records => {
+            const changed = records.some(record =>
+                Array.from(record.addedNodes).concat(Array.from(record.removedNodes)).some(node =>
+                    node instanceof Element && (node.matches("sl-rooster-weken,sl-rooster-week,sl-rooster-item") ||
+                        !!node.querySelector("sl-rooster-week,sl-rooster-item"))
+                )
+            );
+            if (!changed) return;
+            positionLine();
+            clearTimeout(quietTimer);
+            quietTimer = setTimeout(finish, Math.max(350, 650 - (performance.now() - started)));
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        timeout = setTimeout(finish, 5000);
+        today.click();
     });
 }
