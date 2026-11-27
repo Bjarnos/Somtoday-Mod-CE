@@ -240,10 +240,12 @@ export function easterEggs() {
             }
             if (p == partykeys.length) {
                 const partyEnabled = toggleConfetti();
-                if (partyEnabled) try {
-                    const tada = new Audio(window.getAudioUrl("tada"));
-                    tada.volume = 0.5;
-                    tada.play();
+                try {
+                    const sound = new Audio(partyEnabled
+                        ? window.getAudioUrl("tada")
+                        : window.getAudioUrl("sadtrombone.swf").replace(/\.opus$/, ".mp3"));
+                    sound.volume = 0.5;
+                    sound.play().catch(console.warn);
                 } catch (e) {
                     console.warn(e);
                 }
