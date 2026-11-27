@@ -1065,28 +1065,18 @@ function updatePageOffset(tab: HTMLElement) {
     }
 }
 
-let previousAppsUrl = "/";
+const appsSessionKey = "mod-apps-open";
 
-function isAppsRoute() {
-    return location.pathname.replace(/\/$/, "") === "/apps";
-}
-
-function setAppsRoute(open: boolean, replace = false) {
-    if (open === isAppsRoute()) return;
-    if (open) previousAppsUrl = location.pathname + location.search + location.hash;
-    const url = open ? "/apps" : previousAppsUrl;
-    if (replace) history.replaceState(history.state, "", url);
-    else history.pushState(history.state, "", url);
-}
-
-function syncAppsRoute() {
+function restoreAppsPage() {
     const tab = document.getElementById("mod-simple-apps-launcher");
-    if (isAppsRoute() && tab && !active) showApps(tab);
-    else if (!isAppsRoute() && active) hideApps(false);
+    if (!active && tab && sessionStorage.getItem(appsSessionKey) === "true") {
+        showApps(tab);
+    }
 }
 
 function showApps(tab: HTMLElement) {
     active = true;
+    sessionStorage.setItem(appsSessionKey, "true");
     document.documentElement.classList.add("mod-apps-open");
     lastActiveTab = document.querySelector<HTMLElement>(
         "sl-tab-item.active:not(#mod-simple-apps-launcher)",
@@ -1106,8 +1096,8 @@ function showApps(tab: HTMLElement) {
     renderApps();
 }
 
-function hideApps(clearRoute = true) {
-    if (clearRoute && isAppsRoute()) setAppsRoute(false, true);
+function hideApps() {
+    sessionStorage.removeItem(appsSessionKey);
     if (!active) {
         return;
     }
@@ -1186,7 +1176,6 @@ function insertTab() {
             if (active) {
                 hideApps();
             } else {
-                setAppsRoute(true);
                 showApps(launcher);
             }
         });
@@ -2160,7 +2149,7 @@ html.mod-apps-open #somtoday-mod * {
         folders = loadFolders();
     }
     insertTab();
-    syncAppsRoute();
+    restoreAppsPage();
 
     if (!tabObserver) {
         tabObserver = new MutationObserver(() => {
@@ -2178,7 +2167,7 @@ html.mod-apps-open #somtoday-mod * {
                     return;
                 }
                 insertTab();
-                syncAppsRoute();
+                restoreAppsPage();
                 if (active) {
                     const tab = document.getElementById(
                         "mod-simple-apps-launcher",
@@ -2208,8 +2197,8 @@ html.mod-apps-open #somtoday-mod * {
                 updatePageOffset(tab);
             }
         });
-        window.addEventListener("popstate", syncAppsRoute);
-        window.addEventListener("hashchange", syncAppsRoute);
+        window.addEventListener("popstate", () => hideApps());
+        window.addEventListener("hashchange", () => hideApps());
         document.documentElement.dataset.modAppsListener = "true";
         document.addEventListener(
             "pointerdown",
