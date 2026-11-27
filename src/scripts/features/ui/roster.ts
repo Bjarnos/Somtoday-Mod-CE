@@ -14,7 +14,7 @@ export let normalRosterHeight = 0;
 
 export function rosterSimplify() {
     // Every time the roster is modified, the week may have changed, so update custom homework as well
-    execute([customHomework]);
+    execute([customHomework, rosterReloadButton]);
     // Only execute roster simplify when enabled and on roster page
     if (
         get("bools").charAt(BOOL_INDEX.ROSTER_SIMPLIFY) == "1" &&
@@ -242,4 +242,49 @@ export function rosterSimplify() {
             }
         }
     }
+}
+
+
+function rosterReloadButton() {
+    if (!document.querySelector("sl-rooster-weken")) return;
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("button"));
+    const weekend = buttons.find(button => /^(toon|verberg) weekend$/i.test(button.textContent?.trim() || ""));
+    if (!weekend) return;
+    const anchor = weekend.closest("hmy-button") || weekend;
+    if (anchor.parentElement?.querySelector("#mod-roster-reload")) return;
+
+    const button = document.createElement("button");
+    button.id = "mod-roster-reload";
+    button.type = "button";
+    button.className = weekend.className;
+    button.title = "Rooster vernieuwen";
+    button.setAttribute("aria-label", "Rooster vernieuwen");
+    button.style.cssText = "display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:48px;height:36px;padding:0 10px;margin-right:8px;color:var(--fg-primary-normal,#006bc9);flex-shrink:0;cursor:pointer;";
+    button.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h2m4 0h2m-8 3h2m4 0h2"/></svg><svg class="mod-roster-reload-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a8 8 0 0 1 14 5M4 12a8 8 0 0 0 14 5"/></svg>';
+    anchor.before(button);
+
+    button.addEventListener("click", () => {
+        if (button.disabled) return;
+        const today = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find(
+            candidate => candidate.textContent?.trim() === "Vandaag"
+        );
+        if (!today || today.disabled) {
+            button.title = "Vernieuwen is momenteel niet beschikbaar";
+            return;
+        }
+        button.disabled = true;
+        const icon = button.querySelector<SVGElement>(".mod-roster-reload-icon");
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            icon?.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
+                duration: 650,
+                easing: "cubic-bezier(.4,0,.2,1)"
+            });
+        }
+        today.click();
+        setTimeout(() => {
+            button.disabled = false;
+            button.title = "Rooster vernieuwen";
+            execute([rosterSimplify]);
+        }, 750);
+    });
 }
