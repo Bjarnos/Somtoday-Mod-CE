@@ -1065,17 +1065,18 @@ function updatePageOffset(tab: HTMLElement) {
     }
 }
 
+let previousAppsUrl = "/";
+
 function isAppsRoute() {
-    return new URL(location.href).searchParams.get("mod-page") === "apps";
+    return location.pathname.replace(/\/$/, "") === "/apps";
 }
 
 function setAppsRoute(open: boolean, replace = false) {
-    const url = new URL(location.href);
-    if (open) url.searchParams.set("mod-page", "apps");
-    else url.searchParams.delete("mod-page");
-    if (url.href === location.href) return;
-    if (replace) history.replaceState(history.state, "", url.href);
-    else history.pushState(history.state, "", url.href);
+    if (open === isAppsRoute()) return;
+    if (open) previousAppsUrl = location.pathname + location.search + location.hash;
+    const url = open ? "/apps" : previousAppsUrl;
+    if (replace) history.replaceState(history.state, "", url);
+    else history.pushState(history.state, "", url);
 }
 
 function syncAppsRoute() {
