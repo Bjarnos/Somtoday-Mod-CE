@@ -311,7 +311,7 @@ function rosterReloadButton() {
             candidate => candidate.textContent?.trim() === "Vandaag"
         );
         if (!today || today.disabled) {
-            button.title = "Vernieuwen is momenteel niet beschikbaar";
+            button.title = "Vernieuwen is momenteel niet mogelijk";
             return;
         }
         button.disabled = true;
@@ -358,7 +358,7 @@ function rosterReloadButton() {
             clearTimeout(timeout);
             window.removeEventListener("resize", positionStatus);
             window.removeEventListener("scroll", positionStatus, true);
-            status.textContent = changed ? "Roosterweergave bijgewerkt" : "Vernieuwing niet bevestigd";
+            status.textContent = changed ? "Rooster bijgewerkt" : "Vernieuwing niet bevestigd";
             setTimeout(() => status.remove(), 1800);
             roster?.classList.remove("mod-roster-refreshing");
             document.querySelector("sl-rooster-weken")?.classList.remove("mod-roster-refreshing");
