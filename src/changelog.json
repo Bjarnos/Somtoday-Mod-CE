@@ -34,5 +34,16 @@
                 "description": "Bekijk de nieuwste functies na iedere update. Je kunt helemaal onderaan de mod-instellingen ook nog een knop vinden om het opnieuw te bekijken."
             }
         ]
+    },
+    "6.3.0": {
+        "title": "Nieuw in Somtoday Mod CE",
+        "intro": "Bedankt dat je Somtoday Mod CE gebruikt!",
+        "changes": [
+            {
+                "icon": "clock",
+                "title": "Schooldag-countdown",
+                "description": "Zie direct op je startpagina hoelang je nog naar school moet. Open eerst je rooster om de countdown te laden."
+            }
+        ]
     }
 }
