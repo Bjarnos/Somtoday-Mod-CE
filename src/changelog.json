@@ -1,40 +1,4 @@
 {
-    "6.2.2": {
-        "title": "Nieuw in Somtoday Mod CE",
-        "intro": "Bedankt dat je Somtoday Mod CE gebruikt!",
-        "changes": [
-            {
-                "icon": "eye",
-                "title": "Cijferprivacy",
-                "description": "Verberg je cijfers en bekijk ze wanneer jij dat wilt."
-            },
-            {
-                "icon": "calendar",
-                "title": "Planningskleuren",
-                "description": "Geef je eigen roosterafspraken een persoonlijke kleur."
-            },
-            {
-                "icon": "chart",
-                "title": "Uitgebreide afwezigheid",
-                "description": "Bekijk je afwezigheid in een interactieve grafiek."
-            },
-            {
-                "icon": "idea",
-                "title": "Community-ideeënbord",
-                "description": "Een eigen plek voor toekomstige suggesties, klik in het Som menu op Mod ideeënbord om naar de suggestie pagina te gaan."
-            },
-            {
-                "icon": "snowflake",
-                "title": "Winter-thema",
-                "description": "Geniet tijdelijk van winterse kleuren en vallende sneeuw in Somtoday. Ga naar het Som menu -> Weergave en activeer dit thema nu."
-            },
-            {
-                "icon": "spark",
-                "title": "Changelog",
-                "description": "Bekijk de nieuwste functies na iedere update. Je kunt helemaal onderaan de mod-instellingen ook nog een knop vinden om het opnieuw te bekijken."
-            }
-        ]
-    },
     "6.3.0": {
         "title": "Nieuw in Somtoday Mod CE",
         "intro": "Bedankt dat je Somtoday Mod CE gebruikt!",
