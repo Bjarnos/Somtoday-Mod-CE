@@ -251,7 +251,12 @@ function rosterReloadButton() {
     const weekend = buttons.find(button => /^(toon|verberg) weekend$/i.test(button.textContent?.trim() || ""));
     if (!weekend) return;
     const anchor = weekend.closest("hmy-button") || weekend;
-    if (anchor.parentElement?.querySelector("#mod-roster-reload")) return;
+    const existing = anchor.parentElement?.querySelector<HTMLButtonElement>("#mod-roster-reload");
+    if (existing) {
+        const color = getComputedStyle(weekend).color;
+        if (existing.style.color !== color) existing.style.color = color;
+        return;
+    }
 
     const button = document.createElement("button");
     button.id = "mod-roster-reload";
@@ -259,8 +264,9 @@ function rosterReloadButton() {
     button.className = weekend.className;
     button.title = "Rooster vernieuwen";
     button.setAttribute("aria-label", "Rooster vernieuwen");
-    button.style.cssText = "display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:40px;height:36px;padding:0 10px;margin-right:8px;color:var(--fg-primary-normal,#006bc9);flex-shrink:0;cursor:pointer;";
-    button.innerHTML = '<svg width="24" height="24" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><defs><mask id="mod-roster-calendar-mask"><rect width="32" height="32" fill="white"/><circle cx="24" cy="24" r="8.5" fill="black"/></mask></defs><g mask="url(#mod-roster-calendar-mask)"><rect x="3" y="5" width="22" height="23" rx="3"/><path d="M9 2v6M19 2v6M3 12h22"/><path d="M8 17h2m4 0h2m4 0h1M8 22h2m4 0h2"/></g><g class="mod-roster-reload-icon" style="transform-box:view-box;transform-origin:24px 24px"><path d="M30 22a6.3 6.3 0 1 0 0 4M30 17v5h-5"/></g></svg>';
+    button.style.cssText = "display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:40px;height:36px;padding:0 10px;margin-right:8px;color:inherit;flex-shrink:0;cursor:pointer;";
+    button.innerHTML = '<svg style="display:block;flex-shrink:0;overflow:visible" width="24" height="24" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><defs><mask id="mod-roster-calendar-mask"><rect width="32" height="32" fill="white"/><circle cx="24" cy="24" r="9.5" fill="black"/></mask></defs><g mask="url(#mod-roster-calendar-mask)"><rect x="3" y="5" width="22" height="23" rx="3"/><path d="M9 2v6M19 2v6M3 12h22"/><path d="M8 17h2m4 0h2m4 0h1M8 22h2m4 0h2"/></g><g class="mod-roster-reload-icon" style="transform-box:view-box;transform-origin:24px 24px"><path d="M29.5 21a6.3 6.3 0 1 0 .4 5.5M29.5 16.5V21H25" fill="none"/></g></svg>';
+    button.style.color = getComputedStyle(weekend).color;
     anchor.before(button);
 
     button.addEventListener("click", () => {
