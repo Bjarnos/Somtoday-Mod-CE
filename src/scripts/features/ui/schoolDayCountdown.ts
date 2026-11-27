@@ -1,9 +1,17 @@
+import { get } from "../../save_version_management";
+
 type Lesson = { start: number; end: number; cancelled: boolean };
 let lessons: Lesson[] | null = null;
 let loadedDate = "";
 let frame: HTMLIFrameElement | null = null;
 let lastRequest = 0;
 let initialized = false;
+let cancelLoad: (() => void) | null = null;
+
+function enabled() {
+    const value = get("schoolDayCountdownEnabled");
+    return value !== false && value !== "false";
+}
 
 function dateKey() {
     return new Date().toDateString();
@@ -34,7 +42,7 @@ function readRoster(doc: Document): boolean {
 }
 
 function loadRoster() {
-    if (frame || Date.now() - lastRequest < 60000) return;
+    if (!enabled() || frame || Date.now() - lastRequest < (lessons === null ? 5000 : 60000)) return;
     const link = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]")).find(a => /^(rooster|ga naar rooster)$/i.test(a.textContent?.trim() || ""));
     if (!link || new URL(link.href).origin !== location.origin || link.href === location.href) return;
     lastRequest = Date.now();
@@ -48,19 +56,27 @@ function loadRoster() {
     document.body.append(iframe);
     let attempts = 0;
     let ready = 0;
+    let previous = "";
+    const finish = () => {
+        clearInterval(poll);
+        iframe.remove();
+        frame = null;
+        cancelLoad = null;
+        updateCountdown();
+    };
     const poll = window.setInterval(() => {
         attempts++;
         try {
-            if (iframe.contentDocument && readRoster(iframe.contentDocument)) ready++;
+            if (iframe.contentDocument && readRoster(iframe.contentDocument)) {
+                const snapshot = JSON.stringify(lessons);
+                ready = snapshot === previous ? ready + 1 : 1;
+                previous = snapshot;
+            }
             else ready = 0;
         } catch { ready = 0; }
-        if (ready >= 3 || attempts >= 40) {
-            clearInterval(poll);
-            iframe.remove();
-            frame = null;
-            updateCountdown();
-        }
-    }, 500);
+        if (ready >= 2 || attempts >= 100) finish();
+    }, 150);
+    cancelLoad = finish;
 }
 
 function updateCountdown() {
@@ -94,10 +110,16 @@ function updateCountdown() {
 
 export function schoolDayCountdown() {
     if (window.top !== window) return;
+    if (!enabled()) {
+        document.getElementById("mod-school-day-countdown")?.remove();
+        cancelLoad?.();
+        lastRequest = 0;
+        return;
+    }
     readRoster(document);
     const root = document.querySelector("sl-root") || document.body;
     const heading = Array.from(root.querySelectorAll<HTMLElement>("*")).find(el => el.children.length === 0 && el.textContent?.trim() === "Nieuwsberichten" && el.getClientRects().length > 0);
-    if (!heading) { document.getElementById("mod-school-day-countdown")?.remove(); return; }
+    if (!heading) { document.getElementById("mod-school-day-countdown")?.remove(); cancelLoad?.(); return; }
     let anchor: Element = heading;
     while (anchor.parentElement && anchor.parentElement !== root && !anchor.parentElement.textContent?.includes("Volgende les") && !anchor.parentElement.textContent?.includes("Laatste cijfer")) {
         anchor = anchor.parentElement;
@@ -112,7 +134,7 @@ export function schoolDayCountdown() {
         initialized = true;
         const style = document.createElement("style");
         style.textContent = `
-            #mod-school-day-countdown { display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 22px;margin:12px 0 24px;border-radius:10px;background:var(--bg-primary-weakest,#e2f1fc);color:var(--fg-on-neutral-none,#123654);width:100%;font-weight:600;box-sizing:border-box; }
+            #mod-school-day-countdown { display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 22px;margin:4px 0 24px;border-radius:10px;background:var(--bg-primary-weakest,#e2f1fc);color:var(--fg-on-neutral-none,#123654);width:100%;font-weight:600;box-sizing:border-box; }
             #mod-school-day-countdown svg {color:#006bc9;flex-shrink:0;padding-right:20px;border-right:1px solid #b6d7ef;box-sizing:content-box;}
             .mod-school-day-value {background:#c8e3f8;border-radius:12px;padding:6px 14px;font-size:1.15em;}
             :root:is(.dark,.night) #mod-school-day-countdown {background:#233d53;color:#e6f3ff;}
@@ -123,8 +145,10 @@ export function schoolDayCountdown() {
             .mod-school-day-value:empty {display:none;}
         `;
         document.head.append(style);
-        window.setInterval(() => { if (document.getElementById("mod-school-day-countdown")) { loadRoster(); updateCountdown(); } }, 1000);
+        window.setInterval(() => { if (enabled() && document.getElementById("mod-school-day-countdown")) { loadRoster(); updateCountdown(); } }, 1000);
     }
     loadRoster();
     updateCountdown();
 }
+
+window.addEventListener("somtoday-mod-countdown-setting-changed", schoolDayCountdown);
