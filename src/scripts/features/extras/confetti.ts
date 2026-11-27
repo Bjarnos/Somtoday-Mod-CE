@@ -52,7 +52,7 @@ function updateParticles() {
         } else {
             particle.tiltAngle += particle.tiltAngleIncrement;
             particle.x += Math.sin(waveAngle);
-            particle.y =
+            particle.y +=
                 (Math.cos(waveAngle) + particle.diameter + particleSpeed) * 0.5;
             particle.tilt = Math.sin(particle.tiltAngle) * 15;
         }
@@ -130,10 +130,14 @@ export function stopConfetti(): void {
     streamingConfetti = false;
 }
 
-export function toggleConfetti(): void {
+export function toggleConfetti(): boolean {
     if (streamingConfetti) {
         stopConfetti();
-    } else {
-        startConfetti();
+        particles.length = 0;
+        const canvas = id("confetti-canvas") as HTMLCanvasElement | null;
+        canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+        return false;
     }
+    startConfetti();
+    return streamingConfetti;
 }
