@@ -679,13 +679,6 @@ export function openSettings() {
                     true,
                 ) +
                 addSetting(
-                    "Schooldag-countdown",
-                    "Toon op de startpagina hoelang je nog naar school moet.",
-                    "schoolDayCountdownEnabled",
-                    "checkbox",
-                    true,
-                ) +
-                addSetting(
                     "Cijferprivacy",
                     "Toon de oogknop waarmee je cijfers tijdelijk kunt verbergen (sneltoets: P).",
                     "gradePrivacyFeatureEnabled",
@@ -696,6 +689,13 @@ export function openSettings() {
                     "Uitgebreide afwezigheid",
                     "Toon alle afwezigheidscategorieën en interactieve statistieken.",
                     "absenceStatisticsEnabled",
+                    "checkbox",
+                    true,
+                ) +
+                addSetting(
+                    "Schooldag-countdown",
+                    "Toon op de startpagina hoelang je nog naar school moet.",
+                    "schoolDayCountdownEnabled",
                     "checkbox",
                     true,
                 ),
