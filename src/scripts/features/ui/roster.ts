@@ -305,15 +305,14 @@ function rosterReloadButton() {
     syncButtonStyle(button);
     anchor.before(button);
 
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         if (button.disabled || rosterRefreshActive) return;
         const today = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find(
-            candidate => candidate.textContent?.trim() === "Vandaag"
-        );
-        if (!today || today.disabled) {
-            button.title = "Vernieuwen is momenteel niet mogelijk";
-            return;
-        }
+            candidate => /^vandaag$/i.test(candidate.textContent?.trim() || candidate.getAttribute("aria-label") || candidate.title)
+        ) || document.querySelector<HTMLButtonElement>("button.tertiary.normal.action-primary-normal.center");
+        document.getElementById("mod-roster-refresh-status")?.remove();
         button.disabled = true;
         rosterRefreshActive = true;
         button.setAttribute("aria-busy", "true");
@@ -330,7 +329,8 @@ function rosterReloadButton() {
         status.setAttribute("role", "status");
         status.textContent = "Rooster vernieuwen…";
         status.style.color = getComputedStyle(button).color;
-        status.style.backgroundColor = getComputedStyle(weekend).backgroundColor;
+        const background = getComputedStyle(weekend).backgroundColor;
+        if (background !== "rgba(0, 0, 0, 0)" && background !== "transparent") status.style.backgroundColor = background;
         status.style.border = getComputedStyle(weekend).border;
         const positionStatus = () => {
             const current = document.querySelector("sl-rooster-weken");
@@ -358,7 +358,7 @@ function rosterReloadButton() {
             clearTimeout(timeout);
             window.removeEventListener("resize", positionStatus);
             window.removeEventListener("scroll", positionStatus, true);
-            status.textContent = changed ? "Rooster bijgewerkt" : "Vernieuwing niet bevestigd";
+            status.textContent = changed ? "Roosterweergave bijgewerkt" : "Vernieuwing niet bevestigd";
             setTimeout(() => status.remove(), 1800);
             roster?.classList.remove("mod-roster-refreshing");
             document.querySelector("sl-rooster-weken")?.classList.remove("mod-roster-refreshing");
@@ -382,7 +382,17 @@ function rosterReloadButton() {
         observer.observe(document.body, { childList: true, subtree: true });
         timeout = setTimeout(() => finish(false), 8000);
         requestAnimationFrame(() => requestAnimationFrame(() => {
-            if (!finished && today.isConnected) today.click();
+            if (finished) return;
+            if (!today?.isConnected || today.disabled) {
+                setTimeout(() => finish(false), 900);
+                return;
+            }
+            try {
+                today.click();
+            } catch (error) {
+                console.warn("Rooster vernieuwen mislukt", error);
+                finish(false);
+            }
         }));
     });
 }
