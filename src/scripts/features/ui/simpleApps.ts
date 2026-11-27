@@ -1065,6 +1065,25 @@ function updatePageOffset(tab: HTMLElement) {
     }
 }
 
+function isAppsRoute() {
+    return new URL(location.href).searchParams.get("mod-page") === "apps";
+}
+
+function setAppsRoute(open: boolean, replace = false) {
+    const url = new URL(location.href);
+    if (open) url.searchParams.set("mod-page", "apps");
+    else url.searchParams.delete("mod-page");
+    if (url.href === location.href) return;
+    if (replace) history.replaceState(history.state, "", url.href);
+    else history.pushState(history.state, "", url.href);
+}
+
+function syncAppsRoute() {
+    const tab = document.getElementById("mod-simple-apps-launcher");
+    if (isAppsRoute() && tab && !active) showApps(tab);
+    else if (!isAppsRoute() && active) hideApps(false);
+}
+
 function showApps(tab: HTMLElement) {
     active = true;
     document.documentElement.classList.add("mod-apps-open");
@@ -1086,7 +1105,8 @@ function showApps(tab: HTMLElement) {
     renderApps();
 }
 
-function hideApps() {
+function hideApps(clearRoute = true) {
+    if (clearRoute && isAppsRoute()) setAppsRoute(false, true);
     if (!active) {
         return;
     }
@@ -1165,6 +1185,7 @@ function insertTab() {
             if (active) {
                 hideApps();
             } else {
+                setAppsRoute(true);
                 showApps(launcher);
             }
         });
@@ -2138,6 +2159,7 @@ html.mod-apps-open #somtoday-mod * {
         folders = loadFolders();
     }
     insertTab();
+    syncAppsRoute();
 
     if (!tabObserver) {
         tabObserver = new MutationObserver(() => {
@@ -2155,6 +2177,7 @@ html.mod-apps-open #somtoday-mod * {
                     return;
                 }
                 insertTab();
+                syncAppsRoute();
                 if (active) {
                     const tab = document.getElementById(
                         "mod-simple-apps-launcher",
@@ -2184,8 +2207,8 @@ html.mod-apps-open #somtoday-mod * {
                 updatePageOffset(tab);
             }
         });
-        window.addEventListener("popstate", () => hideApps());
-        window.addEventListener("hashchange", () => hideApps());
+        window.addEventListener("popstate", syncAppsRoute);
+        window.addEventListener("hashchange", syncAppsRoute);
         document.documentElement.dataset.modAppsListener = "true";
         document.addEventListener(
             "pointerdown",
