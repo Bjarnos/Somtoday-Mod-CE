@@ -239,8 +239,8 @@ export function easterEggs() {
                 p = 0;
             }
             if (p == partykeys.length) {
-                toggleConfetti();
-                try {
+                const partyEnabled = toggleConfetti();
+                if (partyEnabled) try {
                     const tada = new Audio(window.getAudioUrl("tada"));
                     tada.volume = 0.5;
                     tada.play();
