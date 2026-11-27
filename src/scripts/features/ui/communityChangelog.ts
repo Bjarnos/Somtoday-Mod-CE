@@ -87,7 +87,7 @@ export function showChangelog(manual = false) {
             #mod-ce-changelog .buttons { display:flex; animation:cl-row .3s .2s both; }
             #mod-ce-changelog .buttons hmy-button { flex:1; min-width:0; }
             #mod-ce-changelog .cl-done { width:100%; min-height:40px; padding:8px; border:1px solid transparent; border-radius:6px; background:var(--cl-accent); color:#ffffff; font:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:filter .15s,transform .15s; }
-            #mod-ce-changelog .cl-done:disabled { opacity:.55; cursor:wait; filter:none; transform:none; }
+            #mod-ce-changelog .cl-done:disabled { opacity:1!important; background:#9ca3af!important; color:#fff!important; cursor:default!important; filter:none; transform:none; }
             #mod-ce-changelog .cl-done:hover:not(:disabled) { filter:brightness(1.1); }
             #mod-ce-changelog .cl-done:active:not(:disabled) { transform:scale(.98); }
             #mod-ce-changelog.cl-closing { animation:cl-exit .18s ease both; pointer-events:none; }
