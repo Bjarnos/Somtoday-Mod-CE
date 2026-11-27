@@ -64,7 +64,7 @@ export function addSetting(
 ) {
     if (
         (get(key) == null ||
-            ((key === "appsEnabled" || key === "absenceStatisticsEnabled" || key === "gradePrivacyFeatureEnabled") &&
+            ((key === "appsEnabled" || key === "absenceStatisticsEnabled" || key === "gradePrivacyFeatureEnabled" || key === "schoolDayCountdownEnabled") &&
                 get(key) === "")) &&
         !key.startsWith("bools")
     ) {
@@ -103,7 +103,7 @@ export function addSetting(
                 get(key) === "true" ||
                 ((key === "appsEnabled" ||
                     key === "absenceStatisticsEnabled" ||
-                    key === "gradePrivacyFeatureEnabled") &&
+                    key === "gradePrivacyFeatureEnabled" || key === "schoolDayCountdownEnabled") &&
                     (get(key) === "" || get(key) == null))
                     ? "checked"
                     : "") +
